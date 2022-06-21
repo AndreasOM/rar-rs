@@ -1,6 +1,9 @@
 
 use oml_game::App;
-use oml_game::window::WindowUpdateContext;
+use oml_game::window::{
+	Window,
+	WindowUpdateContext,
+};
 
 pub struct RarApp {
 	is_done: bool,
@@ -15,7 +18,8 @@ impl RarApp {
 }
 
 impl App for RarApp {
-	fn setup( &mut self, _window: &mut Window ) -> anyhow::Result<()> {
+	fn setup( &mut self, window: &mut Window ) -> anyhow::Result<()> {
+		window.set_title("RAR - RS");
 		Ok(())
 	}
 	fn teardown( &mut self ) {
