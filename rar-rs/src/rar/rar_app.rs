@@ -1,46 +1,46 @@
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
-use oml_game::math::{ Vector2, Matrix44 };
+use oml_game::math::{Matrix44, Vector2};
+use oml_game::renderer::debug_renderer::DebugRenderer;
+use oml_game::renderer::Color;
+use oml_game::renderer::Effect;
+use oml_game::renderer::Renderer;
 use oml_game::system::filesystem_disk::FilesystemDisk;
 use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
-use oml_game::renderer::debug_renderer::DebugRenderer;
-use oml_game::renderer::Color;
-use oml_game::renderer::Effect;
-use oml_game::renderer::Renderer;
 
 use crate::rar::effect_ids::EffectId;
 use crate::rar::layer_ids::LayerId;
 
 pub struct RarApp {
-	renderer: Option< Renderer >,
-	size: Vector2,
-	viewport_size: Vector2,
-	scaling: f32,
-	system:  System,
-	is_done: bool,
-	debug_renderer: Rc< Option< RefCell< DebugRenderer >  > >,
-	cursor_pos: Vector2,
-	total_time: f64,
+	renderer:       Option<Renderer>,
+	size:           Vector2,
+	viewport_size:  Vector2,
+	scaling:        f32,
+	system:         System,
+	is_done:        bool,
+	debug_renderer: Rc<Option<RefCell<DebugRenderer>>>,
+	cursor_pos:     Vector2,
+	total_time:     f64,
 
-	fun: Vec< Vector2 >,
+	fun: Vec<Vector2>,
 }
 
 impl RarApp {
 	pub fn new() -> Self {
 		Self {
-			renderer: None,
-			size: Vector2::zero(),
-			viewport_size: Vector2::zero(),
-			scaling: 1.0,			
-			system:  System::new(),
-			is_done: false,
+			renderer:       None,
+			size:           Vector2::zero(),
+			viewport_size:  Vector2::zero(),
+			scaling:        1.0,
+			system:         System::new(),
+			is_done:        false,
 			debug_renderer: Rc::new(None),
-			cursor_pos: Vector2::zero(),
-			total_time: 0.0,
+			cursor_pos:     Vector2::zero(),
+			total_time:     0.0,
 
 			fun: Vec::new(),
 		}
@@ -77,21 +77,26 @@ impl App for RarApp {
 
 		self.system.set_default_filesystem(Box::new(lfs));
 
-
-		let mut something_file = self.system.default_filesystem_mut().open( "something.txt" );
-//		println!("sf: {:?}", &something_file);
-//		println!("valid?: {:?}", something_file.is_valid());
-//		println!("size: {:?}", something_file.size());
+		let mut something_file = self.system.default_filesystem_mut().open("something.txt");
+		//		println!("sf: {:?}", &something_file);
+		//		println!("valid?: {:?}", something_file.is_valid());
+		//		println!("size: {:?}", something_file.size());
 		let something = something_file.read_as_string();
 
 		println!("Something: {}", &something);
 
 		let mut renderer = Renderer::new();
-		renderer.setup( window, &mut self.system )?;
+		renderer.setup(window, &mut self.system)?;
 
-		renderer.register_effect( Effect::create( &mut self.system, EffectId::Colored as u16    , "Colored"    , "colored_vs.glsl", "colored_fs.glsl" ) );
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::Colored as u16,
+			"Colored",
+			"colored_vs.glsl",
+			"colored_fs.glsl",
+		));
 
-		self.renderer = Some( renderer );
+		self.renderer = Some(renderer);
 
 		Ok(())
 	}
@@ -108,114 +113,108 @@ impl App for RarApp {
 		if wuc.mouse_buttons[0] {
 			println!("{} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
 		}
-		if wuc.was_key_pressed( 'i' as u8 ) {
+		if wuc.was_key_pressed('i' as u8) {
 			if self.debug_renderer.is_none() {
-				self.debug_renderer = Rc::new( Some( RefCell::new(
-											DebugRenderer::new(
-												LayerId::DebugRenderer as u8,
-												EffectId::Colored as u16
-											)
-										) ) );
+				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
+					LayerId::DebugRenderer as u8,
+					EffectId::Colored as u16,
+				))));
 				println!("Enabled debug renderer");
 			} else {
-				self.debug_renderer = Rc::new( None );
+				self.debug_renderer = Rc::new(None);
 				println!("Disabled debug renderer");
 			}
 		}
 
 		self.viewport_size = wuc.window_size;
 
-		let scaling = 1024.0/self.viewport_size.y;
-		self.scaling = 1.0 * scaling;	// !!! Do not tweak here
+		let scaling = 1024.0 / self.viewport_size.y;
+		self.scaling = 1.0 * scaling; // !!! Do not tweak here
 
-		self.size.x = ( self.scaling ) * self.viewport_size.x;
-		self.size.y = ( self.scaling ) * self.viewport_size.y;
+		self.size.x = (self.scaling) * self.viewport_size.x;
+		self.size.y = (self.scaling) * self.viewport_size.y;
 
-
-		if let Some( debug_renderer ) = &*self.debug_renderer {
+		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.begin_frame();
 		}
 
-/*
-		if let Some( debug_renderer ) = &*self.debug_renderer {
-			let mut debug_renderer = debug_renderer.borrow_mut();
-			debug_renderer.add_line( &Vector2::new( 1.0, 1.0 ), &Vector2::zero(), 3.0, &Color::white() );
-		}
-*/
-		self.cursor_pos.x = 0.5 * self.scaling * wuc.window_size.x * ( 2.0*wuc.mouse_pos.x - 1.0 );
-		self.cursor_pos.y = 0.5 * self.scaling * wuc.window_size.y * ( 2.0*wuc.mouse_pos.y - 1.0 );
+		/*
+				if let Some( debug_renderer ) = &*self.debug_renderer {
+					let mut debug_renderer = debug_renderer.borrow_mut();
+					debug_renderer.add_line( &Vector2::new( 1.0, 1.0 ), &Vector2::zero(), 3.0, &Color::white() );
+				}
+		*/
+		self.cursor_pos.x = 0.5 * self.scaling * wuc.window_size.x * (2.0 * wuc.mouse_pos.x - 1.0);
+		self.cursor_pos.y = 0.5 * self.scaling * wuc.window_size.y * (2.0 * wuc.mouse_pos.y - 1.0);
 
-		if wuc.was_key_pressed( 'f' as u8 ) {
-			self.fun.push( self.cursor_pos.clone() );
+		if wuc.was_key_pressed('f' as u8) {
+			self.fun.push(self.cursor_pos.clone());
 		}
 
-		if let Some( debug_renderer ) = &*self.debug_renderer {
+		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			let mut last_fun = None;
 
 			for this_fun in &self.fun {
-				if let Some( l ) = last_fun {
-					debug_renderer.add_line( &l, &this_fun, 3.0, &Color::white() );
+				if let Some(l) = last_fun {
+					debug_renderer.add_line(&l, &this_fun, 3.0, &Color::white());
 				}
-				last_fun = Some( this_fun.clone() );
+				last_fun = Some(this_fun.clone());
 			}
 		}
-		if let Some( debug_renderer ) = &*self.debug_renderer {
+		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
-			debug_renderer.add_line( &self.cursor_pos, &Vector2::zero(), 3.0, &Color::white() );
+			debug_renderer.add_line(&self.cursor_pos, &Vector2::zero(), 3.0, &Color::white());
 		}
 
-		if let Some( debug_renderer ) = &*self.debug_renderer {
+		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.end_frame();
 		}
-
 	}
 	fn render(&mut self) {
 		// :TODO: if let ???
 		match &mut self.renderer {
-			Some( renderer ) => {
-				renderer.set_size( &self.size );
-				renderer.set_viewport( &Vector2::zero(), &self.viewport_size );
+			Some(renderer) => {
+				renderer.set_size(&self.size);
+				renderer.set_viewport(&Vector2::zero(), &self.viewport_size);
 				renderer.begin_frame();
-				let color = Color::from_rgba( 0.5 + 0.5*( self.total_time * 0.5 ).sin() as f32, 0.5, 0.5, 1.0 );
-				renderer.clear( &color );
+				let color = Color::from_rgba(
+					0.5 + 0.5 * (self.total_time * 0.5).sin() as f32,
+					0.5,
+					0.5,
+					1.0,
+				);
+				renderer.clear(&color);
 
-//				let scaling = self.scaling * 0.5;
+				//				let scaling = self.scaling * 0.5;
 				let scaling = 0.5;
-//				dbg!(&scaling);
+				//				dbg!(&scaling);
 				let left = -self.size.x * scaling;
 				let right = self.size.x * scaling;
 				let top = self.size.y * scaling;
-				let bottom = - self.size.y * scaling;
+				let bottom = -self.size.y * scaling;
 				let near = 1.0;
 				let far = -1.0;
 
-//				dbg!(&top,&bottom);
+				//				dbg!(&top,&bottom);
 
-				let mvp = Matrix44::ortho(
-					left, right,
-					bottom, top,
-					near, far
-				);
+				let mvp = Matrix44::ortho(left, right, bottom, top, near, far);
 
-//				dbg!(&mvp);
+				//				dbg!(&mvp);
 
-				renderer.set_mvp_matrix(
-					&mvp
-				);
+				renderer.set_mvp_matrix(&mvp);
 
-				if let Some( debug_renderer ) = &*self.debug_renderer {
+				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();
-					debug_renderer.render( renderer );
+					debug_renderer.render(renderer);
 				}
 
 				//debug_renderer::debug_renderer_render( renderer );
 				renderer.end_frame();
-
-			}
-			None => {},			
+			},
+			None => {},
 		}
 	}
 }
