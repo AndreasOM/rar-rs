@@ -98,6 +98,7 @@ impl EntityConfigurationManager {
 		);
 		*/
 //		self.configs.insert( EntityId::BLOCK1X1 as u32, ( EntityType::Decoration, ( 128.0, 128.0 ).into(), ( "block-1x1", 0, 0, 0, 25.0 ).into() ).into() );
+		self.add_config( ( EntityId::PLAYER, EntityType::Player, ( 128.0, 128.0 ).into(), ( "player", 0, 0, 0, 25.0 ).into() ).into() );
 		self.add_config( ( EntityId::BLOCK1X1, EntityType::Decoration, ( 128.0, 128.0 ).into(), ( "block-1x1", 0, 0, 0, 25.0 ).into() ).into() );
 
 		// pickups

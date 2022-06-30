@@ -91,6 +91,8 @@ impl Player {
 				self.pos = self.spawn_pos;
 				self.direction = PlayerDirection::Right;
 			},
+			PlayerState::Idle => {
+			},
 			PlayerState::Dying => {
 				self.time_since_dying = 0.0;
 			},
@@ -146,8 +148,8 @@ impl Entity for Player {
 
 	fn setup( &mut self, _ec: &EntityConfiguration ) {
 		// self.name = name.to_owned();
-		self.animated_texture.setup( "fish_swim", 4, 0, 27, 25.0 );
-		self.animated_texture_dying.setup( "fish_die", 2, 0, 2, 25.0 );
+		self.animated_texture.setup( "player-idle-right-", 4, 0, 27, 25.0 );
+//		self.animated_texture_dying.setup( "fish_die", 2, 0, 2, 25.0 );
 //		self.animated_texture.setup_from_config( &ec.animated_texture_configuration );
 	}
 
@@ -156,6 +158,7 @@ impl Entity for Player {
 	}
 
 	fn update( &mut self, euc: &mut EntityUpdateContext ) {
+//		println!("Player: {:?}", &self);
 		// :TODO: time step
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start( euc ),
