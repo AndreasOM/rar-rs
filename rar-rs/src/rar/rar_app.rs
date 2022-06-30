@@ -13,15 +13,11 @@ use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 
-use crate::rar::EntityUpdateContext;
 use crate::rar::effect_ids::EffectId;
-use crate::rar::layer_ids::LayerId;
-use crate::rar::entities::{
-	EntityConfigurationManager,
-	EntityId,
-	Player,
-};
 use crate::rar::entities::entity::Entity;
+use crate::rar::entities::{EntityConfigurationManager, EntityId, Player};
+use crate::rar::layer_ids::LayerId;
+use crate::rar::EntityUpdateContext;
 
 pub struct RarApp {
 	renderer:       Option<Renderer>,
@@ -35,7 +31,7 @@ pub struct RarApp {
 	total_time:     f64,
 
 	entity_configuration_manager: EntityConfigurationManager,
-	player:			Player,
+	player: Player,
 	fun: Vec<Vector2>,
 }
 
@@ -107,17 +103,26 @@ impl App for RarApp {
 			"colored_vs.glsl",
 			"colored_fs.glsl",
 		));
-		renderer.register_effect( Effect::create( &mut self.system, EffectId::Textured as u16 , "Textured" , "textured_vs.glsl", "textured_fs.glsl" ) );
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::Textured as u16,
+			"Textured",
+			"textured_vs.glsl",
+			"textured_fs.glsl",
+		));
 
-		TextureAtlas::load_all( &mut self.system, &mut renderer, "player-atlas-%d" );
+		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
 
 		self.renderer = Some(renderer);
 
+		self.entity_configuration_manager
+			.load(&mut self.system, "todo_filename");
 
-		self.entity_configuration_manager.load( &mut self.system, "todo_filename" );
-
-		self.player.setup( self.entity_configuration_manager.get_config( EntityId::PLAYER as u32 ) );
-		self.player.respawn( );
+		self.player.setup(
+			self.entity_configuration_manager
+				.get_config(EntityId::PLAYER as u32),
+		);
+		self.player.respawn();
 		Ok(())
 	}
 	fn teardown(&mut self) {
@@ -190,18 +195,16 @@ impl App for RarApp {
 
 		let player_direction = if wuc.is_key_pressed('a' as u8) {
 			-1
-		}
-		else if wuc.is_key_pressed('d' as u8) {
+		} else if wuc.is_key_pressed('d' as u8) {
 			1
-		}
-		else {
+		} else {
 			0
 		};
 		euc = euc
-			.set_time_step( wuc.time_step )
-			.set_player_direction( player_direction );
+			.set_time_step(wuc.time_step)
+			.set_player_direction(player_direction);
 
-		self.player.update( &mut euc );
+		self.player.update(&mut euc);
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -246,7 +249,7 @@ impl App for RarApp {
 
 				renderer.set_mvp_matrix(&mvp);
 
-				self.player.render( renderer );
+				self.player.render(renderer);
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();
