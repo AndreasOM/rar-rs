@@ -39,7 +39,8 @@ pub struct Player {
 	speed: f32,
 	movement: Vector2,
 	time_since_dying: f32,
-	animated_texture: AnimatedTexture,
+	animated_texture_idle_right: AnimatedTexture,
+	animated_texture_idle_left: AnimatedTexture,
 	animated_texture_dying: AnimatedTexture,
 	entity_data: EntityData,
 }
@@ -56,7 +57,8 @@ impl Player {
 			speed: 0.0,
 			movement: Vector2::zero(),
 			time_since_dying: f32::MAX,
-			animated_texture: AnimatedTexture::new(),
+			animated_texture_idle_right: AnimatedTexture::new(),
+			animated_texture_idle_left: AnimatedTexture::new(),
 			animated_texture_dying: AnimatedTexture::new(),
 			entity_data: EntityData::default(),
 		}
@@ -117,8 +119,30 @@ impl Player {
 	}
 
 	fn update_waiting_for_start( &mut self, euc: &mut EntityUpdateContext ) {
-		self.animated_texture.update( euc.time_step() );
-		self.movement.x = 0.0;
+//		self.animated_texture.update( euc.time_step() );
+//		self.movement.x = 0.0;
+		if euc.player_direction() != 0 {
+			self.goto_state( PlayerState::Idle );	// :TODO: start logic
+		}
+	}
+
+	fn update_idle( &mut self, euc: &mut EntityUpdateContext ) {
+		match euc.player_direction() {
+			0 => self.speed = 0.0,
+			-1 => {
+				self.speed = -100.0;
+				self.direction = PlayerDirection::Left;
+			},
+			1 => {
+				self.speed = 100.0;
+				self.direction = PlayerDirection::Right;
+			},
+			_ => {},
+		}
+//		self.animated_texture.update( euc.time_step() );
+		self.movement.x = self.speed * euc.time_step() as f32;
+
+		self.pos = self.pos.add( &self.movement );
 	}
 
 	pub fn set_pos( &mut self, pos: &Vector2 ) {
@@ -148,7 +172,8 @@ impl Entity for Player {
 
 	fn setup( &mut self, _ec: &EntityConfiguration ) {
 		// self.name = name.to_owned();
-		self.animated_texture.setup( "player-idle-right-", 4, 0, 27, 25.0 );
+		self.animated_texture_idle_right.setup( "player-idle-right-", 4, 0, 27, 25.0 );
+		self.animated_texture_idle_left.setup( "player-idle-left-", 4, 0, 27, 25.0 );
 //		self.animated_texture_dying.setup( "fish_die", 2, 0, 2, 25.0 );
 //		self.animated_texture.setup_from_config( &ec.animated_texture_configuration );
 	}
@@ -162,6 +187,7 @@ impl Entity for Player {
 		// :TODO: time step
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start( euc ),
+			PlayerState::Idle => self.update_idle( euc ),
 			_ => {},
 		}
 
@@ -191,7 +217,13 @@ impl Entity for Player {
 		renderer.use_effect( EffectId::Textured as u16 );
 		match self.state {
 			PlayerState::Dying | PlayerState::Dead => self.animated_texture_dying.r#use( renderer ),
-			_ => self.animated_texture.r#use( renderer ),
+			_ => {
+				match self.direction {
+					PlayerDirection::Right => self.animated_texture_idle_right.r#use( renderer ),
+					PlayerDirection::Left => self.animated_texture_idle_left.r#use( renderer ),
+				}
+				
+			},
 		}
 		renderer.render_textured_quad( &self.pos, &self.size );
 	}
