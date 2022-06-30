@@ -6,14 +6,22 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
 use oml_game::renderer::Renderer;
+use oml_game::renderer::TextureAtlas;
 use oml_game::system::filesystem_disk::FilesystemDisk;
 use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 
+use crate::rar::EntityUpdateContext;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::layer_ids::LayerId;
+use crate::rar::entities::{
+	EntityConfigurationManager,
+	EntityId,
+	Player,
+};
+use crate::rar::entities::entity::Entity;
 
 pub struct RarApp {
 	renderer:       Option<Renderer>,
@@ -26,6 +34,8 @@ pub struct RarApp {
 	cursor_pos:     Vector2,
 	total_time:     f64,
 
+	entity_configuration_manager: EntityConfigurationManager,
+	player:			Player,
 	fun: Vec<Vector2>,
 }
 
@@ -42,6 +52,8 @@ impl RarApp {
 			cursor_pos:     Vector2::zero(),
 			total_time:     0.0,
 
+			entity_configuration_manager: EntityConfigurationManager::new(),
+			player: Player::new(),
 			fun: Vec::new(),
 		}
 	}
@@ -95,12 +107,22 @@ impl App for RarApp {
 			"colored_vs.glsl",
 			"colored_fs.glsl",
 		));
+		renderer.register_effect( Effect::create( &mut self.system, EffectId::Textured as u16 , "Textured" , "textured_vs.glsl", "textured_fs.glsl" ) );
+
+		TextureAtlas::load_all( &mut self.system, &mut renderer, "player-atlas-%d" );
 
 		self.renderer = Some(renderer);
 
+
+		self.entity_configuration_manager.load( &mut self.system, "todo_filename" );
+
+		self.player.setup( self.entity_configuration_manager.get_config( EntityId::PLAYER as u32 ) );
+		self.player.respawn( );
 		Ok(())
 	}
-	fn teardown(&mut self) {}
+	fn teardown(&mut self) {
+		self.player.teardown();
+	}
 	fn is_done(&self) -> bool {
 		self.is_done
 	}
@@ -163,6 +185,10 @@ impl App for RarApp {
 				last_fun = Some(this_fun.clone());
 			}
 		}
+
+		let mut euc = EntityUpdateContext::new();
+		self.player.update( &mut euc );
+
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.add_line(&self.cursor_pos, &Vector2::zero(), 3.0, &Color::white());
@@ -205,6 +231,8 @@ impl App for RarApp {
 				//				dbg!(&mvp);
 
 				renderer.set_mvp_matrix(&mvp);
+
+				self.player.render( renderer );
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();
