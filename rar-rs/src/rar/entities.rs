@@ -1,4 +1,4 @@
-mod entity;
+pub mod entity;
 	pub use entity::Entity as Entity;
 	pub use entity::EntityData as EntityData;
 	pub use entity::EntityState as EntityState;
