@@ -11,6 +11,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 #[derive(Debug)]
 pub struct EntityUpdateContext {
 	time_step: f64,
+	player_direction: i8,
 //	world_movement: Vector2,
 //	change_background_state: bool,
 //	game_state: GameState,
@@ -21,6 +22,7 @@ impl EntityUpdateContext {
 	pub fn new() -> Self {
 		Self {
 			time_step: 0.0,
+			player_direction: 0,
 //			world_movement: Vector2::zero(),
 //			change_background_state: false,
 //			game_state: GameState::None,
@@ -34,6 +36,15 @@ impl EntityUpdateContext {
 
 	pub fn set_time_step( mut self, time_step: f64 ) -> Self {
 		self.time_step = time_step;
+		self
+	}
+
+	pub fn player_direction(&self) -> i8 {
+		self.player_direction
+	}
+
+	pub fn set_player_direction( mut self, player_direction: i8 ) -> Self {
+		self.player_direction = player_direction;
 		self
 	}
 /*

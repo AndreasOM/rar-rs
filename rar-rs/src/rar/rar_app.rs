@@ -187,6 +187,20 @@ impl App for RarApp {
 		}
 
 		let mut euc = EntityUpdateContext::new();
+
+		let player_direction = if wuc.is_key_pressed('a' as u8) {
+			-1
+		}
+		else if wuc.is_key_pressed('d' as u8) {
+			1
+		}
+		else {
+			0
+		};
+		euc = euc
+			.set_time_step( wuc.time_step )
+			.set_player_direction( player_direction );
+
 		self.player.update( &mut euc );
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
