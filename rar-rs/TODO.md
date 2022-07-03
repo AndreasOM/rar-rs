@@ -7,6 +7,28 @@
 - [ ] Add input mapping
 
 ## TODO - off stream
-- [ ] Add content cooking script
-- [ ] Add standard render effects
 - [ ] Add a dummy idle animation
+
+
+
+## Done
+
+### Episode 0002 - 2.0h + 0.5h
+- [x] Add content cooking script
+- [x] Add standard render effects
+
+
+Note: We didn't track progress cleanly before this.
+
+### Episode 0001 - 2.0h
+
+ Got something rendering on the screen.
+
+
+### Episode 0000 - 1.5h
+
+
+## Released
+
+Note:
+Nothing released yet, but you can run the current version by building the source yourself.
