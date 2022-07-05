@@ -1,0 +1,8 @@
+r:
+	cargo run --release
+	
+fmt:
+	cargo +nightly fmt
+
+cook:
+	cd .. && ./cook.sh; cd -
