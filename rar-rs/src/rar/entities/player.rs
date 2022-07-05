@@ -134,7 +134,8 @@ impl Player {
 			},
 			_ => {},
 		}
-		//		self.animated_texture.update( euc.time_step() );
+		self.animated_texture_idle_right.update( euc.time_step() );
+		self.animated_texture_idle_left.update( euc.time_step() );
 		self.movement.x = self.speed * euc.time_step() as f32;
 
 		self.pos = self.pos.add(&self.movement);
@@ -167,9 +168,9 @@ impl Entity for Player {
 	fn setup(&mut self, _ec: &EntityConfiguration) {
 		// self.name = name.to_owned();
 		self.animated_texture_idle_right
-			.setup("player-idle-right-", 4, 0, 27, 25.0);
+			.setup("player-idle-right-", 4, 0, 8, 25.0);
 		self.animated_texture_idle_left
-			.setup("player-idle-left-", 4, 0, 27, 25.0);
+			.setup("player-idle-left-", 4, 0, 8, 25.0);
 		//		self.animated_texture_dying.setup( "fish_die", 2, 0, 2, 25.0 );
 		//		self.animated_texture.setup_from_config( &ec.animated_texture_configuration );
 	}
