@@ -134,8 +134,8 @@ impl Player {
 			},
 			_ => {},
 		}
-		self.animated_texture_idle_right.update( euc.time_step() );
-		self.animated_texture_idle_left.update( euc.time_step() );
+		self.animated_texture_idle_right.update(euc.time_step());
+		self.animated_texture_idle_left.update(euc.time_step());
 		self.movement.x = self.speed * euc.time_step() as f32;
 
 		self.pos = self.pos.add(&self.movement);
