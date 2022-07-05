@@ -16,8 +16,10 @@ use oml_game::App;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{EntityConfigurationManager, EntityId, Player};
+use crate::rar::game_state_game::GameStateGame;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
+use crate::rar::GameState;
 
 pub struct RarApp {
 	renderer:       Option<Renderer>,
@@ -30,9 +32,10 @@ pub struct RarApp {
 	cursor_pos:     Vector2,
 	total_time:     f64,
 
-	entity_configuration_manager: EntityConfigurationManager,
-	player: Player,
+//	entity_configuration_manager: EntityConfigurationManager,
+//	player: Player,
 	fun: Vec<Vector2>,
+	game_state: Box<dyn GameState>,
 }
 
 impl RarApp {
@@ -48,9 +51,10 @@ impl RarApp {
 			cursor_pos:     Vector2::zero(),
 			total_time:     0.0,
 
-			entity_configuration_manager: EntityConfigurationManager::new(),
-			player: Player::new(),
+			// entity_configuration_manager: EntityConfigurationManager::new(),
+			// player: Player::new(),
 			fun: Vec::new(),
+			game_state: Box::new(GameStateGame::new()),
 		}
 	}
 	// :TODO: Consider moving this into game package
@@ -115,18 +119,12 @@ impl App for RarApp {
 
 		self.renderer = Some(renderer);
 
-		self.entity_configuration_manager
-			.load(&mut self.system, "todo_filename");
+		self.game_state.setup( &mut self.system );
 
-		self.player.setup(
-			self.entity_configuration_manager
-				.get_config(EntityId::PLAYER as u32),
-		);
-		self.player.respawn();
 		Ok(())
 	}
 	fn teardown(&mut self) {
-		self.player.teardown();
+		self.game_state.teardown();
 	}
 	fn is_done(&self) -> bool {
 		self.is_done
@@ -191,20 +189,7 @@ impl App for RarApp {
 			}
 		}
 
-		let mut euc = EntityUpdateContext::new();
-
-		let player_direction = if wuc.is_key_pressed('a' as u8) {
-			-1
-		} else if wuc.is_key_pressed('d' as u8) {
-			1
-		} else {
-			0
-		};
-		euc = euc
-			.set_time_step(wuc.time_step)
-			.set_player_direction(player_direction);
-
-		self.player.update(&mut euc);
+		self.game_state.update( wuc );
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -249,7 +234,7 @@ impl App for RarApp {
 
 				renderer.set_mvp_matrix(&mvp);
 
-				self.player.render(renderer);
+				self.game_state.render( renderer );
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();
