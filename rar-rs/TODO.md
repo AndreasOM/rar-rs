@@ -7,13 +7,13 @@
 - [ ] Add input mapping
 
 ## TODO - off stream
-- [ ] Add a dummy idle animation
 
 
 
 ## Done
 
-### Episode 0002 - 2.0h + 0.5h
+### Episode 0002 - 2.0h + 2.5h
+- [x] Add a dummy idle animation
 - [x] Add content cooking script
 - [x] Add standard render effects
 
