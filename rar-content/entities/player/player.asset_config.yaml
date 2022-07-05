@@ -1,0 +1,13 @@
+tool:    "omt-atlas"
+command: "combine"
+output:  "player-atlas-0"
+combine-inputs: true
+input:
+  - "player-idle-right-*.png"
+  - "player-idle-left-*.png"
+parameters: {
+}
+cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input}"
+
+
+# omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
