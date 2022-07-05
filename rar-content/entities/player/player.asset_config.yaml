@@ -7,7 +7,7 @@ input:
   - "player-idle-left-*.png"
 parameters: {
 }
-cmd_line: "${tool} ${command} --size 1024 --output ${data_directory}/${output} --input ${input}"
+cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input}"
 
 
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
