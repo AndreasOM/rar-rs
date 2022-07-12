@@ -102,6 +102,14 @@ impl App for RarApp {
 
 		renderer.register_effect(Effect::create(
 			&mut self.system,
+			EffectId::Background as u16,
+			"Background",
+			"background_vs.glsl",
+			"background_fs.glsl",
+		));
+
+		renderer.register_effect(Effect::create(
+			&mut self.system,
 			EffectId::Colored as u16,
 			"Colored",
 			"colored_vs.glsl",
@@ -116,6 +124,7 @@ impl App for RarApp {
 		));
 
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
+		TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
 
 		self.renderer = Some(renderer);
 

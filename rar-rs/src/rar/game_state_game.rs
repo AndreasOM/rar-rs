@@ -2,20 +2,22 @@ use oml_game::renderer::Renderer;
 use oml_game::window::WindowUpdateContext;
 use oml_game::system::System;
 
-use crate::rar::entities::{EntityConfigurationManager, EntityId, Player};
+use crate::rar::entities::{Background, EntityConfigurationManager, EntityId, Player};
 use crate::rar::entities::entity::Entity;
 use crate::rar::GameState;
 use crate::rar::EntityUpdateContext;
 
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
-	player: Player,	
+	player: Player,
+	background: Background,
 }
 
 impl GameStateGame {
 	pub fn new() -> Self {
 		Self {
 			player: Player::new(),
+			background: Background::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),			
 		}
 	}
@@ -30,9 +32,16 @@ impl GameState for GameStateGame {
 			self.entity_configuration_manager
 				.get_config(EntityId::PLAYER as u32),
 		);
-		self.player.respawn();		
+		self.player.respawn();
+
+		self.background.setup(
+			self.entity_configuration_manager
+				.get_config(EntityId::BACKGROUND as u32),
+		);
+
 	}
 	fn teardown(&mut self) {
+		self.background.teardown();
 		self.player.teardown();		
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
@@ -50,9 +59,12 @@ impl GameState for GameStateGame {
 			.set_player_direction(player_direction);
 
 		self.player.update(&mut euc);		
+
+		self.background.update(&mut euc);
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
-		self.player.render(renderer);		
+		self.player.render(renderer);
+		self.background.render(renderer);	
 	}
 	fn name(&self) -> &str {
 		"[GameState] Game"
