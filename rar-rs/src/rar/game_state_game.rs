@@ -6,6 +6,7 @@ use crate::rar::entities::{Background, EntityConfigurationManager, EntityId, Ent
 use crate::rar::entities::entity::Entity;
 use crate::rar::GameState;
 use crate::rar::EntityUpdateContext;
+use crate::rar::PlayerInputContext;
 
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
@@ -34,6 +35,17 @@ impl GameState for GameStateGame {
 			self.entity_configuration_manager
 				.get_config(EntityId::PLAYER as u32),
 		);
+		player.set_input_context_index( 0 );
+		player.respawn();
+		self.entity_manager.add( Box::new( player ) );
+
+		// add 2nd player
+		let mut player = Player::new();
+		player.setup(
+			self.entity_configuration_manager
+				.get_config(EntityId::PLAYER as u32),
+		);
+		player.set_input_context_index( 1 );
 		player.respawn();
 		self.entity_manager.add( Box::new( player ) );
 
@@ -51,16 +63,26 @@ impl GameState for GameStateGame {
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
 		let mut euc = EntityUpdateContext::new();
 
-		let player_direction = if wuc.is_key_pressed('a' as u8) {
-			-1
-		} else if wuc.is_key_pressed('d' as u8) {
-			1
-		} else {
-			0
-		};
+		let mut pic = PlayerInputContext::default();
+		if wuc.is_key_pressed('a' as u8) {
+			pic.is_left_pressed = true;
+		}
+		if wuc.is_key_pressed('d' as u8) {
+			pic.is_right_pressed = true;
+		}
+		euc.add_player_input_context( pic );
+
+		let mut pic = PlayerInputContext::default();
+		if wuc.is_key_pressed('j' as u8) {
+			pic.is_left_pressed = true;
+		}
+		if wuc.is_key_pressed('l' as u8) {
+			pic.is_right_pressed = true;
+		}
+		euc.add_player_input_context( pic );
+
 		euc = euc
-			.set_time_step(wuc.time_step)
-			.set_player_direction(player_direction);
+			.set_time_step(wuc.time_step);
 
 		for e in self.entity_manager.iter_mut() {
 			e.update( &mut euc );
