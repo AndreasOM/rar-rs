@@ -1,14 +1,14 @@
 version: 0.5.0
 tool:    "omt-atlas"
 command: "combine"
-output:  "background-atlas-0"
+## output:  "background-atlas-0"
 output:  "${input:basename .png}"
 combine-inputs: false
 input:
   - "bg-*.png"
 parameters: {
 }
-cmd_line: "${tool} ${command} --size 256 --output ${data_directory}/${output} --input ${input}"
+cmd_line: "${tool} ${command} --size 256 --output ${data_directory}/${output}-atlas --input ${input}"
 
 
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
