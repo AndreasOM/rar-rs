@@ -11,6 +11,7 @@ path="src/rar_main.rs"
 
 [dependencies]
 anyhow = "1.0.58"
+rand = "0.8.5"
 
 [dependencies.oml-game]
 path = "../../oml-game"

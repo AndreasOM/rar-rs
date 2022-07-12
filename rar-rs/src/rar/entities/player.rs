@@ -2,6 +2,8 @@ use oml_game::math::Matrix22;
 use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
 
+use rand::prelude::*;
+
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
@@ -9,6 +11,7 @@ use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
+
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
@@ -35,6 +38,7 @@ pub struct Player {
 	speed: f32,
 	movement: Vector2,
 	time_since_dying: f32,
+	input_context_index: u8,
 	animated_texture_idle_right: AnimatedTexture,
 	animated_texture_idle_left: AnimatedTexture,
 	animated_texture_dying: AnimatedTexture,
@@ -53,6 +57,7 @@ impl Player {
 			speed: 0.0,
 			movement: Vector2::zero(),
 			time_since_dying: f32::MAX,
+			input_context_index: 0xff,
 			animated_texture_idle_right: AnimatedTexture::new(),
 			animated_texture_idle_left: AnimatedTexture::new(),
 			animated_texture_dying: AnimatedTexture::new(),
@@ -87,6 +92,10 @@ impl Player {
 		match state {
 			PlayerState::WaitForStart => {
 				self.pos = self.spawn_pos;
+//				let o: f32 = random();
+				let o = self.input_context_index as f32;
+				println!("{}", o);
+				self.pos.x += o*200.0 - 100.0;
 				self.direction = PlayerDirection::Right;
 			},
 			PlayerState::Idle => {},
@@ -114,25 +123,27 @@ impl Player {
 	}
 
 	fn update_waiting_for_start(&mut self, euc: &mut EntityUpdateContext) {
+		// :TODO: move to game state
 		//		self.animated_texture.update( euc.time_step() );
 		//		self.movement.x = 0.0;
-		if euc.player_direction() != 0 {
-			self.goto_state(PlayerState::Idle); // :TODO: start logic
+		if let Some( mut pic ) = euc.player_input_context( self.input_context_index ) {
+			if pic.is_left_pressed || pic.is_right_pressed {
+				self.goto_state(PlayerState::Idle); // :TODO: start logic
+			}
 		}
 	}
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
-		match euc.player_direction() {
-			0 => self.speed = 0.0,
-			-1 => {
+		if let Some( mut pic ) = euc.player_input_context( self.input_context_index ) {
+			if pic.is_left_pressed {
 				self.speed = -100.0;
 				self.direction = PlayerDirection::Left;
-			},
-			1 => {
+			} else if pic.is_right_pressed {
 				self.speed = 100.0;
 				self.direction = PlayerDirection::Right;
-			},
-			_ => {},
+			} else {
+				self.speed = 0.0;
+			}
 		}
 		self.animated_texture_idle_right.update(euc.time_step());
 		self.animated_texture_idle_left.update(euc.time_step());
@@ -151,6 +162,10 @@ impl Player {
 
 	pub fn radius(&self) -> f32 {
 		self.size.length() * 0.5
+	}
+
+	pub fn set_input_context_index( &mut self, index: u8 ) {
+		self.input_context_index = index;
 	}
 }
 
