@@ -19,3 +19,7 @@ Cargo.lock
 
 .DS_Store
 
+
+/rar-workfiles/entities/player/combined/
+*.blend1
+
