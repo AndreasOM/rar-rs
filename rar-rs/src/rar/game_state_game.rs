@@ -9,14 +9,12 @@ use crate::rar::EntityUpdateContext;
 
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
-	player: Player,
 	entity_manager: EntityManager,
 }
 
 impl GameStateGame {
 	pub fn new() -> Self {
 		Self {
-			player: Player::new(),
 			entity_manager: EntityManager::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),
 		}
@@ -29,22 +27,25 @@ impl GameState for GameStateGame {
 			.load(system, "todo_filename");
 
 		self.entity_manager.setup();
-		self.player.setup(
+
+		// add player
+		let mut player = Player::new();
+		player.setup(
 			self.entity_configuration_manager
 				.get_config(EntityId::PLAYER as u32),
 		);
-		self.player.respawn();
+		player.respawn();
+		self.entity_manager.add( Box::new( player ) );
 
+		// add background
 		let mut background = Background::new();
 		background.setup(
 			self.entity_configuration_manager
 				.get_config(EntityId::BACKGROUND as u32),
 		);
 		self.entity_manager.add( Box::new( background ) );
-
 	}
 	fn teardown(&mut self) {
-		self.player.teardown();		
 		self.entity_manager.teardown();
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
@@ -64,14 +65,11 @@ impl GameState for GameStateGame {
 		for e in self.entity_manager.iter_mut() {
 			e.update( &mut euc );
 		}
-
-		self.player.update(&mut euc);		
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
 		for e in self.entity_manager.iter_mut() {
 			e.render( renderer );
 		}
-		self.player.render(renderer);
 	}
 	fn name(&self) -> &str {
 		"[GameState] Game"
