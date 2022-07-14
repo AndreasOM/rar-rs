@@ -1,7 +1,6 @@
 use oml_game::math::Matrix22;
 use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
-
 use rand::prelude::*;
 
 use crate::rar::effect_ids::EffectId;
@@ -11,7 +10,6 @@ use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
@@ -92,10 +90,10 @@ impl Player {
 		match state {
 			PlayerState::WaitForStart => {
 				self.pos = self.spawn_pos;
-//				let o: f32 = random();
+				//				let o: f32 = random();
 				let o = self.input_context_index as f32;
 				println!("{}", o);
-				self.pos.x += o*200.0 - 100.0;
+				self.pos.x += o * 200.0 - 100.0;
 				self.direction = PlayerDirection::Right;
 			},
 			PlayerState::Idle => {},
@@ -126,7 +124,7 @@ impl Player {
 		// :TODO: move to game state
 		//		self.animated_texture.update( euc.time_step() );
 		//		self.movement.x = 0.0;
-		if let Some( mut pic ) = euc.player_input_context( self.input_context_index ) {
+		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
 			if pic.is_left_pressed || pic.is_right_pressed {
 				self.goto_state(PlayerState::Idle); // :TODO: start logic
 			}
@@ -134,7 +132,7 @@ impl Player {
 	}
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
-		if let Some( mut pic ) = euc.player_input_context( self.input_context_index ) {
+		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
 			if pic.is_left_pressed {
 				self.speed = -100.0;
 				self.direction = PlayerDirection::Left;
@@ -164,7 +162,7 @@ impl Player {
 		self.size.length() * 0.5
 	}
 
-	pub fn set_input_context_index( &mut self, index: u8 ) {
+	pub fn set_input_context_index(&mut self, index: u8) {
 		self.input_context_index = index;
 	}
 }
