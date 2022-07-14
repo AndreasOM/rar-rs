@@ -1,17 +1,10 @@
-
 use oml_game::math::Matrix32;
 use oml_game::renderer::Renderer;
 
 use crate::rar::effect_ids::EffectId;
-use crate::rar::EntityUpdateContext;
-use crate::rar::entities::{
-	Entity,
-	EntityConfiguration,
-	EntityData,
-	EntityType,
-};
+use crate::rar::entities::{Entity, EntityConfiguration, EntityData, EntityType};
 use crate::rar::layer_ids::LayerId;
-
+use crate::rar::EntityUpdateContext;
 
 #[derive(Debug)]
 pub struct Background {
@@ -23,7 +16,7 @@ pub struct Background {
 impl Background {
 	pub fn new() -> Self {
 		Self {
-			name: "background".to_string(),
+			name:        "background".to_string(),
 			entity_data: EntityData::default(),
 		}
 	}
@@ -31,7 +24,6 @@ impl Background {
 	pub fn name(&self) -> &str {
 		&self.name
 	}
-
 }
 
 impl Entity for Background {
@@ -45,13 +37,11 @@ impl Entity for Background {
 		self
 	}
 
-	fn setup(&mut self, _ec: &EntityConfiguration) {
-	}
+	fn setup(&mut self, _ec: &EntityConfiguration) {}
 
 	fn teardown(&mut self) {}
 
-	fn update(&mut self, euc: &mut EntityUpdateContext) {
-	}
+	fn update(&mut self, euc: &mut EntityUpdateContext) {}
 
 	fn render(&mut self, renderer: &mut Renderer) {
 		renderer.use_texture("bg-title");
@@ -59,13 +49,13 @@ impl Entity for Background {
 		renderer.use_effect(EffectId::Background as u16);
 
 		let a = renderer.aspect_ratio();
-		let mut mtx = Matrix32::scaling_xy( 1.0*a, 1.0 );
+		let mut mtx = Matrix32::scaling_xy(1.0 * a, 1.0);
 		//mtx.pos.x = - self.pos.x / 1024.0;
-		renderer.set_tex_matrix( &mtx );
+		renderer.set_tex_matrix(&mtx);
 
 		renderer.render_textured_fullscreen_quad();
 
-		renderer.set_tex_matrix( &Matrix32::identity() );
+		renderer.set_tex_matrix(&Matrix32::identity());
 	}
 	fn name(&self) -> &str {
 		&self.name
