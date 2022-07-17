@@ -29,34 +29,31 @@ impl GameState for GameStateGame {
 		self.entity_configuration_manager
 			.load(system, "todo_filename");
 
+		self.entity_configuration_manager
+			.load_yaml(system, "player.entity_config.yaml");
+
+		//		println!("\n\n---\n{:#?}", &self.entity_configuration_manager );
+		//		todo!("die");
+
 		self.entity_manager.setup();
 
 		// add player
 		let mut player = Player::new();
-		player.setup(
-			self.entity_configuration_manager
-				.get_config(EntityId::PLAYER as u32),
-		);
+		player.setup(self.entity_configuration_manager.get_config("player"));
 		player.set_input_context_index(0);
 		player.respawn();
 		self.entity_manager.add(Box::new(player));
 
 		// add 2nd player
 		let mut player = Player::new();
-		player.setup(
-			self.entity_configuration_manager
-				.get_config(EntityId::PLAYER as u32),
-		);
+		player.setup(self.entity_configuration_manager.get_config("player"));
 		player.set_input_context_index(1);
 		player.respawn();
 		self.entity_manager.add(Box::new(player));
 
 		// add background
 		let mut background = Background::new();
-		background.setup(
-			self.entity_configuration_manager
-				.get_config(EntityId::BACKGROUND as u32),
-		);
+		background.setup(self.entity_configuration_manager.get_config("background"));
 		self.entity_manager.add(Box::new(background));
 	}
 	fn teardown(&mut self) {

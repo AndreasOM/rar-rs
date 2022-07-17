@@ -1,0 +1,15 @@
+--- # Player entity
+    name: "player"
+    type: "player"
+    states:
+     idle:
+        first_frame: 0
+        last_frame: 0
+#        number_of_digits: 4
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-idle-left-%04d"
+          right:
+            template: "player-idle-right-%04d"
