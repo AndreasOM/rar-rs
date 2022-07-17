@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use oml_game::math::Vector2;
 use oml_game::system::System;
+use serde::{Deserialize, Serialize};
 
 use crate::rar::entities::entity_ids::*;
 use crate::rar::entities::EntityType;
@@ -46,41 +47,143 @@ impl From<(&str, i8, u16, u16, f32)> for AnimatedTextureConfiguration {
 }
 
 #[derive(Debug)]
-pub struct EntityConfiguration {
-	pub entity_id: EntityId,
-	pub entity_type: EntityType,
-	pub size: Vector2,
-	pub animated_texture_configuration: AnimatedTextureConfiguration,
+pub struct EntityConfigurationStateDirection {
+	name:     String,
+	template: String,
 }
 
-impl EntityConfiguration {
-	pub fn new(
-		size: Vector2,
-		animated_texture_configuration: AnimatedTextureConfiguration,
-	) -> Self {
+impl EntityConfigurationStateDirection {
+	pub fn new(name: &str, template: &str) -> Self {
 		Self {
-			entity_id: EntityId::NONE,
-			entity_type: EntityType::None,
-			size,
-			animated_texture_configuration,
-		}
-	}
-}
-
-impl From<(EntityId, EntityType, Vector2, AnimatedTextureConfiguration)> for EntityConfiguration {
-	fn from(t: (EntityId, EntityType, Vector2, AnimatedTextureConfiguration)) -> Self {
-		Self {
-			entity_id: t.0,
-			entity_type: t.1,
-			size: t.2,
-			animated_texture_configuration: t.3,
+			name:     name.to_string(),
+			template: template.to_string(),
 		}
 	}
 }
 
 #[derive(Debug)]
+pub struct EntityConfigurationState {
+	name:       String,
+	size:       [f32; 2],
+	offset:     [f32; 2],
+	directions: HashMap<String, EntityConfigurationStateDirection>,
+}
+
+impl EntityConfigurationState {
+	pub fn new(name: &str, size: &[f32; 2], offset: &[f32; 2]) -> Self {
+		Self {
+			name:       name.to_string(),
+			size:       size.clone(),
+			offset:     offset.clone(),
+			directions: HashMap::new(),
+		}
+	}
+	pub fn add_direction(&mut self, direction: EntityConfigurationStateDirection) {
+		self.directions.insert(direction.name.clone(), direction);
+	}
+}
+
+#[derive(Debug)]
+pub struct EntityConfiguration {
+	name:        String,
+	entity_type: String,
+	states:      HashMap<String, EntityConfigurationState>,
+	//	pub entity_id: EntityId,
+	//	pub entity_type: EntityType,
+	//	pub animated_texture_configuration: AnimatedTextureConfiguration,
+}
+
+impl EntityConfiguration {
+	pub fn new(
+		name: &str,
+		entity_type: &str,
+		//		size: Vector2,
+		//		animated_texture_configuration: AnimatedTextureConfiguration,
+	) -> Self {
+		Self {
+			name:        name.to_string(),
+			entity_type: entity_type.to_string(),
+			states:      HashMap::new(),
+			//			entity_id: EntityId::NONE,
+			//			entity_type: EntityType::None,
+			//			size,
+			//			animated_texture_configuration,
+		}
+	}
+
+	pub fn add_state(&mut self, state: EntityConfigurationState) {
+		self.states.insert(state.name.clone(), state);
+	}
+}
+
+// :TEMP: until I know where this will be going
+
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+struct EntityConfigurationYamlStateDirection {
+	template: String,
+}
+
+impl Default for EntityConfigurationYamlStateDirection {
+	fn default() -> Self {
+		Self {
+			template: "[template]".to_string(),
+		}
+	}
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+struct EntityConfigurationYamlState {
+	first_frame: u16,
+	last_frame:  u16,
+	size:        [f32; 2],
+	offset:      [f32; 2],
+	directions:  HashMap<String, EntityConfigurationYamlStateDirection>,
+}
+
+impl Default for EntityConfigurationYamlState {
+	fn default() -> Self {
+		Self {
+			first_frame: 0,
+			last_frame:  1,
+			size:        [32.0, 64.0],
+			offset:      [4.0, 8.0],
+			directions:  HashMap::new(),
+		}
+	}
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+struct EntiyConfigurationYamlEntity {
+	name:        String,
+	#[serde(rename = "type")]
+	entity_type: String,
+	states:      HashMap<String, EntityConfigurationYamlState>,
+}
+impl Default for EntiyConfigurationYamlEntity {
+	fn default() -> Self {
+		Self {
+			name:        "[name]".to_string(),
+			entity_type: "[type]".to_string(),
+			states:      HashMap::new(),
+		}
+	}
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+struct EntiyConfigurationYaml {
+	entities: Vec<EntiyConfigurationYamlEntity>,
+}
+impl Default for EntiyConfigurationYaml {
+	fn default() -> Self {
+		let mut entities = Vec::new();
+		entities.push(EntiyConfigurationYamlEntity::default());
+		Self { entities }
+	}
+}
+
+#[derive(Debug)]
 pub struct EntityConfigurationManager {
-	configs: HashMap<u32, EntityConfiguration>,
+	configs: HashMap<String, EntityConfiguration>,
 }
 
 impl EntityConfigurationManager {
@@ -91,234 +194,58 @@ impl EntityConfigurationManager {
 	}
 
 	fn add_config(&mut self, ec: EntityConfiguration) {
-		self.configs.insert(ec.entity_id as u32, ec);
+		self.configs.insert(ec.name.clone(), ec);
 	}
 
 	pub fn load(&mut self, _system: &mut System, _name: &str) -> bool {
-		/*
-		self.configs.insert(
-			EntityId::ROCKA as u32,
-			EntityConfiguration::new(
-				Vector2::new( 150.0,  89.0 ),
-				AnimatedTextureConfiguration::new( "rock-a", 0, 0, 0, 25.0 )
-			)
-		);
-		*/
-		//		self.configs.insert( EntityId::BLOCK1X1 as u32, ( EntityType::Decoration, ( 128.0, 128.0 ).into(), ( "block-1x1", 0, 0, 0, 25.0 ).into() ).into() );
-		self.add_config(
-			(
-				EntityId::PLAYER,
-				EntityType::Player,
-				(128.0, 128.0).into(),
-				("player", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::BLOCK1X1,
-				EntityType::Decoration,
-				(128.0, 128.0).into(),
-				("block-1x1", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-
-		// pickups
-		self.add_config(
-			(
-				EntityId::PICKUPCOIN,
-				EntityType::Pickup,
-				(32.0, 32.0).into(),
-				("coin_", 2, 1, 32, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::PICKUPRAIN,
-				EntityType::Pickup,
-				(32.0, 32.0).into(),
-				("coin_blue_", 2, 1, 32, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::PICKUPEXPLOSION,
-				EntityType::Pickup,
-				(32.0, 32.0).into(),
-				("coin_green_", 2, 1, 32, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::PICKUPMAGNET,
-				EntityType::Pickup,
-				(32.0, 32.0).into(),
-				("magnet_", 2, 1, 32, 25.0).into(),
-			)
-				.into(),
-		);
-
-		// obstacles
-		self.add_config(
-			(
-				EntityId::ROCKA,
-				EntityType::Obstacle,
-				(150.0, 89.0).into(),
-				("rock-a", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::ROCKB,
-				EntityType::Obstacle,
-				(204.0, 220.0).into(),
-				("rock-b", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::ROCKC,
-				EntityType::Obstacle,
-				(166.0, 373.0).into(),
-				("rock-c", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::ROCKD,
-				EntityType::Obstacle,
-				(197.0, 436.0).into(),
-				("rock-d", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::ROCKE,
-				EntityType::Obstacle,
-				(175.0, 556.0).into(),
-				("rock-e", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::ROCKF,
-				EntityType::Obstacle,
-				(413.0, 538.0).into(),
-				("rock-f", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDA,
-				EntityType::Obstacle,
-				(63.0, 114.0).into(),
-				("seaweed-a-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDB,
-				EntityType::Obstacle,
-				(62.0, 181.0).into(),
-				("seaweed-b-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDC,
-				EntityType::Obstacle,
-				(72.0, 238.0).into(),
-				("seaweed-c-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDD,
-				EntityType::Obstacle,
-				(78.0, 296.0).into(),
-				("seaweed-d-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDE,
-				EntityType::Obstacle,
-				(98.0, 330.0).into(),
-				("seaweed-e-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDF,
-				EntityType::Obstacle,
-				(113.0, 375.0).into(),
-				("seaweed-f-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::SEAWEEDG,
-				EntityType::Obstacle,
-				(115.0, 404.0).into(),
-				("seaweed-g-", -2, 1, 48, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::FERRIS,
-				EntityType::Decoration,
-				(55.0, 41.0).into(),
-				("ferris", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::HEART,
-				EntityType::Decoration,
-				(64.0, 64.0).into(),
-				("heart", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
-		self.add_config(
-			(
-				EntityId::FIIISH,
-				EntityType::Decoration,
-				(64.0, 64.0).into(),
-				("fiiish", 0, 0, 0, 25.0).into(),
-			)
-				.into(),
-		);
 		true
 	}
 
-	pub fn get_config(&self, crc: u32) -> &EntityConfiguration {
-		match self.configs.get(&crc) {
+	pub fn load_yaml(&mut self, system: &mut System, filename: &str) -> anyhow::Result<()> {
+		// :HACK
+		let ec = EntiyConfigurationYamlEntity::default();
+		let ecy = serde_yaml::to_string(&ec)?;
+		println!("{}", &ecy);
+
+		let yaml = system
+			.default_filesystem_mut()
+			.open(filename)
+			.read_as_string();
+		println!("yaml:\n{}", &yaml);
+		let ecye: EntiyConfigurationYamlEntity = match serde_yaml::from_str(&yaml) {
+			Err(e) => {
+				println!("{:#?}", &e);
+				anyhow::bail!("{}", &e)
+			},
+			Ok(d) => d,
+		};
+
+		println!("{:?}", ecye);
+
+		let mut ec = EntityConfiguration::new(&ecye.name, &ecye.entity_type);
+		for (k, v) in ecye.states {
+			let mut s = EntityConfigurationState::new(&k, &v.size, &v.offset);
+
+			for (dk, dv) in v.directions {
+				let mut d = EntityConfigurationStateDirection::new(&dk, &dv.template);
+				s.add_direction(d);
+			}
+			ec.add_state(s);
+		}
+
+		self.add_config(ec);
+		Ok(())
+	}
+
+	pub fn get_config(&self, name: &str) -> &EntityConfiguration {
+		match self.configs.get(name) {
 			Some(ec) => ec,
 			None => {
 				// return any
 				if self.configs.len() == 0 {
 					panic!("Tried to get entity configuration without loading!");
 				};
-				println!("Warning: No configuration found for entity {:X}", crc);
+				println!("Warning: No configuration found for entity {}", &name);
 
 				self.configs.values().next().unwrap()
 			},

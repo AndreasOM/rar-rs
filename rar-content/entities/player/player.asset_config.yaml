@@ -13,3 +13,12 @@ cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} -
 
 
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
+
+
+--- 
+# :TODO: move to entities, and combine as needed
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "player.entity_config.yaml"
