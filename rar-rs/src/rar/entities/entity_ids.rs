@@ -65,4 +65,5 @@ pub enum EntityId {
 	FIIISH          = 0xbd1ed3a1,
 	BLOCK1X1        = 0xe37ce24d,
 	PLAYER          = 0xbaadf00d, // :TODO: fix me, use correct CRC
+	BACKGROUND      = 0xbaadf01d, // :TODO: fix me, use correct CRC
 }

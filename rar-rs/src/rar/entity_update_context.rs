@@ -5,26 +5,40 @@ use oml_game::math::Vector2;
 //use crate::fiiish::game::GameState;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 
+use crate::rar::PlayerInputContext;
+
 #[derive(Debug)]
 pub struct EntityUpdateContext {
-	time_step:          f64,
-	player_direction:   i8,
+	time_step:             f64,
+	player_input_contexts: Vec<PlayerInputContext>,
 	//	world_movement: Vector2,
 	//	change_background_state: bool,
 	//	game_state: GameState,
-	pub debug_renderer: Rc<Option<RefCell<DebugRenderer>>>,
+	pub debug_renderer:    Rc<Option<RefCell<DebugRenderer>>>,
 }
 
 impl EntityUpdateContext {
 	pub fn new() -> Self {
 		Self {
-			time_step:        0.0,
-			player_direction: 0,
+			time_step:             0.0,
+			player_input_contexts: Vec::new(),
 			//			world_movement: Vector2::zero(),
 			//			change_background_state: false,
 			//			game_state: GameState::None,
-			debug_renderer:   Rc::new(None),
+			debug_renderer:        Rc::new(None),
 		}
+	}
+
+	pub fn player_input_context(&mut self, index: u8) -> Option<&mut PlayerInputContext> {
+		if (index as usize) < self.player_input_contexts.len() {
+			Some(&mut self.player_input_contexts[index as usize])
+		} else {
+			None
+		}
+	}
+
+	pub fn add_player_input_context(&mut self, player_input_context: PlayerInputContext) {
+		self.player_input_contexts.push(player_input_context);
 	}
 
 	pub fn time_step(&self) -> f64 {
@@ -36,14 +50,6 @@ impl EntityUpdateContext {
 		self
 	}
 
-	pub fn player_direction(&self) -> i8 {
-		self.player_direction
-	}
-
-	pub fn set_player_direction(mut self, player_direction: i8) -> Self {
-		self.player_direction = player_direction;
-		self
-	}
 	/*
 		pub fn world_movement(&self) -> &Vector2 {
 			&self.world_movement

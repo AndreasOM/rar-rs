@@ -32,9 +32,9 @@ pub struct RarApp {
 	cursor_pos:     Vector2,
 	total_time:     f64,
 
-//	entity_configuration_manager: EntityConfigurationManager,
-//	player: Player,
-	fun: Vec<Vector2>,
+	//	entity_configuration_manager: EntityConfigurationManager,
+	//	player: Player,
+	fun:        Vec<Vector2>,
 	game_state: Box<dyn GameState>,
 }
 
@@ -53,7 +53,7 @@ impl RarApp {
 
 			// entity_configuration_manager: EntityConfigurationManager::new(),
 			// player: Player::new(),
-			fun: Vec::new(),
+			fun:        Vec::new(),
 			game_state: Box::new(GameStateGame::new()),
 		}
 	}
@@ -102,6 +102,14 @@ impl App for RarApp {
 
 		renderer.register_effect(Effect::create(
 			&mut self.system,
+			EffectId::Background as u16,
+			"Background",
+			"background_vs.glsl",
+			"background_fs.glsl",
+		));
+
+		renderer.register_effect(Effect::create(
+			&mut self.system,
 			EffectId::Colored as u16,
 			"Colored",
 			"colored_vs.glsl",
@@ -116,10 +124,11 @@ impl App for RarApp {
 		));
 
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
+		TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
 
 		self.renderer = Some(renderer);
 
-		self.game_state.setup( &mut self.system );
+		self.game_state.setup(&mut self.system);
 
 		Ok(())
 	}
@@ -189,7 +198,7 @@ impl App for RarApp {
 			}
 		}
 
-		self.game_state.update( wuc );
+		self.game_state.update(wuc);
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -234,7 +243,7 @@ impl App for RarApp {
 
 				renderer.set_mvp_matrix(&mvp);
 
-				self.game_state.render( renderer );
+				self.game_state.render(renderer);
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();

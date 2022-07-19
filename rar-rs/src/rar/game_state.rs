@@ -1,6 +1,6 @@
 use oml_game::renderer::Renderer;
-use oml_game::window::WindowUpdateContext;
 use oml_game::system::System;
+use oml_game::window::WindowUpdateContext;
 
 pub trait GameState {
 	fn setup(&mut self, _system: &mut System) {}

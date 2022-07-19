@@ -11,6 +11,9 @@ path="src/rar_main.rs"
 
 [dependencies]
 anyhow = "1.0.58"
+rand = "0.8.5"
+serde = { version = "1.0.139", features = ["std","derive"] }
+serde_yaml = "0.8.25"
 
 [dependencies.oml-game]
 path = "../../oml-game"

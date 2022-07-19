@@ -1,13 +1,24 @@
 tool:    "omt-atlas"
 command: "combine"
-output:  "player-atlas-0"
+output:  "player-atlas-%d"
 combine-inputs: true
 input:
   - "player-idle-right-*.png"
   - "player-idle-left-*.png"
+  - "player-backflip-right-*.png"
+  - "player-backflip-left-*.png"
 parameters: {
 }
 cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input}"
 
 
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
+
+
+--- 
+# :TODO: move to entities, and combine as needed
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "player.entity_config.yaml"

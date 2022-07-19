@@ -26,3 +26,9 @@ mod fish;
 */
 mod player;
 pub use player::Player;
+
+mod background;
+pub use background::Background;
+
+mod entity_manager;
+pub use entity_manager::EntityManager;

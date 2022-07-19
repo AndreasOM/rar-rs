@@ -36,3 +36,5 @@ copy_action() {
 copy_action "combined" "_ToRight" 0 8 player-idle-right
 copy_action "combined" "_ToLeft" 0 8 player-idle-left
 
+copy_action "combined" "_ToRight" 9 57 player-backflip-right
+copy_action "combined" "_ToLeft" 9 57 player-backflip-left
