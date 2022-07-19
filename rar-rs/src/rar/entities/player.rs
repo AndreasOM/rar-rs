@@ -8,8 +8,11 @@ use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
+use crate::rar::entities::entity_configuration::EntityConfigurationState;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
+
+use std::collections::HashMap;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
@@ -24,6 +27,48 @@ enum PlayerDirection {
 	Left,
 	Right,
 }
+
+#[derive(Debug)]
+pub struct EntityStateDirection {
+	name: String,
+	template: String,
+}
+
+impl EntityStateDirection {
+	pub fn new(name: &str, template: &str) -> Self {
+		Self {
+			name:     name.to_string(),
+			template: template.to_string(),
+		}
+	}
+}
+
+#[derive(Debug)]
+pub struct EntityState {
+	name: String,
+	first_frame:      u16,
+	last_frame:       u16,
+	size:       [f32; 2],
+	offset:     [f32; 2],
+	directions: HashMap< String, EntityStateDirection >, 
+}
+
+impl EntityState {
+	pub fn new(name: &str, first_frame: u16, last_frame: u16, size: &[f32; 2], offset: &[f32; 2]) -> Self {
+		Self {
+			name:       name.to_string(),
+			first_frame,
+			last_frame,
+			size:       size.clone(),
+			offset:     offset.clone(),
+			directions: HashMap::new(),
+		}
+	}
+	pub fn add_direction(&mut self, direction: EntityStateDirection) {
+		self.directions.insert(direction.name.clone(), direction);
+	}
+}
+
 
 #[derive(Debug)]
 pub struct Player {
@@ -41,6 +86,8 @@ pub struct Player {
 	animated_texture_idle_left: AnimatedTexture,
 	animated_texture_dying: AnimatedTexture,
 	entity_data: EntityData,
+
+	states: HashMap< String, EntityState >,
 }
 
 impl Player {
@@ -60,6 +107,8 @@ impl Player {
 			animated_texture_idle_left: AnimatedTexture::new(),
 			animated_texture_dying: AnimatedTexture::new(),
 			entity_data: EntityData::default(),
+
+			states: HashMap::new(),
 		}
 	}
 
@@ -165,6 +214,24 @@ impl Player {
 	pub fn set_input_context_index(&mut self, index: u8) {
 		self.input_context_index = index;
 	}
+
+
+	fn add_state(&mut self, state: EntityState) {
+		self.states.insert(state.name.clone(), state);
+	}
+
+	fn setup_from_configuration(&mut self, ec: &EntityConfiguration ) {
+		for ( sk, sv ) in ec.states_iter() {
+			let mut s = EntityState::new( sv.name(), sv.first_frame(), sv.last_frame(), sv.size(), sv.offset() );
+
+			for ( dk, dv ) in sv.directions_iter() {
+				let mut d = EntityStateDirection::new( dv.name(), dv.template() );
+				s.add_direction( d );
+			}
+
+			self.add_state( s );
+		}
+	}
 }
 
 impl Entity for Player {
@@ -178,7 +245,8 @@ impl Entity for Player {
 		self
 	}
 
-	fn setup(&mut self, _ec: &EntityConfiguration) {
+	fn setup(&mut self, ec: &EntityConfiguration) {
+		self.setup_from_configuration( &ec );
 		// self.name = name.to_owned();
 		self.animated_texture_idle_right
 			.setup("player-idle-right-", 4, 0, 8, 25.0);
