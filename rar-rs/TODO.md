@@ -6,19 +6,22 @@
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
 
-- [x] Load entity configuration from file
-    - [ ] Add test case
 
 ## TODO
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
+- [ ] Add test case for entity configuration loading from yaml
 
 ## TODO - off stream
+- [ ] Add `%04d` handling to AnimatedTexture
 - [ ] Hook up backflip
 
 
 ## Done
+
+### Episode 0005 - 1.5h
+- [x] Load entity configuration for player from file
 
 ### Episode 0004 - 2h + 2h
 - [x] Add background entity

@@ -14,6 +14,10 @@ use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
 
+use std::convert::From;
+
+const FPS: f32 = 25.0;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
 	WaitForStart,
@@ -22,23 +26,48 @@ pub enum PlayerState {
 	Dead,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+impl From< PlayerState > for &str {
+	fn from( ps: PlayerState ) -> Self { 
+		match ps {
+			PlayerState::WaitForStart => "wait_for_start",
+			PlayerState::Idle => "idle",
+			PlayerState::Dying => "dying",
+			PlayerState::Dead => "dead",
+		}
+	}
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum PlayerDirection {
 	Left,
 	Right,
 }
 
+impl From< PlayerDirection > for &str {
+	fn from( ps: PlayerDirection ) -> Self { 
+		match ps {
+			PlayerDirection::Left => "left",
+			PlayerDirection::Right => "right",
+		}
+	}
+}
+
 #[derive(Debug)]
 pub struct EntityStateDirection {
-	name:     String,
-	template: String,
+	name:             String,
+	template:         String,
+	animated_texture: AnimatedTexture,
 }
 
 impl EntityStateDirection {
-	pub fn new(name: &str, template: &str) -> Self {
+	pub fn new(name: &str, template: &str, first_frame: u16, last_frame: u16, fps: f32) -> Self {
+		let number_of_digits = 4; // :TODO: remove
+		let mut animated_texture = AnimatedTexture::new();
+		animated_texture.setup( template, number_of_digits, first_frame, last_frame, fps );
 		Self {
-			name:     name.to_string(),
-			template: template.to_string(),
+			name:             name.to_string(),
+			template:         template.to_string(),
+			animated_texture,
 		}
 	}
 }
@@ -87,9 +116,6 @@ pub struct Player {
 	movement: Vector2,
 	time_since_dying: f32,
 	input_context_index: u8,
-	animated_texture_idle_right: AnimatedTexture,
-	animated_texture_idle_left: AnimatedTexture,
-	animated_texture_dying: AnimatedTexture,
 	entity_data: EntityData,
 
 	states: HashMap<String, EntityState>,
@@ -108,9 +134,6 @@ impl Player {
 			movement: Vector2::zero(),
 			time_since_dying: f32::MAX,
 			input_context_index: 0xff,
-			animated_texture_idle_right: AnimatedTexture::new(),
-			animated_texture_idle_left: AnimatedTexture::new(),
-			animated_texture_dying: AnimatedTexture::new(),
 			entity_data: EntityData::default(),
 
 			states: HashMap::new(),
@@ -175,9 +198,6 @@ impl Player {
 	}
 
 	fn update_waiting_for_start(&mut self, euc: &mut EntityUpdateContext) {
-		// :TODO: move to game state
-		//		self.animated_texture.update( euc.time_step() );
-		//		self.movement.x = 0.0;
 		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
 			if pic.is_left_pressed || pic.is_right_pressed {
 				self.goto_state(PlayerState::Idle); // :TODO: start logic
@@ -197,8 +217,6 @@ impl Player {
 				self.speed = 0.0;
 			}
 		}
-		self.animated_texture_idle_right.update(euc.time_step());
-		self.animated_texture_idle_left.update(euc.time_step());
 		self.movement.x = self.speed * euc.time_step() as f32;
 
 		self.pos = self.pos.add(&self.movement);
@@ -235,7 +253,7 @@ impl Player {
 			);
 
 			for (dk, dv) in sv.directions_iter() {
-				let mut d = EntityStateDirection::new(dv.name(), dv.template());
+				let mut d = EntityStateDirection::new(dv.name(), dv.template(), sv.first_frame(), sv.last_frame(), FPS );
 				s.add_direction(d);
 			}
 
@@ -257,13 +275,6 @@ impl Entity for Player {
 
 	fn setup(&mut self, ec: &EntityConfiguration) {
 		self.setup_from_configuration(&ec);
-		// self.name = name.to_owned();
-		self.animated_texture_idle_right
-			.setup("player-idle-right-", 4, 0, 8, 25.0);
-		self.animated_texture_idle_left
-			.setup("player-idle-left-", 4, 0, 8, 25.0);
-		//		self.animated_texture_dying.setup( "fish_die", 2, 0, 2, 25.0 );
-		//		self.animated_texture.setup_from_config( &ec.animated_texture_configuration );
 	}
 
 	fn teardown(&mut self) {}
@@ -271,6 +282,16 @@ impl Entity for Player {
 	fn update(&mut self, euc: &mut EntityUpdateContext) {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
+
+		let ps: &str = self.state.into();
+		if let Some( mut state ) = self.states.get_mut( ps ){
+			let d: &str = self.direction.into();
+			if let Some( mut state_direction ) = state.directions.get_mut( d ){
+				println!("{:#?}", &state_direction );
+				state_direction.animated_texture.update(euc.time_step());
+			}
+		}
+
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
@@ -300,13 +321,15 @@ impl Entity for Player {
 
 		renderer.use_layer(LayerId::Player as u8);
 		renderer.use_effect(EffectId::Textured as u16);
-		match self.state {
-			PlayerState::Dying | PlayerState::Dead => self.animated_texture_dying.r#use(renderer),
-			_ => match self.direction {
-				PlayerDirection::Right => self.animated_texture_idle_right.r#use(renderer),
-				PlayerDirection::Left => self.animated_texture_idle_left.r#use(renderer),
-			},
+
+		let ps: &str = self.state.into();
+		if let Some( state ) = self.states.get( ps ){
+			let d: &str = self.direction.into();
+			if let Some( state_direction ) = state.directions.get( d ){
+				state_direction.animated_texture.r#use(renderer);
+			}
 		}
+
 		renderer.render_textured_quad(&self.pos, &self.size);
 	}
 
