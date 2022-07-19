@@ -1,18 +1,18 @@
+use std::collections::HashMap;
+
 use oml_game::math::Matrix22;
 use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
 use rand::prelude::*;
 
 use crate::rar::effect_ids::EffectId;
+use crate::rar::entities::entity_configuration::EntityConfigurationState;
 use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
-use crate::rar::entities::entity_configuration::EntityConfigurationState;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
-
-use std::collections::HashMap;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
@@ -30,7 +30,7 @@ enum PlayerDirection {
 
 #[derive(Debug)]
 pub struct EntityStateDirection {
-	name: String,
+	name:     String,
 	template: String,
 }
 
@@ -45,22 +45,28 @@ impl EntityStateDirection {
 
 #[derive(Debug)]
 pub struct EntityState {
-	name: String,
-	first_frame:      u16,
-	last_frame:       u16,
-	size:       [f32; 2],
-	offset:     [f32; 2],
-	directions: HashMap< String, EntityStateDirection >, 
+	name:        String,
+	first_frame: u16,
+	last_frame:  u16,
+	size:        [f32; 2],
+	offset:      [f32; 2],
+	directions:  HashMap<String, EntityStateDirection>,
 }
 
 impl EntityState {
-	pub fn new(name: &str, first_frame: u16, last_frame: u16, size: &[f32; 2], offset: &[f32; 2]) -> Self {
+	pub fn new(
+		name: &str,
+		first_frame: u16,
+		last_frame: u16,
+		size: &[f32; 2],
+		offset: &[f32; 2],
+	) -> Self {
 		Self {
-			name:       name.to_string(),
+			name: name.to_string(),
 			first_frame,
 			last_frame,
-			size:       size.clone(),
-			offset:     offset.clone(),
+			size: size.clone(),
+			offset: offset.clone(),
 			directions: HashMap::new(),
 		}
 	}
@@ -68,7 +74,6 @@ impl EntityState {
 		self.directions.insert(direction.name.clone(), direction);
 	}
 }
-
 
 #[derive(Debug)]
 pub struct Player {
@@ -87,7 +92,7 @@ pub struct Player {
 	animated_texture_dying: AnimatedTexture,
 	entity_data: EntityData,
 
-	states: HashMap< String, EntityState >,
+	states: HashMap<String, EntityState>,
 }
 
 impl Player {
@@ -215,21 +220,26 @@ impl Player {
 		self.input_context_index = index;
 	}
 
-
 	fn add_state(&mut self, state: EntityState) {
 		self.states.insert(state.name.clone(), state);
 	}
 
-	fn setup_from_configuration(&mut self, ec: &EntityConfiguration ) {
-		for ( sk, sv ) in ec.states_iter() {
-			let mut s = EntityState::new( sv.name(), sv.first_frame(), sv.last_frame(), sv.size(), sv.offset() );
+	fn setup_from_configuration(&mut self, ec: &EntityConfiguration) {
+		for (sk, sv) in ec.states_iter() {
+			let mut s = EntityState::new(
+				sv.name(),
+				sv.first_frame(),
+				sv.last_frame(),
+				sv.size(),
+				sv.offset(),
+			);
 
-			for ( dk, dv ) in sv.directions_iter() {
-				let mut d = EntityStateDirection::new( dv.name(), dv.template() );
-				s.add_direction( d );
+			for (dk, dv) in sv.directions_iter() {
+				let mut d = EntityStateDirection::new(dv.name(), dv.template());
+				s.add_direction(d);
 			}
 
-			self.add_state( s );
+			self.add_state(s);
 		}
 	}
 }
@@ -246,7 +256,7 @@ impl Entity for Player {
 	}
 
 	fn setup(&mut self, ec: &EntityConfiguration) {
-		self.setup_from_configuration( &ec );
+		self.setup_from_configuration(&ec);
 		// self.name = name.to_owned();
 		self.animated_texture_idle_right
 			.setup("player-idle-right-", 4, 0, 8, 25.0);
