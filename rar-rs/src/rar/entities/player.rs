@@ -21,6 +21,7 @@ const FPS: f32 = 25.0;
 pub enum PlayerState {
 	WaitForStart,
 	Idle,
+	Backflip,
 	Dying,
 	Dead,
 }
@@ -30,6 +31,7 @@ impl From<PlayerState> for &str {
 		match ps {
 			PlayerState::WaitForStart => "wait_for_start",
 			PlayerState::Idle => "idle",
+			PlayerState::Backflip => "backflip",
 			PlayerState::Dying => "dying",
 			PlayerState::Dead => "dead",
 		}
@@ -146,7 +148,7 @@ impl Player {
 	pub fn is_alive(&self) -> bool {
 		match self.state {
 			PlayerState::Dead | PlayerState::Dying => false,
-			PlayerState::WaitForStart | PlayerState::Idle => true,
+			PlayerState::WaitForStart | PlayerState::Idle | PlayerState::Backflip => true,
 		}
 	}
 
@@ -173,6 +175,15 @@ impl Player {
 				self.direction = PlayerDirection::Right;
 			},
 			PlayerState::Idle => {},
+			PlayerState::Backflip => {
+				// :TODO: reset animation to frame 0
+				self.state = state; // :HACK: so we get the correct state direction below
+				if let Some(mut state_direction) = self.get_state_direction_mut() {
+					println!("{:#?}", &state_direction);
+					state_direction.animated_texture.set_autoloop(false);
+					state_direction.animated_texture.set_current_frame(0);
+				}
+			},
 			PlayerState::Dying => {
 				self.time_since_dying = 0.0;
 			},
@@ -206,7 +217,11 @@ impl Player {
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
 		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
-			if pic.is_left_pressed {
+			if pic.is_up_pressed {
+				self.goto_state(PlayerState::Backflip);
+			// self.speed = -100.0;
+			// self.direction = PlayerDirection::Left;
+			} else if pic.is_left_pressed {
 				self.speed = -100.0;
 				self.direction = PlayerDirection::Left;
 			} else if pic.is_right_pressed {
@@ -219,6 +234,15 @@ impl Player {
 		self.movement.x = self.speed * euc.time_step() as f32;
 
 		self.pos = self.pos.add(&self.movement);
+	}
+
+	fn update_backflip(&mut self, euc: &mut EntityUpdateContext) {
+		if let Some(mut state_direction) = self.get_state_direction_mut() {
+			// println!("{:#?}", &state_direction );
+			if state_direction.animated_texture.completed() {
+				self.goto_state(PlayerState::Idle);
+			}
+		}
 	}
 
 	pub fn set_pos(&mut self, pos: &Vector2) {
@@ -265,6 +289,29 @@ impl Player {
 			self.add_state(s);
 		}
 	}
+
+	fn get_state_direction_mut(&mut self) -> Option<&mut EntityStateDirection> {
+		let ps: &str = self.state.into();
+		if let Some(mut state) = self.states.get_mut(ps) {
+			let d: &str = self.direction.into();
+			if let Some(mut state_direction) = state.directions.get_mut(d) {
+				// println!("{:#?}", &state_direction );
+				return Some(state_direction);
+			}
+		}
+		None
+	}
+	fn get_state_direction(&mut self) -> Option<&EntityStateDirection> {
+		let ps: &str = self.state.into();
+		if let Some(state) = self.states.get(ps) {
+			let d: &str = self.direction.into();
+			if let Some(state_direction) = state.directions.get(d) {
+				// println!("{:#?}", &state_direction );
+				return Some(state_direction);
+			}
+		}
+		None
+	}
 }
 
 impl Entity for Player {
@@ -288,18 +335,15 @@ impl Entity for Player {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
 
-		let ps: &str = self.state.into();
-		if let Some(mut state) = self.states.get_mut(ps) {
-			let d: &str = self.direction.into();
-			if let Some(mut state_direction) = state.directions.get_mut(d) {
-				// println!("{:#?}", &state_direction );
-				state_direction.animated_texture.update(euc.time_step());
-			}
+		if let Some(mut state_direction) = self.get_state_direction_mut() {
+			// println!("{:#?}", &state_direction );
+			state_direction.animated_texture.update(euc.time_step());
 		}
 
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
+			PlayerState::Backflip => self.update_backflip(euc),
 			_ => {},
 		}
 
@@ -327,12 +371,8 @@ impl Entity for Player {
 		renderer.use_layer(LayerId::Player as u8);
 		renderer.use_effect(EffectId::Textured as u16);
 
-		let ps: &str = self.state.into();
-		if let Some(state) = self.states.get(ps) {
-			let d: &str = self.direction.into();
-			if let Some(state_direction) = state.directions.get(d) {
-				state_direction.animated_texture.r#use(renderer);
-			}
+		if let Some(mut state_direction) = self.get_state_direction() {
+			state_direction.animated_texture.r#use(renderer);
 		}
 
 		renderer.render_textured_quad(&self.pos, &self.size);
