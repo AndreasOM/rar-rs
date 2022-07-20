@@ -69,6 +69,12 @@ impl GameState for GameStateGame {
 		if wuc.is_key_pressed('d' as u8) {
 			pic.is_right_pressed = true;
 		}
+		if wuc.is_key_pressed('w' as u8) {
+			pic.is_up_pressed = true;
+		}
+		if wuc.is_key_pressed('s' as u8) {
+			pic.is_down_pressed = true;
+		}
 		euc.add_player_input_context(pic);
 
 		let mut pic = PlayerInputContext::default();
@@ -77,6 +83,12 @@ impl GameState for GameStateGame {
 		}
 		if wuc.is_key_pressed('l' as u8) {
 			pic.is_right_pressed = true;
+		}
+		if wuc.is_key_pressed('i' as u8) {
+			pic.is_up_pressed = true;
+		}
+		if wuc.is_key_pressed('k' as u8) {
+			pic.is_down_pressed = true;
 		}
 		euc.add_player_input_context(pic);
 
