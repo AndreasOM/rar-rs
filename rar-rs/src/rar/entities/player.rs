@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::convert::From;
 
 use oml_game::math::Matrix22;
 use oml_game::math::Vector2;
@@ -14,8 +15,6 @@ use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::EntityUpdateContext;
 
-use std::convert::From;
-
 const FPS: f32 = 25.0;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -26,8 +25,8 @@ pub enum PlayerState {
 	Dead,
 }
 
-impl From< PlayerState > for &str {
-	fn from( ps: PlayerState ) -> Self { 
+impl From<PlayerState> for &str {
+	fn from(ps: PlayerState) -> Self {
 		match ps {
 			PlayerState::WaitForStart => "wait_for_start",
 			PlayerState::Idle => "idle",
@@ -43,8 +42,8 @@ enum PlayerDirection {
 	Right,
 }
 
-impl From< PlayerDirection > for &str {
-	fn from( ps: PlayerDirection ) -> Self { 
+impl From<PlayerDirection> for &str {
+	fn from(ps: PlayerDirection) -> Self {
 		match ps {
 			PlayerDirection::Left => "left",
 			PlayerDirection::Right => "right",
@@ -63,10 +62,10 @@ impl EntityStateDirection {
 	pub fn new(name: &str, template: &str, first_frame: u16, last_frame: u16, fps: f32) -> Self {
 		let number_of_digits = 4; // :TODO: remove
 		let mut animated_texture = AnimatedTexture::new();
-		animated_texture.setup( template, number_of_digits, first_frame, last_frame, fps );
+		animated_texture.setup(template, number_of_digits, first_frame, last_frame, fps);
 		Self {
-			name:             name.to_string(),
-			template:         template.to_string(),
+			name: name.to_string(),
+			template: template.to_string(),
 			animated_texture,
 		}
 	}
@@ -106,17 +105,17 @@ impl EntityState {
 
 #[derive(Debug)]
 pub struct Player {
-	name: String,
-	spawn_pos: Vector2,
-	pos: Vector2,
-	size: Vector2,
-	state: PlayerState,
-	direction: PlayerDirection,
-	speed: f32,
-	movement: Vector2,
-	time_since_dying: f32,
+	name:                String,
+	spawn_pos:           Vector2,
+	pos:                 Vector2,
+	size:                Vector2,
+	state:               PlayerState,
+	direction:           PlayerDirection,
+	speed:               f32,
+	movement:            Vector2,
+	time_since_dying:    f32,
 	input_context_index: u8,
-	entity_data: EntityData,
+	entity_data:         EntityData,
 
 	states: HashMap<String, EntityState>,
 }
@@ -124,17 +123,17 @@ pub struct Player {
 impl Player {
 	pub fn new() -> Self {
 		Self {
-			name: "player".to_string(),
-			spawn_pos: Vector2::new(0.0, 0.0),
-			pos: Vector2::zero(),
-			size: Vector2::new(128.0, 128.0),
-			state: PlayerState::Dead,
-			direction: PlayerDirection::Right,
-			speed: 0.0,
-			movement: Vector2::zero(),
-			time_since_dying: f32::MAX,
+			name:                "player".to_string(),
+			spawn_pos:           Vector2::new(0.0, 0.0),
+			pos:                 Vector2::zero(),
+			size:                Vector2::new(128.0, 128.0),
+			state:               PlayerState::Dead,
+			direction:           PlayerDirection::Right,
+			speed:               0.0,
+			movement:            Vector2::zero(),
+			time_since_dying:    f32::MAX,
 			input_context_index: 0xff,
-			entity_data: EntityData::default(),
+			entity_data:         EntityData::default(),
 
 			states: HashMap::new(),
 		}
@@ -253,7 +252,13 @@ impl Player {
 			);
 
 			for (dk, dv) in sv.directions_iter() {
-				let mut d = EntityStateDirection::new(dv.name(), dv.template(), sv.first_frame(), sv.last_frame(), FPS );
+				let mut d = EntityStateDirection::new(
+					dv.name(),
+					dv.template(),
+					sv.first_frame(),
+					sv.last_frame(),
+					FPS,
+				);
 				s.add_direction(d);
 			}
 
@@ -284,10 +289,10 @@ impl Entity for Player {
 		// :TODO: time step
 
 		let ps: &str = self.state.into();
-		if let Some( mut state ) = self.states.get_mut( ps ){
+		if let Some(mut state) = self.states.get_mut(ps) {
 			let d: &str = self.direction.into();
-			if let Some( mut state_direction ) = state.directions.get_mut( d ){
-				println!("{:#?}", &state_direction );
+			if let Some(mut state_direction) = state.directions.get_mut(d) {
+				// println!("{:#?}", &state_direction );
 				state_direction.animated_texture.update(euc.time_step());
 			}
 		}
@@ -323,9 +328,9 @@ impl Entity for Player {
 		renderer.use_effect(EffectId::Textured as u16);
 
 		let ps: &str = self.state.into();
-		if let Some( state ) = self.states.get( ps ){
+		if let Some(state) = self.states.get(ps) {
 			let d: &str = self.direction.into();
-			if let Some( state_direction ) = state.directions.get( d ){
+			if let Some(state_direction) = state.directions.get(d) {
 				state_direction.animated_texture.r#use(renderer);
 			}
 		}
