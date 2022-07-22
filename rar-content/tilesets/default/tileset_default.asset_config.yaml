@@ -1,0 +1,19 @@
+tool:    "omt-atlas"
+command: "combine"
+output:  "tileset-default-%d"
+combine-inputs: true
+input:
+  - "*.png"
+parameters: {
+}
+cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input}"
+
+
+--- 
+# :TODO: move to entities, and combine as needed
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "rar-default.tsj"
+
