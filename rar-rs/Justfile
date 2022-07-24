@@ -15,3 +15,6 @@ fmt:
 
 cook:
 	cd .. && ./cook.sh; cd -
+
+test-noisy:
+	cargo test -- --nocapture
