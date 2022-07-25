@@ -13,3 +13,5 @@ pub use player_input_context::PlayerInputContext;
 
 mod map;
 pub use map::Map;
+mod world;
+pub use world::World;

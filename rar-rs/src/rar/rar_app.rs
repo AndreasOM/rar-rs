@@ -200,6 +200,12 @@ impl App for RarApp {
 
 		self.game_state.update(wuc);
 
+		// :HACK:
+		if let Some(debug_renderer) = &*self.debug_renderer {
+			let mut debug_renderer = debug_renderer.borrow_mut();
+			self.game_state.render_debug(&mut debug_renderer);
+		}
+
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.add_line(&self.cursor_pos, &Vector2::zero(), 3.0, &Color::white());
