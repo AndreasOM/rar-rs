@@ -36,14 +36,14 @@ impl Default for TileMap {
 
 impl std::fmt::Debug for TileMap {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		 //write!(f, "TileMap {}x{} ({} / {})", self.width, self.height, self.)
+		//write!(f, "TileMap {}x{} ({} / {})", self.width, self.height, self.)
 		let mut f = f.debug_struct("TileMap");
 		f.field("width", &self.width)
 			.field("width", &self.width)
 			.field("height", &self.height)
 			.field("cap()", &self.tiles.capacity())
 			.field("len()", &self.tiles.len());
-//		f.write_fmt(f, "Hi: {}", 3);
+		//		f.write_fmt(f, "Hi: {}", 3);
 		// :TODO: I wish there was a way to append to a result :(
 		f.finish()
 	}
@@ -59,18 +59,42 @@ pub struct Object {
 	y:        f64,
 	height:   f64,
 	width:    f64,
-	rotation: f64,	// deg, clockwise
+	rotation: f64, // deg, clockwise
 	visible:  bool,
 	#[serde(default)]
 	point:    bool,
+}
+
+impl Object {
+	pub fn name(&self) -> &str {
+		&self.name
+	}
+	pub fn class(&self) -> &str {
+		&self.class
+	}
+	pub fn x(&self) -> f64 {
+		self.x
+	}
+	pub fn y(&self) -> f64 {
+		self.y
+	}
+	pub fn height(&self) -> f64 {
+		self.height
+	}
+	pub fn width(&self) -> f64 {
+		self.width
+	}
+	pub fn point(&self) -> bool {
+		self.point
+	}
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Chunk {
 	data:   String,
-	x:      u32,
-	y:      u32,
+	x:      i32,
+	y:      i32,
 	height: u32,
 	width:  u32,
 	#[serde(skip)]
@@ -95,9 +119,9 @@ pub struct Layer {
 	#[serde(default)]
 	width:       u32,
 	#[serde(default)]
-	startx:      u32,
+	startx:      i32,
 	#[serde(default)]
-	starty:      u32,
+	starty:      i32,
 	opacity:     f64,
 	#[serde(rename = "type")]
 	layertype:   String,
@@ -106,6 +130,35 @@ pub struct Layer {
 	draworder:   String,
 }
 
+impl Layer {
+	pub fn name(&self) -> &str {
+		&self.name
+	}
+	pub fn id(&self) -> u32 {
+		self.id
+	}
+	pub fn layertype(&self) -> &str {
+		&self.layertype
+	}
+	pub fn visible(&self) -> bool {
+		self.visible
+	}
+	pub fn x(&self) -> u32 {
+		self.x
+	}
+	pub fn y(&self) -> u32 {
+		self.y
+	}
+	pub fn height(&self) -> u32 {
+		self.height
+	}
+	pub fn width(&self) -> u32 {
+		self.width
+	}
+	pub fn objects(&self) -> &Option<Vec<Object>> {
+		&self.objects
+	}
+}
 #[derive(Debug, Serialize, Deserialize)]
 //#[serde(deny_unknown_fields)]
 pub struct MapTmj {
@@ -115,6 +168,10 @@ pub struct MapTmj {
 impl MapTmj {
 	pub fn new() -> Self {
 		Self { layers: Vec::new() }
+	}
+
+	pub fn layers(&self) -> &Vec<Layer> {
+		&self.layers
 	}
 
 	fn decode_chunks(&mut self) -> anyhow::Result<()> {
