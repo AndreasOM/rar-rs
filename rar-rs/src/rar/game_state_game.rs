@@ -19,6 +19,7 @@ pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
 	entity_manager: EntityManager,
 	world: World,
+	camera: Vector2,
 }
 
 impl GameStateGame {
@@ -27,6 +28,7 @@ impl GameStateGame {
 			entity_manager: EntityManager::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),
 			world: World::new(),
+			camera: Vector2::zero(),
 		}
 	}
 }
@@ -110,6 +112,8 @@ impl GameState for GameStateGame {
 		for e in self.entity_manager.iter_mut() {
 			e.update(&mut euc);
 		}
+
+		self.camera.x += 1.0;
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
 		for e in self.entity_manager.iter_mut() {
@@ -123,22 +127,11 @@ impl GameState for GameStateGame {
 					//if l.name() == "CameraControl" {
 					for o in l.objects() {
 						match o.data() {
-							map::ObjectData::Rectangle {
-								x,
-								y,
-								width,
-								height,
-							} => {
-								let hflip = Vector2::new( 1.0, -1.0 );
-								let pos = Vector2::new(*x as f32, *y as f32);//.scaled(0.5);
-								let pos = pos.add( &Vector2::new( -1024.0, -1024.0 ) );
-								let pos = pos.scaled_vector2( &hflip );
-								let pos = pos.add( &Vector2::new( 0.0, -512.0 ) );
-								let size = Vector2::new(*width as f32, *height as f32);
-								let size = size.scaled_vector2( &hflip );
-								let pos = pos.add(&size.scaled(0.5));
-								println!("{}, {:?} - {:?}", o.class(), &pos, &size);
-								debug_renderer.add_frame(&pos, &size, 3.0, &Color::white());
+							map::ObjectData::Rectangle { rect } => {
+								let mut rect = rect.clone();
+								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
+								rect.offset( &offset );
+								debug_renderer.add_rectangle( &rect, 3.0, &Color::white() );
 							},
 							_ => {},
 						}

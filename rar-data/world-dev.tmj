@@ -70,6 +70,28 @@
                  "width":0,
                  "x":512,
                  "y":512
+                }, 
+                {
+                 "class":"Test",
+                 "height":64,
+                 "id":7,
+                 "name":"ZeroZero",
+                 "rotation":0,
+                 "visible":true,
+                 "width":64,
+                 "x":0,
+                 "y":0
+                }, 
+                {
+                 "class":"Test",
+                 "height":64,
+                 "id":8,
+                 "name":"ZeroOne",
+                 "rotation":0,
+                 "visible":true,
+                 "width":64,
+                 "x":0,
+                 "y":960
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -123,7 +145,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":7,
+ "nextobjectid":9,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.0",

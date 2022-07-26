@@ -1,4 +1,5 @@
 use derive_getters::Getters;
+use oml_game::math::Rectangle;
 use oml_game::system::System;
 
 /* we could use an enum for the different layer types, but for now we just mix into on struct?!
@@ -17,10 +18,7 @@ pub enum LayerType {
 #[derive(Debug, Default)]
 pub enum ObjectData {
 	Rectangle {
-		x:      f64,
-		y:      f64,
-		width:  f64,
-		height: f64,
+		rect: Rectangle,
 	},
 	#[default]
 	Unknown,
@@ -33,6 +31,25 @@ pub struct Object {
 	data:  ObjectData,
 }
 
+impl Object {
+	pub fn hflip( &mut self, pivot_y: f32 ) {
+		let mut data: &mut ObjectData = &mut self.data;
+//		let mut u = ObjectData::Unknown;
+//		data = &mut u;
+		match data {
+			ObjectData::Rectangle { rect } => {
+				let pos = rect.pos();
+				let size =rect.size();
+				//let pos.y = - pos.y;
+
+				rect.set_y( pivot_y-pos.y - size.y );
+			},
+			_ => {
+				println!("Warning: hflip for {:?} not implemented", &data);
+			},
+		}
+	}
+}
 #[derive(Debug, Default, Getters)]
 pub struct Layer {
 	layertype: LayerType,
@@ -44,16 +61,25 @@ impl Layer {
 	pub fn add_object(&mut self, object: Object) {
 		self.objects.push(object);
 	}
+	pub fn hflip( &mut self, pivot_y: f32 ) {
+		for o in &mut self.objects {
+			o.hflip( pivot_y );
+			/*
+			*/
+		}
+	}
 }
 
 #[derive(Debug, Default, Getters)]
 pub struct Map {
 	layers: Vec<Layer>,
+	upsideup: bool,
 }
 
 impl Map {
 	pub fn new() -> Self {
 		Self {
+			upsideup: true,
 			..Default::default()
 		}
 	}
@@ -80,6 +106,14 @@ impl Map {
 		}
 		Ok(())
 	}
+
+	pub fn hflip( &mut self, pivot_y: f32 ) {
+		for l in &mut self.layers {
+			l.hflip( pivot_y );
+		}
+		self.upsideup = !self.upsideup;
+
+	}
 }
 
 impl From<&map_tmj::Object> for Object {
@@ -88,10 +122,7 @@ impl From<&map_tmj::Object> for Object {
 			ObjectData::Unknown
 		} else {
 			ObjectData::Rectangle {
-				x:      otmj.x(),
-				y:      otmj.y(),
-				width:  otmj.width(),
-				height: otmj.height(),
+				rect: (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),
 			}
 		};
 
@@ -129,6 +160,7 @@ impl From<&map_tmj::Layer> for Layer {
 impl From<map_tmj::MapTmj> for Map {
 	fn from(mtmj: map_tmj::MapTmj) -> Self {
 		let mut m = Map::new();
+		m.upsideup = false;	// tiled is upside down!
 		for l in mtmj.layers() {
 			m.add_layer(l.into());
 		}
