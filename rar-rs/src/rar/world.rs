@@ -3,6 +3,8 @@ use oml_game::system::System;
 
 use crate::rar::Map;
 
+pub const UPSIDEUP: bool = true;
+
 #[derive(Debug, Default, Getters)]
 pub struct WorldMap {
 	filename: String, // prefix!
@@ -31,6 +33,10 @@ impl World {
 		for m in self.maps.iter_mut() {
 			let mut map = Map::new();
 			map.load(system, &m.filename)?;
+			
+			if *map.upsideup() != UPSIDEUP {
+				map.hflip( 512.0 );
+			}
 
 			m.map = Some(map);
 		}
