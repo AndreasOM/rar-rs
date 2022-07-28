@@ -2,14 +2,33 @@
     name: "player"
     type: "player"
     states:
-     idle:
+     wait_for_start:
         first_frame: 0
-        last_frame: 0
-#        number_of_digits: 4
+        last_frame: 8
         size: [ 128.0, 128.0 ]
         offset: [ 0.0, 0.0 ]
         directions:
           left:
-            template: "player-idle-left-%04d"
+            template: "player-idle-left-"
           right:
-            template: "player-idle-right-%04d"
+            template: "player-idle-right-"
+     idle:
+        first_frame: 0
+        last_frame: 8
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-idle-left-"
+          right:
+            template: "player-idle-right-"
+     backflip:
+        first_frame: 0
+        last_frame: 48
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-backflip-left-"
+          right:
+            template: "player-backflip-right-"

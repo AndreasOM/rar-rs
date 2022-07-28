@@ -147,7 +147,7 @@ impl App for RarApp {
 		if wuc.mouse_buttons[0] {
 			println!("{} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
 		}
-		if wuc.was_key_pressed('i' as u8) {
+		if wuc.was_key_pressed(']' as u8) {
 			if self.debug_renderer.is_none() {
 				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
 					LayerId::DebugRenderer as u8,
@@ -199,6 +199,12 @@ impl App for RarApp {
 		}
 
 		self.game_state.update(wuc);
+
+		// :HACK:
+		if let Some(debug_renderer) = &*self.debug_renderer {
+			let mut debug_renderer = debug_renderer.borrow_mut();
+			self.game_state.render_debug(&mut debug_renderer);
+		}
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();

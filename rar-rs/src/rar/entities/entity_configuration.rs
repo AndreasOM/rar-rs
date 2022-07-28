@@ -59,27 +59,65 @@ impl EntityConfigurationStateDirection {
 			template: template.to_string(),
 		}
 	}
+	pub fn name(&self) -> &str {
+		&self.name
+	}
+	pub fn template(&self) -> &str {
+		&self.template
+	}
 }
 
 #[derive(Debug)]
 pub struct EntityConfigurationState {
-	name:       String,
-	size:       [f32; 2],
-	offset:     [f32; 2],
-	directions: HashMap<String, EntityConfigurationStateDirection>,
+	name:        String,
+	first_frame: u16,
+	last_frame:  u16,
+	size:        [f32; 2],
+	offset:      [f32; 2],
+	directions:  HashMap<String, EntityConfigurationStateDirection>,
 }
 
 impl EntityConfigurationState {
-	pub fn new(name: &str, size: &[f32; 2], offset: &[f32; 2]) -> Self {
+	pub fn new(
+		name: &str,
+		first_frame: u16,
+		last_frame: u16,
+		size: &[f32; 2],
+		offset: &[f32; 2],
+	) -> Self {
 		Self {
-			name:       name.to_string(),
-			size:       size.clone(),
-			offset:     offset.clone(),
+			name: name.to_string(),
+			first_frame,
+			last_frame,
+			size: size.clone(),
+			offset: offset.clone(),
 			directions: HashMap::new(),
 		}
 	}
 	pub fn add_direction(&mut self, direction: EntityConfigurationStateDirection) {
 		self.directions.insert(direction.name.clone(), direction);
+	}
+
+	pub fn name(&self) -> &str {
+		&self.name
+	}
+	pub fn first_frame(&self) -> u16 {
+		self.first_frame
+	}
+	pub fn last_frame(&self) -> u16 {
+		self.last_frame
+	}
+	pub fn size(&self) -> &[f32; 2] {
+		&self.size
+	}
+	pub fn offset(&self) -> &[f32; 2] {
+		&self.offset
+	}
+
+	pub fn directions_iter(
+		&self,
+	) -> std::collections::hash_map::Iter<String, EntityConfigurationStateDirection> {
+		self.directions.iter()
 	}
 }
 
@@ -113,6 +151,12 @@ impl EntityConfiguration {
 
 	pub fn add_state(&mut self, state: EntityConfigurationState) {
 		self.states.insert(state.name.clone(), state);
+	}
+
+	pub fn states_iter(
+		&self,
+	) -> std::collections::hash_map::Iter<String, EntityConfigurationState> {
+		self.states.iter()
 	}
 }
 
@@ -224,7 +268,8 @@ impl EntityConfigurationManager {
 
 		let mut ec = EntityConfiguration::new(&ecye.name, &ecye.entity_type);
 		for (k, v) in ecye.states {
-			let mut s = EntityConfigurationState::new(&k, &v.size, &v.offset);
+			let mut s =
+				EntityConfigurationState::new(&k, v.first_frame, v.last_frame, &v.size, &v.offset);
 
 			for (dk, dv) in v.directions {
 				let mut d = EntityConfigurationStateDirection::new(&dk, &dv.template);
