@@ -5,6 +5,7 @@ use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use oml_game::window::WindowUpdateContext;
 
+use crate::rar::camera::Camera;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{
 	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
@@ -15,11 +16,12 @@ use crate::rar::GameState;
 use crate::rar::PlayerInputContext;
 use crate::rar::World;
 
+#[derive(Debug,Default)]
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
 	entity_manager: EntityManager,
 	world: World,
-	camera: Vector2,
+	camera: Camera,
 }
 
 impl GameStateGame {
@@ -28,7 +30,7 @@ impl GameStateGame {
 			entity_manager: EntityManager::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),
 			world: World::new(),
-			camera: Vector2::zero(),
+			..Default::default()
 		}
 	}
 }
@@ -86,6 +88,9 @@ impl GameState for GameStateGame {
 		}
 		if wuc.is_key_pressed('w' as u8) {
 			pic.is_up_pressed = true;
+			// :HACK:
+
+			self.camera.set_target_pos( &self.camera.pos().add( &Vector2::new( 100.0, 0.0 ) ) );
 		}
 		if wuc.is_key_pressed('s' as u8) {
 			pic.is_down_pressed = true;
@@ -113,7 +118,7 @@ impl GameState for GameStateGame {
 			e.update(&mut euc);
 		}
 
-		self.camera.x += 1.0;
+		self.camera.update( wuc.time_step );
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
 		for e in self.entity_manager.iter_mut() {
@@ -121,6 +126,8 @@ impl GameState for GameStateGame {
 		}
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
+		let offset = self.camera.offset();
+		debug_renderer.add_circle( &offset, 32.0, 3.0, &Color::white() );
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
@@ -129,7 +136,6 @@ impl GameState for GameStateGame {
 						match o.data() {
 							map::ObjectData::Rectangle { rect } => {
 								let mut rect = rect.clone();
-								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
 								rect.offset( &offset );
 								debug_renderer.add_rectangle( &rect, 3.0, &Color::white() );
 							},

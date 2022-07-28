@@ -3,6 +3,8 @@
 
 ## In Progress
 
+- [ ] Implement basic player follow camera
+
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
 
@@ -19,6 +21,9 @@
 
 
 ## Done
+
+### Episode 0006 - 1.5h... + 
+- [x] Start adding simple camera
 
 ### Episode 0005 - 1.5h + 4h
 - [x] Load entity configuration for player from file

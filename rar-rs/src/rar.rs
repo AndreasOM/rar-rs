@@ -11,6 +11,8 @@ pub use entity_update_context::EntityUpdateContext;
 mod player_input_context;
 pub use player_input_context::PlayerInputContext;
 
+mod camera;
+
 mod map;
 pub use map::Map;
 mod world;
