@@ -20,7 +20,7 @@
 
 ## Done
 
-### Episode 0005 - 1.5h
+### Episode 0005 - 1.5h + 4h
 - [x] Load entity configuration for player from file
 
 ### Episode 0004 - 2h + 2h
