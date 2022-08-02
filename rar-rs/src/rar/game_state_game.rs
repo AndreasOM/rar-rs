@@ -56,12 +56,14 @@ impl GameState for GameStateGame {
 		self.entity_manager.add(Box::new(player));
 
 		// add 2nd player
+		/* disabled for now
 		let mut player = Player::new();
 		player.setup(self.entity_configuration_manager.get_config("player"));
 		player.set_input_context_index(1);
 		player.respawn();
 		self.entity_manager.add(Box::new(player));
-
+		*/
+		
 		// add background
 		let mut background = Background::new();
 		background.setup(self.entity_configuration_manager.get_config("background"));
