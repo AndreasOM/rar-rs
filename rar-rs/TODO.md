@@ -18,9 +18,13 @@
 ## TODO - off stream
 - [ ] Add `%04d` handling to AnimatedTexture
 - [ ] Hook up backflip
+- [ ] Remove dead from entity manager
 
 
 ## Done
+
+### Episode 0007 - 1.0h... + ...
+- [x] Rework EntityManager to allow retrieving entities by EntityId
 
 ### Episode 0006 - 1.5h + 0h 
 - [x] Start adding simple camera
