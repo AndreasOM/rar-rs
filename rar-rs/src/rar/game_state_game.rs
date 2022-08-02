@@ -136,6 +136,7 @@ impl GameState for GameStateGame {
 						match o.data() {
 							map::ObjectData::Rectangle { rect } => {
 								let mut rect = rect.clone();
+								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
 								rect.offset( &offset );
 								debug_renderer.add_rectangle( &rect, 3.0, &Color::white() );
 							},
