@@ -3,6 +3,8 @@
 
 ## In Progress
 
+- [ ] Implement MatrixStack to allowing pushing, popping, and multiplying
+
 - [ ] Implement basic player follow camera
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
@@ -14,6 +16,7 @@
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
 - [ ] Add test case for entity configuration loading from yaml
+- [ ] Decide of entities should have components, e.g position
 
 ## TODO - off stream
 - [ ] Add `%04d` handling to AnimatedTexture
@@ -23,8 +26,11 @@
 
 ## Done
 
-### Episode 0007 - 1.0h... + ...
+### Episode 0007 - 2.0h + ...
 - [x] Rework EntityManager to allow retrieving entities by EntityId
+- [x] Add per layer translation :HACK:
+- [x] Add very basic player follow camera.
+- [x] Add fixed debug camera.
 
 ### Episode 0006 - 1.5h + 0h 
 - [x] Start adding simple camera

@@ -6,8 +6,8 @@ mod entity_configuration;
 pub use entity_configuration::AnimatedTextureConfiguration;
 pub use entity_configuration::EntityConfiguration;
 pub use entity_configuration::EntityConfigurationManager;
-mod entity_ids;
-pub use entity_ids::EntityId;
+//mod entity_ids;
+//pub use entity_ids::EntityId;
 mod entity_types;
 pub use entity_types::EntityType;
 /*
@@ -31,4 +31,5 @@ mod background;
 pub use background::Background;
 
 mod entity_manager;
+pub use entity_manager::EntityId;
 pub use entity_manager::EntityManager;

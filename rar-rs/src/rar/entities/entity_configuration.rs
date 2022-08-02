@@ -4,7 +4,7 @@ use oml_game::math::Vector2;
 use oml_game::system::System;
 use serde::{Deserialize, Serialize};
 
-use crate::rar::entities::entity_ids::*;
+//use crate::rar::entities::entity_ids::*;
 use crate::rar::entities::EntityType;
 
 #[derive(Debug)]

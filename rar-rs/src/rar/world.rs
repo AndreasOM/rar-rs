@@ -33,9 +33,9 @@ impl World {
 		for m in self.maps.iter_mut() {
 			let mut map = Map::new();
 			map.load(system, &m.filename)?;
-			
+
 			if *map.upsideup() != UPSIDEUP {
-				map.hflip( 512.0 );
+				map.hflip(512.0);
 			}
 
 			m.map = Some(map);

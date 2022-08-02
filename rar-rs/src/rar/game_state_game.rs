@@ -7,21 +7,21 @@ use oml_game::window::WindowUpdateContext;
 
 use crate::rar::camera::Camera;
 use crate::rar::entities::entity::Entity;
-use crate::rar::entities::{
-	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
-};
+use crate::rar::entities::{Background, EntityConfigurationManager, EntityManager, Player};
 use crate::rar::map;
 use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::PlayerInputContext;
 use crate::rar::World;
+use crate::rar::layer_ids::LayerId;
 
-#[derive(Debug,Default)]
+#[derive(Debug, Default)]
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
 	entity_manager: EntityManager,
 	world: World,
 	camera: Camera,
+	use_fixed_camera: bool,
 }
 
 impl GameStateGame {
@@ -53,7 +53,9 @@ impl GameState for GameStateGame {
 		player.setup(self.entity_configuration_manager.get_config("player"));
 		player.set_input_context_index(0);
 		player.respawn();
-		self.entity_manager.add(Box::new(player));
+		let player_id = self.entity_manager.add(Box::new(player));
+
+		self.camera.follow_player_entity_id(player_id);
 
 		// add 2nd player
 		/* disabled for now
@@ -63,7 +65,7 @@ impl GameState for GameStateGame {
 		player.respawn();
 		self.entity_manager.add(Box::new(player));
 		*/
-		
+
 		// add background
 		let mut background = Background::new();
 		background.setup(self.entity_configuration_manager.get_config("background"));
@@ -81,6 +83,10 @@ impl GameState for GameStateGame {
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
 		let mut euc = EntityUpdateContext::new();
 
+		if wuc.was_key_pressed('[' as u8) {
+			self.use_fixed_camera = !self.use_fixed_camera;
+		}
+
 		let mut pic = PlayerInputContext::default();
 		if wuc.is_key_pressed('a' as u8) {
 			pic.is_left_pressed = true;
@@ -92,7 +98,8 @@ impl GameState for GameStateGame {
 			pic.is_up_pressed = true;
 			// :HACK:
 
-			self.camera.set_target_pos( &self.camera.pos().add( &Vector2::new( 100.0, 0.0 ) ) );
+			self.camera
+				.set_target_pos(&self.camera.pos().add(&Vector2::new(100.0, 0.0)));
 		}
 		if wuc.is_key_pressed('s' as u8) {
 			pic.is_down_pressed = true;
@@ -120,16 +127,27 @@ impl GameState for GameStateGame {
 			e.update(&mut euc);
 		}
 
-		self.camera.update( wuc.time_step );
+		self.camera.update(wuc.time_step, &self.entity_manager);
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
+//		let mtx = Matrix44::identity();
+		// :TODO: apply camera offset
+//		renderer.mul_matrix( &mtx );
+		if !self.use_fixed_camera { // :TODO: cycle through all cameras
+			renderer.add_translation_for_layer( LayerId::Player as u8, &self.camera.offset() );	// :TODO: handle via MatrixStack
+		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);
 		}
+//		renderer.pop_matrix();
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
-		let offset = self.camera.offset();
-		debug_renderer.add_circle( &offset, 32.0, 3.0, &Color::white() );
+		let offset = if !self.use_fixed_camera {
+			self.camera.offset()
+		} else {
+			Vector2::zero()
+		};
+		debug_renderer.add_circle(&self.camera.pos().add( &offset ), 32.0, 3.0, &Color::white());
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
@@ -138,9 +156,9 @@ impl GameState for GameStateGame {
 						match o.data() {
 							map::ObjectData::Rectangle { rect } => {
 								let mut rect = rect.clone();
-//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
-								rect.offset( &offset );
-								debug_renderer.add_rectangle( &rect, 3.0, &Color::white() );
+								//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
+								rect.offset(&offset);
+								debug_renderer.add_rectangle(&rect, 3.0, &Color::white());
 							},
 							_ => {},
 						}
