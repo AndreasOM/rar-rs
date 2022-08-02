@@ -1,6 +1,6 @@
 use crate::rar::entities::Entity;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct EntityManager {
 	entities: Vec<Box<dyn Entity>>,
 }

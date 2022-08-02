@@ -225,7 +225,7 @@ impl Default for EntiyConfigurationYaml {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct EntityConfigurationManager {
 	configs: HashMap<String, EntityConfiguration>,
 }
