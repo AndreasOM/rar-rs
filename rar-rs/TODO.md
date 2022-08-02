@@ -22,7 +22,7 @@
 
 ## Done
 
-### Episode 0006 - 1.5h... + 
+### Episode 0006 - 1.5h + 0h 
 - [x] Start adding simple camera
 
 ### Episode 0005 - 1.5h + 4h
