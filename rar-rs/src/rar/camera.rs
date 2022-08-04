@@ -37,7 +37,7 @@ impl Camera {
 			CameraMode::FollowPlayerEntityId { id } => {
 				if let Some(p) = entity_manager.get_as::<Player>(id) {
 					//println!("{:?}", p.pos());
-					self.set_target_pos( p.pos() );
+					self.set_target_pos(p.pos());
 				} else {
 					panic!("Can not follow player {}", id);
 				}

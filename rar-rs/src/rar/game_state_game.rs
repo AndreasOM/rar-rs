@@ -8,12 +8,12 @@ use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{Background, EntityConfigurationManager, EntityManager, Player};
+use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::PlayerInputContext;
 use crate::rar::World;
-use crate::rar::layer_ids::LayerId;
 
 #[derive(Debug, Default)]
 pub struct GameStateGame {
@@ -130,16 +130,18 @@ impl GameState for GameStateGame {
 		self.camera.update(wuc.time_step, &self.entity_manager);
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
-//		let mtx = Matrix44::identity();
+		//		let mtx = Matrix44::identity();
 		// :TODO: apply camera offset
-//		renderer.mul_matrix( &mtx );
-		if !self.use_fixed_camera { // :TODO: cycle through all cameras
-			renderer.add_translation_for_layer( LayerId::Player as u8, &self.camera.offset() );	// :TODO: handle via MatrixStack
+		//		renderer.mul_matrix( &mtx );
+		if !self.use_fixed_camera {
+			// :TODO: cycle through all cameras
+			renderer.add_translation_for_layer(LayerId::Player as u8, &self.camera.offset());
+			// :TODO: handle via MatrixStack
 		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);
 		}
-//		renderer.pop_matrix();
+		//		renderer.pop_matrix();
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		let offset = if !self.use_fixed_camera {
@@ -147,7 +149,7 @@ impl GameState for GameStateGame {
 		} else {
 			Vector2::zero()
 		};
-		debug_renderer.add_circle(&self.camera.pos().add( &offset ), 32.0, 3.0, &Color::white());
+		debug_renderer.add_circle(&self.camera.pos().add(&offset), 32.0, 3.0, &Color::white());
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
