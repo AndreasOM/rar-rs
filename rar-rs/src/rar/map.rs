@@ -32,17 +32,17 @@ pub struct Object {
 }
 
 impl Object {
-	pub fn hflip( &mut self, pivot_y: f32 ) {
+	pub fn hflip(&mut self, pivot_y: f32) {
 		let mut data: &mut ObjectData = &mut self.data;
-//		let mut u = ObjectData::Unknown;
-//		data = &mut u;
+		//		let mut u = ObjectData::Unknown;
+		//		data = &mut u;
 		match data {
 			ObjectData::Rectangle { rect } => {
 				let pos = rect.pos();
-				let size =rect.size();
+				let size = rect.size();
 				//let pos.y = - pos.y;
 
-				rect.set_y( pivot_y-pos.y - size.y );
+				rect.set_y(pivot_y - pos.y - size.y);
 			},
 			_ => {
 				println!("Warning: hflip for {:?} not implemented", &data);
@@ -61,18 +61,18 @@ impl Layer {
 	pub fn add_object(&mut self, object: Object) {
 		self.objects.push(object);
 	}
-	pub fn hflip( &mut self, pivot_y: f32 ) {
+	pub fn hflip(&mut self, pivot_y: f32) {
 		for o in &mut self.objects {
-			o.hflip( pivot_y );
+			o.hflip(pivot_y);
 			/*
-			*/
+				*/
 		}
 	}
 }
 
 #[derive(Debug, Default, Getters)]
 pub struct Map {
-	layers: Vec<Layer>,
+	layers:   Vec<Layer>,
 	upsideup: bool,
 }
 
@@ -107,12 +107,11 @@ impl Map {
 		Ok(())
 	}
 
-	pub fn hflip( &mut self, pivot_y: f32 ) {
+	pub fn hflip(&mut self, pivot_y: f32) {
 		for l in &mut self.layers {
-			l.hflip( pivot_y );
+			l.hflip(pivot_y);
 		}
 		self.upsideup = !self.upsideup;
-
 	}
 }
 
@@ -160,7 +159,7 @@ impl From<&map_tmj::Layer> for Layer {
 impl From<map_tmj::MapTmj> for Map {
 	fn from(mtmj: map_tmj::MapTmj) -> Self {
 		let mut m = Map::new();
-		m.upsideup = false;	// tiled is upside down!
+		m.upsideup = false; // tiled is upside down!
 		for l in mtmj.layers() {
 			m.add_layer(l.into());
 		}

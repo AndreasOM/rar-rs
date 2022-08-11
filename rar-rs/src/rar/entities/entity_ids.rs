@@ -1,3 +1,5 @@
+// DEPRECATED!
+
 /* Note: use the enum below instead
 pub const ENTITYID_BUBBLE			:u32	= 0xeb20f1f7;
 pub const ENTITYID_PICKUPCOIN		:u32	= 0xe4c651aa;
