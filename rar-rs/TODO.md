@@ -3,8 +3,6 @@
 
 ## In Progress
 
-- [ ] Implement MatrixStack to allowing pushing, popping, and multiplying
-
 - [ ] Implement basic player follow camera
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
@@ -26,7 +24,8 @@
 
 ## Done
 
-### Episode 0007 - 2.0h + ...
+### Episode 0007 - 2.0h + 1.5h
+- [x] Implement MatrixStack to allowing pushing, popping, and multiplying
 - [x] Rework EntityManager to allow retrieving entities by EntityId
 - [x] Add per layer translation :HACK:
 - [x] Add very basic player follow camera.
