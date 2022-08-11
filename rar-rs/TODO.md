@@ -3,8 +3,6 @@
 
 ## In Progress
 
-- [ ] Implement basic player follow camera
-
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
 
@@ -24,7 +22,11 @@
 
 ## Done
 
+### Episode 0008 - 1.0h...
+- [x] Implement simple camera FX ("punch it", e.g. for player death)
+
 ### Episode 0007 - 2.0h + 1.5h
+- [x] Implement basic player follow camera
 - [x] Implement MatrixStack to allowing pushing, popping, and multiplying
 - [x] Rework EntityManager to allow retrieving entities by EntityId
 - [x] Add per layer translation :HACK:
