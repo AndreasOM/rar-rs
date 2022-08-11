@@ -9,6 +9,8 @@
 
 ## TODO
 - [ ] Render tilemap
+- [ ] Use player spawn position from map
+- [ ] Use camera start position from map
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge

@@ -14,22 +14,22 @@ enum CameraMode {
 
 #[derive(Debug, Getters)]
 pub struct Camera {
-	pos:        Vector2,
-	target_pos: Vector2,
-	mode:       CameraMode,
-	punch_factor: f32,
+	pos:                 Vector2,
+	target_pos:          Vector2,
+	mode:                CameraMode,
+	punch_factor:        f32,
 	target_punch_factor: f32,
 }
 
 impl Default for Camera {
-	fn default() -> Self { 
+	fn default() -> Self {
 		Self {
-			pos: Vector2::default(),
-			target_pos: Vector2::default(),
-			mode: CameraMode::default(),
-			punch_factor: 1.0,
+			pos:                 Vector2::default(),
+			target_pos:          Vector2::default(),
+			mode:                CameraMode::default(),
+			punch_factor:        1.0,
 			target_punch_factor: 1.0,
-//			..Default::default()
+			//			..Default::default()
 		}
 	}
 }
@@ -49,7 +49,7 @@ impl Camera {
 		self.mode = CameraMode::FollowPlayerEntityId { id }
 	}
 
-	pub fn punch( &mut self, punch_factor: f32 ){
+	pub fn punch(&mut self, punch_factor: f32) {
 		self.punch_factor = punch_factor;
 	}
 
@@ -68,7 +68,7 @@ impl Camera {
 
 		let ls = 1.1 * time_step as f32;
 
-		self.punch_factor = lerp( self.punch_factor, self.target_punch_factor, ls);
+		self.punch_factor = lerp(self.punch_factor, self.target_punch_factor, ls);
 		self.pos.x = lerp(self.pos.x, self.target_pos.x, ls);
 		self.pos.y = lerp(self.pos.y, self.target_pos.y, ls);
 	}

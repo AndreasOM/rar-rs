@@ -84,7 +84,7 @@ impl GameState for GameStateGame {
 		let mut euc = EntityUpdateContext::new();
 
 		if wuc.was_key_pressed('p' as u8) {
-			self.camera.punch( 5.0 );
+			self.camera.punch(5.0);
 		}
 
 		if wuc.was_key_pressed('[' as u8) {
@@ -140,7 +140,7 @@ impl GameState for GameStateGame {
 		if !self.use_fixed_camera {
 			// :TODO: cycle through all cameras
 			renderer.add_translation_for_layer(LayerId::Player as u8, &self.camera.offset());
-			renderer.add_scaling_for_layer(LayerId::Player as u8, self.camera.scale());			// :TODO: handle via MatrixStack
+			renderer.add_scaling_for_layer(LayerId::Player as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);
