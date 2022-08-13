@@ -1,53 +1,10 @@
+use derive_getters::Getters;
 use oml_game::system::System;
 //use serde_json::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::{Result, Value};
 
-//#[derive(Debug)]
-pub struct TileMap {
-	width:  u32,
-	height: u32,
-	tiles:  Vec<u32>,
-}
-
-impl TileMap {
-	pub fn new(width: u32, height: u32) -> Self {
-		Self {
-			width,
-			height,
-			tiles: Vec::with_capacity((width * height) as usize),
-		}
-	}
-
-	pub fn push(&mut self, tile: u32) {
-		self.tiles.push(tile);
-	}
-}
-
-impl Default for TileMap {
-	fn default() -> Self {
-		Self {
-			width:  0,
-			height: 0,
-			tiles:  Vec::default(),
-		}
-	}
-}
-
-impl std::fmt::Debug for TileMap {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		//write!(f, "TileMap {}x{} ({} / {})", self.width, self.height, self.)
-		let mut f = f.debug_struct("TileMap");
-		f.field("width", &self.width)
-			.field("width", &self.width)
-			.field("height", &self.height)
-			.field("cap()", &self.tiles.capacity())
-			.field("len()", &self.tiles.len());
-		//		f.write_fmt(f, "Hi: {}", 3);
-		// :TODO: I wish there was a way to append to a result :(
-		f.finish()
-	}
-}
+use crate::rar::map::TileMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -89,7 +46,7 @@ impl Object {
 	}
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Getters, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Chunk {
 	data:   String,
@@ -155,6 +112,9 @@ impl Layer {
 	pub fn width(&self) -> u32 {
 		self.width
 	}
+	pub fn chunks(&self) -> &Option<Vec<Chunk>> {
+		&self.chunks
+	}
 	pub fn objects(&self) -> &Option<Vec<Object>> {
 		&self.objects
 	}
@@ -162,12 +122,26 @@ impl Layer {
 #[derive(Debug, Serialize, Deserialize)]
 //#[serde(deny_unknown_fields)]
 pub struct MapTmj {
-	layers: Vec<Layer>,
+	layers:     Vec<Layer>,
+	tileheight: u32,
+	tilewidth:  u32,
 }
 
 impl MapTmj {
 	pub fn new() -> Self {
-		Self { layers: Vec::new() }
+		Self {
+			layers:     Vec::new(),
+			tileheight: 0,
+			tilewidth:  0,
+		}
+	}
+
+	pub fn tileheight(&self) -> u32 {
+		self.tileheight
+	}
+
+	pub fn tilewidth(&self) -> u32 {
+		self.tilewidth
 	}
 
 	pub fn layers(&self) -> &Vec<Layer> {
