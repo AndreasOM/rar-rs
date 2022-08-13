@@ -26,7 +26,7 @@
 ## TODO - off stream
 - [ ] Hook up backflip
 - [ ] Remove dead from entity manager
-- [ ] Write loader for tilemap
+- [ ] Write loader for tileset
 
 ## Done
 
