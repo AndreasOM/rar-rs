@@ -8,13 +8,19 @@
  "margin":0,
  "name":"rar-default",
  "spacing":0,
- "tilecount":1,
+ "tilecount":2,
  "tiledversion":"1.9.0",
  "tileheight":64,
  "tiles":[
         {
          "id":0,
          "image":"tile_default_block.png",
+         "imageheight":64,
+         "imagewidth":64
+        }, 
+        {
+         "id":1,
+         "image":"tile_default_block_green.png",
          "imageheight":64,
          "imagewidth":64
         }],

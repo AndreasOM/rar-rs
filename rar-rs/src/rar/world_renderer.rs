@@ -51,6 +51,8 @@ impl WorldRenderer {
 									let w = tm.width();
 									let h = tm.height();
 
+									let ox = *c.x();
+
 									// :TODO: optimise the following four boundaries
 									let sy = 0;
 									let ey = w;
@@ -63,6 +65,9 @@ impl WorldRenderer {
 									//									let tw = 32;
 									let size = Vector2::new(tw as f32, th as f32);
 									let mut pos = Vector2::new(0.0, 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
+
+									// :HACK: apply chunk offset
+									pos = pos.add( &Vector2::new( ( ox as f32 ) * ( tw as f32 ), 0.0 ) );
 									let inc_x = Vector2::new(tw as f32, 0.0);
 									// including undo row
 									let inc_y =
@@ -71,17 +76,19 @@ impl WorldRenderer {
 										for x in sx..ex {
 											let tid = tm.get_xy(x, y);
 											if tid == 1 {
-												//|| tid == 0 {
 												renderer.use_texture("tile_default_block");
-
+												renderer.render_textured_quad(&pos, &size);
+											}
+											else if tid == 2 {
+												renderer.use_texture("tile_default_block_green");
 												renderer.render_textured_quad(&pos, &size);
 											}
 											pos = pos.add(&inc_x);
 
-											//											print!("{:1}", tid);
+//											print!("{:1}", tid);
 										}
 										pos = pos.add(&inc_y);
-										//										println!();
+//										println!();
 									}
 								}
 							},
