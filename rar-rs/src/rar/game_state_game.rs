@@ -83,6 +83,10 @@ impl GameState for GameStateGame {
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
 		let mut euc = EntityUpdateContext::new();
 
+		if wuc.was_key_pressed('p' as u8) {
+			self.camera.punch(5.0);
+		}
+
 		if wuc.was_key_pressed('[' as u8) {
 			self.use_fixed_camera = !self.use_fixed_camera;
 		}
@@ -136,7 +140,7 @@ impl GameState for GameStateGame {
 		if !self.use_fixed_camera {
 			// :TODO: cycle through all cameras
 			renderer.add_translation_for_layer(LayerId::Player as u8, &self.camera.offset());
-			// :TODO: handle via MatrixStack
+			renderer.add_scaling_for_layer(LayerId::Player as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);
@@ -149,7 +153,12 @@ impl GameState for GameStateGame {
 		} else {
 			Vector2::zero()
 		};
-		debug_renderer.add_circle(&self.camera.pos().add(&offset), 32.0, 3.0, &Color::white());
+		let r = if !self.use_fixed_camera {
+			32.0
+		} else {
+			32.0 / self.camera.scale()
+		};
+		debug_renderer.add_circle(&self.camera.pos().add(&offset), r, 3.0, &Color::white());
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {

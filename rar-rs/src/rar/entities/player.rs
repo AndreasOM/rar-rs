@@ -62,9 +62,8 @@ pub struct EntityStateDirection {
 
 impl EntityStateDirection {
 	pub fn new(name: &str, template: &str, first_frame: u16, last_frame: u16, fps: f32) -> Self {
-		let number_of_digits = 4; // :TODO: remove
 		let mut animated_texture = AnimatedTexture::new();
-		animated_texture.setup(template, number_of_digits, first_frame, last_frame, fps);
+		animated_texture.setup(template, first_frame, last_frame, fps);
 		Self {
 			name: name.to_string(),
 			template: template.to_string(),

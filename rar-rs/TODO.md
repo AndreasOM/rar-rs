@@ -3,13 +3,14 @@
 
 ## In Progress
 
-- [ ] Implement basic player follow camera
-
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
 
 
 ## TODO
+- [ ] Render tilemap
+- [ ] Use player spawn position from map
+- [ ] Use camera start position from map
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -17,14 +18,18 @@
 - [ ] Decide of entities should have components, e.g position
 
 ## TODO - off stream
-- [ ] Add `%04d` handling to AnimatedTexture
 - [ ] Hook up backflip
 - [ ] Remove dead from entity manager
 
 
 ## Done
 
+### Episode 0008 - 1.5h...
+- [x] Add `%0*[1-8]d` handling to AnimatedTexture
+- [x] Implement simple camera FX ("punch it", e.g. for player death)
+
 ### Episode 0007 - 2.0h + 1.5h
+- [x] Implement basic player follow camera
 - [x] Implement MatrixStack to allowing pushing, popping, and multiplying
 - [x] Rework EntityManager to allow retrieving entities by EntityId
 - [x] Add per layer translation :HACK:

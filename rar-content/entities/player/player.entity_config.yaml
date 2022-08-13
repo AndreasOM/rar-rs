@@ -9,9 +9,9 @@
         offset: [ 0.0, 0.0 ]
         directions:
           left:
-            template: "player-idle-left-"
+            template: "player-idle-left-%04d"
           right:
-            template: "player-idle-right-"
+            template: "player-idle-right-%04d"
      idle:
         first_frame: 0
         last_frame: 8
@@ -19,9 +19,9 @@
         offset: [ 0.0, 0.0 ]
         directions:
           left:
-            template: "player-idle-left-"
+            template: "player-idle-left-%04d"
           right:
-            template: "player-idle-right-"
+            template: "player-idle-right-%04d"
      backflip:
         first_frame: 0
         last_frame: 48
@@ -29,6 +29,6 @@
         offset: [ 0.0, 0.0 ]
         directions:
           left:
-            template: "player-backflip-left-"
+            template: "player-backflip-left-%04d"
           right:
-            template: "player-backflip-right-"
+            template: "player-backflip-right-%04d"
