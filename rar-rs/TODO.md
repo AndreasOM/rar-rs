@@ -30,9 +30,9 @@
 
 ## Done
 
-### Episode 0009 - 2.0h... +
-
-- [ ] Render some tiles
+### Episode 0009 - 2.0h + 1h    -> 18.0h + 14.0h        -> 32.0h
+- [x] Render some tiles
+- [X] Create Tileset loader
 
 ### Episode 0008 - 1.5h + 0h    -> 16.0h + 13.0h        -> 29.0h
 - [x] Add `%0*[1-8]d` handling to AnimatedTexture

@@ -15,6 +15,8 @@ mod camera;
 
 mod map;
 pub use map::Map;
+mod tileset;
+pub use tileset::Tileset;
 mod world;
 pub use world::World;
 mod world_renderer;
