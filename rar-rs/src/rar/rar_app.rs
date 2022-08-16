@@ -122,6 +122,13 @@ impl App for RarApp {
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::TexturedDesaturated as u16,
+			"Textured Desaturated",
+			"textured_desaturated_vs.glsl",
+			"textured_desaturated_fs.glsl",
+		));
 
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");

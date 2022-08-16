@@ -6,6 +6,7 @@ use oml_game::system::System;
 use oml_game::window::WindowUpdateContext;
 
 use crate::rar::camera::Camera;
+use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{Background, EntityConfigurationManager, EntityManager, Player};
 use crate::rar::layer_ids::LayerId;
@@ -75,7 +76,16 @@ impl GameState for GameStateGame {
 		self.world.load_all_tilesets(system)?;
 
 		self.world_renderer.setup()?;
-		self.world_renderer.enable_layer("Tile Layer 1");
+		self.world_renderer.enable_layer(
+			"Tile Layer 1",
+			LayerId::TileMap1 as u8,
+			EffectId::Textured as u16,
+		);
+		self.world_renderer.enable_layer(
+			"Tile Layer 2",
+			LayerId::TileMap2 as u8,
+			EffectId::TexturedDesaturated as u16,
+		);
 
 		Ok(())
 	}
@@ -147,6 +157,11 @@ impl GameState for GameStateGame {
 
 			renderer.add_translation_for_layer(LayerId::TileMap1 as u8, &self.camera.offset());
 			renderer.add_scaling_for_layer(LayerId::TileMap1 as u8, self.camera.scale()); // :TODO: handle via MatrixStack
+			renderer.add_translation_for_layer(
+				LayerId::TileMap2 as u8,
+				&self.camera.offset().scaled_vector2(&Vector2::new(1.5, 1.0)),
+			);
+			renderer.add_scaling_for_layer(LayerId::TileMap2 as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);

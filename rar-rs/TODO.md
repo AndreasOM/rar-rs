@@ -7,7 +7,7 @@
     - [x] Use correct texture
     - [ ] Apply chunk offset
     - [ ] Render only visible parts of world
-    - [ ] Allow per layer configuration of render effect and layer
+    - [x] Allow per layer configuration of render effect and layer
 
 
 ## TODO
@@ -30,9 +30,10 @@
 
 ## Done
 
-### Episode 0010 - 1.5h...
+### Episode 0010 - 2.0h + 
 - [x] Load tilesets
 - [x] Use tile configuration from Tileset for Map rendering
+- [x] Allow per layer configuration of render effect and layer
 
 ### Episode 0009 - 2.0h + 1h    -> 18.0h + 14.0h        -> 32.0h
 - [x] Render some tiles

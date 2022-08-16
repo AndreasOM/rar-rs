@@ -5,13 +5,17 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 
-use crate::rar::effect_ids::EffectId;
-use crate::rar::layer_ids::LayerId;
 use crate::rar::{map::LayerType, World};
 
 #[derive(Debug, Default)]
+struct EnabledLayer {
+	layer_id:  u8,
+	effect_id: u16,
+}
+
+#[derive(Debug, Default)]
 pub struct WorldRenderer {
-	enabled_layers: HashMap<String, bool>,
+	enabled_layers: HashMap<String, EnabledLayer>,
 }
 
 impl WorldRenderer {
@@ -21,18 +25,18 @@ impl WorldRenderer {
 
 	pub fn teardown(&mut self) {}
 
-	pub fn enable_layer(&mut self, layer_name: &str) {
-		let _layer = self
+	pub fn enable_layer(&mut self, layer_name: &str, layer_id: u8, effect_id: u16) {
+		let mut layer = self
 			.enabled_layers
 			.entry(layer_name.to_string())
-			.or_insert(true);
+			.or_insert(EnabledLayer::default());
+
+		layer.layer_id = layer_id;
+		layer.effect_id = effect_id;
+		//		layer.enabled = true;
 	}
 
 	pub fn render(&mut self, renderer: &mut Renderer, world: &World) {
-		// :HACK: :TODO: make layers configurable by user
-		renderer.use_layer(LayerId::TileMap1 as u8);
-		renderer.use_effect(EffectId::Textured as u16);
-
 		//		dbg!(&self);
 		for m in world.maps() {
 			//			dbg!(&m.filename());
@@ -43,6 +47,9 @@ impl WorldRenderer {
 						//						dbg!( &l.name() );
 						//						dbg!( &l );
 						//						println!("Layer ->");
+						renderer.use_layer(enabled_layer.layer_id);
+						renderer.use_effect(enabled_layer.effect_id);
+
 						match l.layertype() {
 							LayerType::Objects => {},
 							LayerType::Tile => {
