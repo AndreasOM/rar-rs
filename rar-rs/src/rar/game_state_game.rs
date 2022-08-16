@@ -72,6 +72,7 @@ impl GameState for GameStateGame {
 		// load world
 		self.world.load(system, "dev")?;
 		self.world.load_all_maps(system)?;
+		self.world.load_all_tilesets(system)?;
 
 		self.world_renderer.setup();
 		self.world_renderer.enable_layer("Tile Layer 1");

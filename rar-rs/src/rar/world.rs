@@ -15,6 +15,11 @@ pub struct WorldMap {
 	map:      Option<Map>,
 }
 
+impl WorldMap {
+	pub fn map_mut( &mut self ) -> &mut Option< Map > {
+		&mut self.map
+	}
+}
 #[derive(Debug, Default, Getters)]
 pub struct World {
 	maps: Vec<WorldMap>,
@@ -42,6 +47,16 @@ impl World {
 		}
 		Ok(())
 	}
+	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
+		for wm in self.maps.iter_mut() {
+			if let Some( m ) = wm.map_mut() {
+				m.load_all_tilesets( system )?;
+			}
+		}
+
+		Ok(())
+	}
+
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
 		//		return anyhow::bail!("Just testing...");

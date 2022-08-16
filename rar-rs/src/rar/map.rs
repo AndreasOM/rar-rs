@@ -2,6 +2,8 @@ use derive_getters::Getters;
 use oml_game::math::Rectangle;
 use oml_game::system::System;
 
+use crate::rar::Tileset;
+
 /* we could use an enum for the different layer types, but for now we just mix into on struct?!
 #[derive(Debug)]
 enum Layer {
@@ -124,6 +126,13 @@ pub struct Chunk {
 }
 
 #[derive(Debug, Default, Getters)]
+pub struct MapTileset {
+	firstgid:	u32,
+	source:      String,
+	tileset:	Option< Tileset >,
+}
+
+#[derive(Debug, Default, Getters)]
 pub struct Layer {
 	layertype: LayerType,
 	name:      String,
@@ -150,6 +159,7 @@ impl Layer {
 #[derive(Debug, Default, Getters)]
 pub struct Map {
 	layers:     Vec<Layer>,
+	tilesets:	Vec<MapTileset>,
 	upsideup:   bool,
 	tileheight: u32,
 	tilewidth:  u32,
@@ -165,6 +175,23 @@ impl Map {
 
 	pub fn add_layer(&mut self, layer: Layer) {
 		self.layers.push(layer);
+	}
+
+	pub fn add_tileset(&mut self, tileset: MapTileset) {
+		self.tilesets.push(tileset);
+	}
+
+	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
+
+
+		for ts in self.tilesets.iter_mut() {
+			let mut tileset = Tileset::new();
+			tileset.load(system, &ts.source)?;
+
+			ts.tileset = Some( tileset );
+		}
+
+		Ok(())
 	}
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
@@ -223,6 +250,17 @@ impl From<&map_tmj::Object> for Object {
 		}
 	}
 }
+impl From<&map_tmj::Tileset> for MapTileset {
+	fn from(tstmj: &map_tmj::Tileset) -> Self {
+		let source = tstmj.source();
+		let source = source.split("/").last().unwrap_or(source).split(".").nth(0).unwrap_or(source).to_owned();
+		Self {
+			firstgid: *tstmj.firstgid(),
+			source,
+			..Default::default()
+		}
+	}
+}
 
 impl From<&map_tmj::Layer> for Layer {
 	fn from(ltmj: &map_tmj::Layer) -> Self {
@@ -264,6 +302,10 @@ impl From<map_tmj::MapTmj> for Map {
 		m.upsideup = false; // tiled is upside down!
 		for l in mtmj.layers() {
 			m.add_layer(l.into());
+		}
+
+		for ts in mtmj.tilesets() {
+			m.add_tileset(ts.into());
 		}
 
 		m

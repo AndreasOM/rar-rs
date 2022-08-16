@@ -6,6 +6,16 @@ use serde_json::{Result, Value};
 
 use crate::rar::map::TileMap;
 
+
+#[derive(Debug, Default, Getters, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Tileset {
+	firstgid: u32,
+	source: String,
+//	#[serde(rename = "type")]
+//	tilesettype: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Object {
@@ -46,7 +56,7 @@ impl Object {
 	}
 }
 
-#[derive(Debug, Getters, Serialize, Deserialize)]
+#[derive(Debug, Default, Getters, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Chunk {
 	data:   String,
@@ -58,7 +68,7 @@ pub struct Chunk {
 	tiles:  TileMap, //Vec< u32 >,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Layer {
 	name:        String,
@@ -119,12 +129,25 @@ impl Layer {
 		&self.objects
 	}
 }
-#[derive(Debug, Serialize, Deserialize)]
-//#[serde(deny_unknown_fields)]
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MapTmj {
 	layers:     Vec<Layer>,
 	tileheight: u32,
 	tilewidth:  u32,
+	compressionlevel: i32,
+	width: u32,
+	height:	u32,
+	infinite: bool,
+	nextlayerid: u32,
+	nextobjectid: u32,
+	orientation: String,
+	renderorder: String,
+	tiledversion: String,
+	tilesets: Vec<Tileset>,
+	#[serde(rename = "type")]
+	maptype: String,
+	version: String,
 }
 
 impl MapTmj {
@@ -133,6 +156,7 @@ impl MapTmj {
 			layers:     Vec::new(),
 			tileheight: 0,
 			tilewidth:  0,
+			..Default::default()
 		}
 	}
 
@@ -146,6 +170,10 @@ impl MapTmj {
 
 	pub fn layers(&self) -> &Vec<Layer> {
 		&self.layers
+	}
+
+	pub fn tilesets(&self) -> &Vec<Tileset> {
+		&self.tilesets
 	}
 
 	fn decode_chunks(&mut self) -> anyhow::Result<()> {
