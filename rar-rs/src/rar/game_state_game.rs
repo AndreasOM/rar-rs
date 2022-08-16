@@ -10,16 +10,14 @@ use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{Background, EntityConfigurationManager, EntityManager, Player};
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
-use crate::rar::EntityUpdateContext;
-use crate::rar::GameState;
-use crate::rar::PlayerInputContext;
-use crate::rar::World;
+use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 
 #[derive(Debug, Default)]
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
 	entity_manager: EntityManager,
 	world: World,
+	world_renderer: WorldRenderer,
 	camera: Camera,
 	use_fixed_camera: bool,
 }
@@ -75,9 +73,13 @@ impl GameState for GameStateGame {
 		self.world.load(system, "dev")?;
 		self.world.load_all_maps(system)?;
 
+		self.world_renderer.setup();
+		self.world_renderer.enable_layer("Tile Layer 1");
+
 		Ok(())
 	}
 	fn teardown(&mut self) {
+		self.world_renderer.teardown();
 		self.entity_manager.teardown();
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
@@ -141,10 +143,15 @@ impl GameState for GameStateGame {
 			// :TODO: cycle through all cameras
 			renderer.add_translation_for_layer(LayerId::Player as u8, &self.camera.offset());
 			renderer.add_scaling_for_layer(LayerId::Player as u8, self.camera.scale()); // :TODO: handle via MatrixStack
+
+			renderer.add_translation_for_layer(LayerId::TileMap1 as u8, &self.camera.offset());
+			renderer.add_scaling_for_layer(LayerId::TileMap1 as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 		}
 		for e in self.entity_manager.iter_mut() {
 			e.render(renderer);
 		}
+
+		self.world_renderer.render(renderer, &self.world);
 		//		renderer.pop_matrix();
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
