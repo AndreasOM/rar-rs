@@ -127,9 +127,9 @@ pub struct Chunk {
 
 #[derive(Debug, Default, Getters)]
 pub struct MapTileset {
-	firstgid:	u32,
-	source:      String,
-	tileset:	Option< Tileset >,
+	firstgid: u32,
+	source:   String,
+	tileset:  Option<Tileset>,
 }
 
 #[derive(Debug, Default, Getters)]
@@ -159,7 +159,7 @@ impl Layer {
 #[derive(Debug, Default, Getters)]
 pub struct Map {
 	layers:     Vec<Layer>,
-	tilesets:	Vec<MapTileset>,
+	tilesets:   Vec<MapTileset>,
 	upsideup:   bool,
 	tileheight: u32,
 	tilewidth:  u32,
@@ -182,13 +182,11 @@ impl Map {
 	}
 
 	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
-
-
 		for ts in self.tilesets.iter_mut() {
 			let mut tileset = Tileset::new();
 			tileset.load(system, &ts.source)?;
 
-			ts.tileset = Some( tileset );
+			ts.tileset = Some(tileset);
 		}
 
 		Ok(())
@@ -218,6 +216,22 @@ impl Map {
 			l.hflip(pivot_y);
 		}
 		self.upsideup = !self.upsideup;
+	}
+
+	pub fn get_tile_image(&self, tid: u32) -> &str {
+		// :TODO: combine tileset on load?!
+		for mts in self.tilesets.iter() {
+			if let Some(ts) = &mts.tileset {
+				if tid >= mts.firstgid {
+					let image = ts.get_tile_image(tid - mts.firstgid);
+					if !image.is_empty() {
+						return image;
+					}
+				}
+			}
+		}
+		//"tile_default_block"
+		""
 	}
 }
 
@@ -253,7 +267,14 @@ impl From<&map_tmj::Object> for Object {
 impl From<&map_tmj::Tileset> for MapTileset {
 	fn from(tstmj: &map_tmj::Tileset) -> Self {
 		let source = tstmj.source();
-		let source = source.split("/").last().unwrap_or(source).split(".").nth(0).unwrap_or(source).to_owned();
+		let source = source
+			.split("/")
+			.last()
+			.unwrap_or(source)
+			.split(".")
+			.nth(0)
+			.unwrap_or(source)
+			.to_owned();
 		Self {
 			firstgid: *tstmj.firstgid(),
 			source,

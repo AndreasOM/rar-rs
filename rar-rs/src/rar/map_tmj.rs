@@ -6,14 +6,13 @@ use serde_json::{Result, Value};
 
 use crate::rar::map::TileMap;
 
-
 #[derive(Debug, Default, Getters, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Tileset {
 	firstgid: u32,
-	source: String,
-//	#[serde(rename = "type")]
-//	tilesettype: String,
+	source:   String,
+	//	#[serde(rename = "type")]
+	//	tilesettype: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -132,30 +131,30 @@ impl Layer {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct MapTmj {
-	layers:     Vec<Layer>,
-	tileheight: u32,
-	tilewidth:  u32,
+	layers:           Vec<Layer>,
+	tileheight:       u32,
+	tilewidth:        u32,
 	compressionlevel: i32,
-	width: u32,
-	height:	u32,
-	infinite: bool,
-	nextlayerid: u32,
-	nextobjectid: u32,
-	orientation: String,
-	renderorder: String,
-	tiledversion: String,
-	tilesets: Vec<Tileset>,
+	width:            u32,
+	height:           u32,
+	infinite:         bool,
+	nextlayerid:      u32,
+	nextobjectid:     u32,
+	orientation:      String,
+	renderorder:      String,
+	tiledversion:     String,
+	tilesets:         Vec<Tileset>,
 	#[serde(rename = "type")]
-	maptype: String,
-	version: String,
+	maptype:          String,
+	version:          String,
 }
 
 impl MapTmj {
 	pub fn new() -> Self {
 		Self {
-			layers:     Vec::new(),
+			layers: Vec::new(),
 			tileheight: 0,
-			tilewidth:  0,
+			tilewidth: 0,
 			..Default::default()
 		}
 	}

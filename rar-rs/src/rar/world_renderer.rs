@@ -67,7 +67,7 @@ impl WorldRenderer {
 									let mut pos = Vector2::new(0.0, 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
 
 									// :HACK: apply chunk offset
-									pos = pos.add( &Vector2::new( ( ox as f32 ) * ( tw as f32 ), 0.0 ) );
+									pos = pos.add(&Vector2::new((ox as f32) * (tw as f32), 0.0));
 									let inc_x = Vector2::new(tw as f32, 0.0);
 									// including undo row
 									let inc_y =
@@ -75,6 +75,16 @@ impl WorldRenderer {
 									for y in sy..ey {
 										for x in sx..ex {
 											let tid = tm.get_xy(x, y);
+											if tid > 0 {
+												let image = map.get_tile_image(tid);
+												if !image.is_empty() {
+													renderer.use_texture(image);
+													renderer.render_textured_quad(&pos, &size);
+												} else {
+													println!("Warning: No tile for TID: {}", tid);
+												}
+											}
+											/*
 											if tid == 1 {
 												renderer.use_texture("tile_default_block");
 												renderer.render_textured_quad(&pos, &size);
@@ -83,12 +93,13 @@ impl WorldRenderer {
 												renderer.use_texture("tile_default_block_green");
 												renderer.render_textured_quad(&pos, &size);
 											}
+											*/
 											pos = pos.add(&inc_x);
 
-//											print!("{:1}", tid);
+											//											print!("{:1}", tid);
 										}
 										pos = pos.add(&inc_y);
-//										println!();
+										//										println!();
 									}
 								}
 							},

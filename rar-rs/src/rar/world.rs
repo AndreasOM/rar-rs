@@ -16,7 +16,7 @@ pub struct WorldMap {
 }
 
 impl WorldMap {
-	pub fn map_mut( &mut self ) -> &mut Option< Map > {
+	pub fn map_mut(&mut self) -> &mut Option<Map> {
 		&mut self.map
 	}
 }
@@ -49,14 +49,13 @@ impl World {
 	}
 	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
 		for wm in self.maps.iter_mut() {
-			if let Some( m ) = wm.map_mut() {
-				m.load_all_tilesets( system )?;
+			if let Some(m) = wm.map_mut() {
+				m.load_all_tilesets(system)?;
 			}
 		}
 
 		Ok(())
 	}
-
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
 		//		return anyhow::bail!("Just testing...");
