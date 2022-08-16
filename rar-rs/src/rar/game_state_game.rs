@@ -39,7 +39,7 @@ impl GameState for GameStateGame {
 			.load(system, "todo_filename");
 
 		self.entity_configuration_manager
-			.load_yaml(system, "player.entity_config.yaml");
+			.load_yaml(system, "player.entity_config.yaml")?;
 
 		//		println!("\n\n---\n{:#?}", &self.entity_configuration_manager );
 		//		todo!("die");
@@ -74,7 +74,7 @@ impl GameState for GameStateGame {
 		self.world.load_all_maps(system)?;
 		self.world.load_all_tilesets(system)?;
 
-		self.world_renderer.setup();
+		self.world_renderer.setup()?;
 		self.world_renderer.enable_layer("Tile Layer 1");
 
 		Ok(())

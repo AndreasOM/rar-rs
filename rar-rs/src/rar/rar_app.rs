@@ -129,7 +129,7 @@ impl App for RarApp {
 
 		self.renderer = Some(renderer);
 
-		self.game_state.setup(&mut self.system);
+		self.game_state.setup(&mut self.system)?;
 
 		Ok(())
 	}

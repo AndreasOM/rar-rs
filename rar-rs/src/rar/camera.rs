@@ -4,7 +4,7 @@ use oml_game::math::Vector2;
 use crate::rar::entities::{EntityId, EntityManager, Player};
 
 #[derive(Debug, Default)]
-enum CameraMode {
+pub enum CameraMode {
 	FollowPlayerEntityId {
 		id: EntityId,
 	},
