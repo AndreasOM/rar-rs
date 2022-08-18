@@ -70,10 +70,10 @@ impl World {
 			dbg!(&world_world);
 
 			*self = world_world.into();
+			Ok(())
 		} else {
-			return anyhow::bail!("No remaining loader for world: {}", &name);
+			anyhow::bail!("No remaining loader for world: {}", &name);
 		}
-		Ok(())
 	}
 }
 

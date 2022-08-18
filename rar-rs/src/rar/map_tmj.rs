@@ -2,8 +2,8 @@ use derive_getters::Getters;
 use oml_game::system::System;
 //use serde_json::Result;
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
 
+//use serde_json::{Result, Value};
 use crate::rar::map::TileMap;
 
 #[derive(Debug, Default, Getters, Serialize, Deserialize)]
@@ -185,12 +185,12 @@ impl MapTmj {
 			if let Some(chunks) = &mut l.chunks {
 				for c in chunks.iter_mut() {
 					if l.encoding != "base64" {
-						return anyhow::bail!("Non base64 layer encoding not supported!");
+						anyhow::bail!("Non base64 layer encoding not supported!");
 					}
 					if l.compression != "" {
-						return anyhow::bail!("Compressed layers not supported!");
+						anyhow::bail!("Compressed layers not supported!");
 					}
-					let l = c.data.len() / 4;
+					//let l = c.data.len() / 4;
 					let mut v = TileMap::new(c.width, c.height); //Vec::with_capacity(l);
 
 					let data = base64::decode(&c.data)?;
@@ -217,7 +217,7 @@ impl MapTmj {
 		let mut tmj_file = system.default_filesystem_mut().open(&name);
 		let tmj_string = tmj_file.read_as_string();
 
-		let v: Value = serde_json::from_str(&tmj_string)?;
+		//let v: Value = serde_json::from_str(&tmj_string)?;
 		//		dbg!(&v);
 
 		let tmj: MapTmj = serde_json::from_str(&tmj_string)?;

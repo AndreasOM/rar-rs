@@ -12,7 +12,6 @@
 
 ## TODO
 
-- [ ] Fix warnings
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
 - [ ] Use player spawn position from map
@@ -30,7 +29,8 @@
 
 ## Done
 
-### Episode 0010 - 2.0h + 
+### Episode 0010 - 2.0h + 0.5h...
+- [x] Fix warnings
 - [x] Load tilesets
 - [x] Use tile configuration from Tileset for Map rendering
 - [x] Allow per layer configuration of render effect and layer

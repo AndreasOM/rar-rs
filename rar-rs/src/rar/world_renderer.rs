@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use oml_game::math::Vector2;
-use oml_game::renderer::debug_renderer::DebugRenderer;
-use oml_game::renderer::Color;
+//use oml_game::renderer::debug_renderer::DebugRenderer;
+//use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 
 use crate::rar::{map::LayerType, World};
@@ -65,7 +65,7 @@ impl WorldRenderer {
 									let ey = w;
 									let sx = 0;
 									let ex = h;
-									///									println!("Chunk ->");
+									//									println!("Chunk ->");
 									let th = *map.tileheight();
 									let tw = *map.tilewidth();
 									//									let th = 32;

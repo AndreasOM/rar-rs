@@ -28,7 +28,7 @@ impl EntityManager {
 	pub fn setup(&mut self) {}
 
 	pub fn teardown(&mut self) {
-		for (id, mut e) in self.entities.drain() {
+		for (_id, mut e) in self.entities.drain() {
 			e.teardown();
 		}
 	}

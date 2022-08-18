@@ -43,10 +43,10 @@ impl Tileset {
 			dbg!(&tileset_tsj);
 
 			*self = tileset_tsj.into();
+			Ok(())
 		} else {
-			return anyhow::bail!("No remaining loader for tileset: {}", &name);
+			anyhow::bail!("No remaining loader for tileset: {}", &name);
 		}
-		Ok(())
 	}
 
 	pub fn get_tile_image(&self, tid: u32) -> &str {

@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use oml_game::math::Vector2;
+//use oml_game::math::Vector2;
 use oml_game::system::System;
 use serde::{Deserialize, Serialize};
 
 //use crate::rar::entities::entity_ids::*;
-use crate::rar::entities::EntityType;
+//use crate::rar::entities::EntityType;
 
 #[derive(Debug)]
 pub struct AnimatedTextureConfiguration {
@@ -123,9 +123,9 @@ impl EntityConfigurationState {
 
 #[derive(Debug)]
 pub struct EntityConfiguration {
-	name:        String,
-	entity_type: String,
-	states:      HashMap<String, EntityConfigurationState>,
+	name:   String,
+	//	entity_type: String,
+	states: HashMap<String, EntityConfigurationState>,
 	//	pub entity_id: EntityId,
 	//	pub entity_type: EntityType,
 	//	pub animated_texture_configuration: AnimatedTextureConfiguration,
@@ -134,14 +134,14 @@ pub struct EntityConfiguration {
 impl EntityConfiguration {
 	pub fn new(
 		name: &str,
-		entity_type: &str,
+		_entity_type: &str,
 		//		size: Vector2,
 		//		animated_texture_configuration: AnimatedTextureConfiguration,
 	) -> Self {
 		Self {
-			name:        name.to_string(),
-			entity_type: entity_type.to_string(),
-			states:      HashMap::new(),
+			name:   name.to_string(),
+			//			entity_type: entity_type.to_string(),
+			states: HashMap::new(),
 			//			entity_id: EntityId::NONE,
 			//			entity_type: EntityType::None,
 			//			size,
@@ -272,7 +272,7 @@ impl EntityConfigurationManager {
 				EntityConfigurationState::new(&k, v.first_frame, v.last_frame, &v.size, &v.offset);
 
 			for (dk, dv) in v.directions {
-				let mut d = EntityConfigurationStateDirection::new(&dk, &dv.template);
+				let d = EntityConfigurationStateDirection::new(&dk, &dv.template);
 				s.add_direction(d);
 			}
 			ec.add_state(s);

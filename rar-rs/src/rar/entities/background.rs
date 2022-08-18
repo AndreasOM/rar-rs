@@ -41,7 +41,7 @@ impl Entity for Background {
 
 	fn teardown(&mut self) {}
 
-	fn update(&mut self, euc: &mut EntityUpdateContext) {}
+	fn update(&mut self, _euc: &mut EntityUpdateContext) {}
 
 	fn render(&mut self, renderer: &mut Renderer) {
 		renderer.use_texture("bg-title");
@@ -49,7 +49,7 @@ impl Entity for Background {
 		renderer.use_effect(EffectId::Background as u16);
 
 		let a = renderer.aspect_ratio();
-		let mut mtx = Matrix32::scaling_xy(1.0 * a, 1.0);
+		let mtx = Matrix32::scaling_xy(1.0 * a, 1.0);
 		//mtx.pos.x = - self.pos.x / 1024.0;
 		renderer.set_tex_matrix(&mtx);
 

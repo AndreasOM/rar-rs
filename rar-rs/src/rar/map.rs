@@ -36,7 +36,7 @@ pub struct Object {
 
 impl Object {
 	pub fn hflip(&mut self, pivot_y: f32) {
-		let mut data: &mut ObjectData = &mut self.data;
+		let data: &mut ObjectData = &mut self.data;
 		//		let mut u = ObjectData::Unknown;
 		//		data = &mut u;
 		match data {
@@ -206,7 +206,7 @@ impl Map {
 
 			*self = map_tmj.into();
 		} else {
-			return anyhow::bail!("No remaining loader for map: {}", &name);
+			anyhow::bail!("No remaining loader for map: {}", &name);
 		}
 		Ok(())
 	}
