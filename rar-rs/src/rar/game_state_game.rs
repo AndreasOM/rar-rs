@@ -21,6 +21,7 @@ pub struct GameStateGame {
 	world_renderer: WorldRenderer,
 	camera: Camera,
 	use_fixed_camera: bool,
+	total_time: f64,
 }
 
 impl GameStateGame {
@@ -96,6 +97,7 @@ impl GameState for GameStateGame {
 	fn update(&mut self, wuc: &mut WindowUpdateContext) {
 		let mut euc = EntityUpdateContext::new();
 
+		self.total_time += wuc.time_step;
 		if wuc.was_key_pressed('p' as u8) {
 			self.camera.punch(5.0);
 		}
@@ -187,12 +189,28 @@ impl GameState for GameStateGame {
 				for l in m.layers() {
 					//if l.name() == "CameraControl" {
 					for o in l.objects() {
+						dbg!(&o);
 						match o.data() {
 							map::ObjectData::Rectangle { rect } => {
 								let mut rect = rect.clone();
 								//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
 								rect.offset(&offset);
 								debug_renderer.add_rectangle(&rect, 3.0, &Color::white());
+								debug_renderer.add_text(
+									&rect.center().add(&Vector2::new(3.0, 3.0)),
+									o.class(),
+									40.0,
+									5.0,
+									&Color::black(),
+								);
+								debug_renderer.add_text(
+									&rect.center(),
+									o.class(),
+									40.0,
+									5.0,
+									&Color::rainbow(self.total_time as f32 * 20.0),
+								);
+								//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
 							},
 							_ => {},
 						}
