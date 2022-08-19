@@ -23,13 +23,13 @@
 - [ ] Decide of entities should have components, e.g position
 
 ## TODO - off stream
-- [ ] Hook up backflip
 - [ ] Remove dead from entity manager
-- [ ] Write loader for tileset
 
 ## Done
 
-### Episode 0010 - 2.0h + 0.5h...
+### Episode 0010 - 2.0h + 2.5h...
+- [x] Add debug text to map debug overlay
+- [x] Add 16 segment debug text rendering
 - [x] Fix warnings
 - [x] Load tilesets
 - [x] Use tile configuration from Tileset for Map rendering

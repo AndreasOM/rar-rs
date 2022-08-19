@@ -1,5 +1,5 @@
 use derive_getters::Getters;
-use oml_game::math::Rectangle;
+use oml_game::math::{Rectangle, Vector2};
 use oml_game::system::System;
 
 use crate::rar::Tileset;
@@ -22,6 +22,9 @@ pub enum LayerType {
 pub enum ObjectData {
 	Rectangle {
 		rect: Rectangle,
+	},
+	Point {
+		pos: Vector2,
 	},
 	#[default]
 	Unknown,
@@ -47,8 +50,12 @@ impl Object {
 
 				rect.set_y(pivot_y - pos.y - size.y);
 			},
+			ObjectData::Point { pos } => {
+				pos.y = pivot_y - pos.y;
+			},
 			_ => {
-				println!("Warning: hflip for {:?} not implemented", &data);
+				panic!("Warning: hflip for {:?} not implemented", &data);
+
 			},
 		}
 	}
@@ -250,7 +257,10 @@ impl From<&map_tmj::Chunk> for Chunk {
 impl From<&map_tmj::Object> for Object {
 	fn from(otmj: &map_tmj::Object) -> Self {
 		let data = if otmj.point() {
-			ObjectData::Unknown
+			//			ObjectData::Unknown
+			ObjectData::Point {
+				pos: (otmj.x(), otmj.y()).into(),
+			}
 		} else {
 			ObjectData::Rectangle {
 				rect: (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),

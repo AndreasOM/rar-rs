@@ -189,30 +189,81 @@ impl GameState for GameStateGame {
 				for l in m.layers() {
 					//if l.name() == "CameraControl" {
 					for o in l.objects() {
-						dbg!(&o);
-						match o.data() {
-							map::ObjectData::Rectangle { rect } => {
-								let mut rect = rect.clone();
-								//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
-								rect.offset(&offset);
-								debug_renderer.add_rectangle(&rect, 3.0, &Color::white());
-								debug_renderer.add_text(
-									&rect.center().add(&Vector2::new(3.0, 3.0)),
-									o.class(),
-									40.0,
-									5.0,
-									&Color::black(),
-								);
-								debug_renderer.add_text(
-									&rect.center(),
-									o.class(),
-									40.0,
-									5.0,
-									&Color::rainbow(self.total_time as f32 * 20.0),
-								);
-								//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
+						//						dbg!(&o);
+						let mut color = Color::rainbow(self.total_time as f32 * 20.0); //Color::white();
+						let mut width = 3.0;
+						let mut do_debug_render = true;
+						match (l.name().as_str(), o.class().as_str()) {
+							("Player", "PlayerSpawn") => {
+								//color = Color::red();
+								width = 9.0;
 							},
-							_ => {},
+							("Player", "PlayerKill") => {
+								color = Color::red();
+								width = 9.0;
+							},
+							("CameraControl", "CameraStart") => {
+								//color = Color::blue();
+								width = 9.0;
+							},
+							("CameraControl", "CameraFreeze") => {
+								color = Color::blue();
+								width = 9.0;
+							},
+							("CameraControl", "CameraThaw") => {
+								color = Color::green();
+								width = 9.0;
+							},
+							(_, "Test") => {
+								do_debug_render = false;
+							},
+							_ => {
+								println!("{}[] {}[{}]", l.name(), o.name(), o.class());
+								do_debug_render = false;
+							},
+						};
+						if do_debug_render {
+							match o.data() {
+								map::ObjectData::Rectangle { rect } => {
+									let mut rect = rect.clone();
+									//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
+									rect.offset(&offset);
+
+									debug_renderer.add_rectangle(&rect, width, &color);
+									debug_renderer.add_text(
+										&rect.center().add(&Vector2::new(3.0, 3.0)),
+										o.class(),
+										40.0,
+										5.0,
+										&Color::black(),
+									);
+									debug_renderer.add_text(
+										&rect.center(),
+										o.class(),
+										40.0,
+										5.0,
+										&color,
+										//&Color::rainbow(self.total_time as f32 * 20.0),
+									);
+									//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
+								},
+								map::ObjectData::Point { pos } => {
+									let pos = offset.add( pos );
+									//let pos = pos.add( &Vector2::new( 0.0, 0.0 ) );
+									debug_renderer.add_circle( &pos, 50.0, 5.0, &color );
+									debug_renderer.add_text(
+										&pos,
+										o.class(),
+										40.0,
+										5.0,
+										&color,
+									);
+								},
+								map::ObjectData::Unknown => {},
+								d => {
+									println!("Unhandled {:?}", &d);
+								},
+							}
 						}
 					}
 					//}
