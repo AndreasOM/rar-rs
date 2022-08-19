@@ -14,20 +14,21 @@
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
-- [ ] Use player spawn position from map
-- [ ] Use camera start position from map
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
 - [ ] Add test case for entity configuration loading from yaml
-- [ ] Decide of entities should have components, e.g position
+- [ ] Decide if entities should have components, e.g position
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
 
 ## Done
 
-### Episode 0010 - 2.0h + 2.5h...
+### Episode 0010 - 2.0h + 3.5h...
+- [x] Add test helper to 'T'erminate and 'R'espawn player
+- [x] Use player spawn position from map
+- [x] Use camera start position from map
 - [x] Add debug text to map debug overlay
 - [x] Add 16 segment debug text rendering
 - [x] Fix warnings

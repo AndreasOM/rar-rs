@@ -1,6 +1,7 @@
 use derive_getters::Getters;
 use oml_game::system::System;
 
+use crate::rar::map;
 use crate::rar::Map;
 
 pub const UPSIDEUP: bool = true;
@@ -28,6 +29,18 @@ pub struct World {
 impl World {
 	pub fn new() -> Self {
 		Self { maps: Vec::new() }
+	}
+
+	pub fn list_objects_in_layer_for_class(&self, layer: &str, class: &str) -> Vec<&map::Object> {
+		let mut r = Vec::new();
+
+		for wm in self.maps.iter() {
+			if let Some(m) = &wm.map {
+				let mut rm = m.list_objects_in_layer_for_class(layer, class);
+				r.append(&mut rm);
+			}
+		}
+		r
 	}
 
 	fn add_map(&mut self, map: WorldMap) {

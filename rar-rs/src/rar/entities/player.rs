@@ -247,6 +247,10 @@ impl Player {
 		}
 	}
 
+	pub fn set_spawn_pos(&mut self, spawn_pos: &Vector2) {
+		self.spawn_pos = *spawn_pos;
+	}
+
 	pub fn set_pos(&mut self, pos: &Vector2) {
 		self.pos = *pos;
 	}
@@ -346,6 +350,7 @@ impl Entity for Player {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
 			PlayerState::Backflip => self.update_backflip(euc),
+			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},
 		}
 

@@ -8,7 +8,9 @@ use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
-use crate::rar::entities::{Background, EntityConfigurationManager, EntityManager, Player};
+use crate::rar::entities::{
+	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
+};
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
@@ -22,6 +24,7 @@ pub struct GameStateGame {
 	camera: Camera,
 	use_fixed_camera: bool,
 	total_time: f64,
+	player_id: EntityId,
 }
 
 impl GameStateGame {
@@ -49,6 +52,7 @@ impl GameState for GameStateGame {
 		self.entity_manager.setup();
 
 		// add player
+		/* Note: moved down, and controlled by spawn position on world map
 		let mut player = Player::new();
 		player.setup(self.entity_configuration_manager.get_config("player"));
 		player.set_input_context_index(0);
@@ -56,6 +60,7 @@ impl GameState for GameStateGame {
 		let player_id = self.entity_manager.add(Box::new(player));
 
 		self.camera.follow_player_entity_id(player_id);
+		*/
 
 		// add 2nd player
 		/* disabled for now
@@ -75,6 +80,59 @@ impl GameState for GameStateGame {
 		self.world.load(system, "dev")?;
 		self.world.load_all_maps(system)?;
 		self.world.load_all_tilesets(system)?;
+
+		let player_spawns = self
+			.world
+			.list_objects_in_layer_for_class("Player", "PlayerSpawn");
+		for ps in player_spawns.iter() {
+			dbg!(&ps);
+		}
+
+		for ps in player_spawns.iter() {
+			dbg!(&ps);
+			match ps.data() {
+				map::ObjectData::Point { pos } => {
+					// add player ... at spawn position
+					let mut player = Player::new();
+					player.setup(self.entity_configuration_manager.get_config("player"));
+					player.set_input_context_index(0);
+					player.set_spawn_pos(&pos.add(&Vector2::new(64.0 + 32.0, 64.0)));
+					player.respawn();
+					let player_id = self.entity_manager.add(Box::new(player));
+
+					self.camera.follow_player_entity_id(player_id);
+					self.player_id = player_id;
+					break; // just one for now ;)
+				},
+				o => {
+					println!("Ignoring invalid object type for Player Spawn {:?}", &o);
+				},
+			}
+		}
+
+		let camera_starts = self
+			.world
+			.list_objects_in_layer_for_class("CameraControl", "CameraStart");
+		for cs in camera_starts.iter() {
+			dbg!(&cs);
+		}
+
+		for cs in camera_starts.iter() {
+			dbg!(&cs);
+			match cs.data() {
+				map::ObjectData::Point { pos } => {
+					self.camera.set_pos(pos);
+					self.camera.set_target_pos(pos);
+					break; // just one for now ;)
+				},
+				o => {
+					println!("Ignoring invalid object type for Camera Start {:?}", &o);
+				},
+			}
+		}
+
+		// :HACK:
+		//self.camera.freeze();
 
 		self.world_renderer.setup()?;
 		self.world_renderer.enable_layer(
@@ -107,6 +165,16 @@ impl GameState for GameStateGame {
 		}
 
 		let mut pic = PlayerInputContext::default();
+		if let Some(p) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
+			if p.is_alive() && wuc.is_key_pressed('t' as u8) {
+				// t for terminate
+				p.kill();
+			} else if wuc.is_key_pressed('r' as u8) {
+				p.respawn();
+				self.camera.thaw();
+			}
+		}
+
 		if wuc.is_key_pressed('a' as u8) {
 			pic.is_left_pressed = true;
 		}
@@ -248,16 +316,10 @@ impl GameState for GameStateGame {
 									//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
 								},
 								map::ObjectData::Point { pos } => {
-									let pos = offset.add( pos );
+									let pos = offset.add(pos);
 									//let pos = pos.add( &Vector2::new( 0.0, 0.0 ) );
-									debug_renderer.add_circle( &pos, 50.0, 5.0, &color );
-									debug_renderer.add_text(
-										&pos,
-										o.class(),
-										40.0,
-										5.0,
-										&color,
-									);
+									debug_renderer.add_circle(&pos, 50.0, 5.0, &color);
+									debug_renderer.add_text(&pos, o.class(), 40.0, 5.0, &color);
 								},
 								map::ObjectData::Unknown => {},
 								d => {

@@ -55,7 +55,6 @@ impl Object {
 			},
 			_ => {
 				panic!("Warning: hflip for {:?} not implemented", &data);
-
 			},
 		}
 	}
@@ -148,6 +147,17 @@ pub struct Layer {
 }
 
 impl Layer {
+	pub fn list_objects_for_class(&self, class: &str) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for o in self.objects.iter() {
+			if o.class() == class {
+				r.push(o);
+			}
+		}
+		r
+	}
+
 	pub fn add_chunk(&mut self, chunk: Chunk) {
 		self.chunks.push(chunk);
 	}
@@ -178,6 +188,17 @@ impl Map {
 			upsideup: true,
 			..Default::default()
 		}
+	}
+	pub fn list_objects_in_layer_for_class(&self, layer: &str, class: &str) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for l in self.layers.iter() {
+			if l.name() == layer {
+				let mut rl = l.list_objects_for_class(class);
+				r.append(&mut rl);
+			}
+		}
+		r
 	}
 
 	pub fn add_layer(&mut self, layer: Layer) {

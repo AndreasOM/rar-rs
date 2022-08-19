@@ -60,6 +60,22 @@ impl EntityManager {
 		}
 	}
 
+	pub fn get_as_mut<T: 'static>(&mut self, id: EntityId) -> Option<&mut T> {
+		if let Some(e) = self.entities.get_mut(&id) {
+			// non noisy version e.as_any().downcast_ref::<T>()
+			match e.as_any_mut().downcast_mut::<T>() {
+				Some(t) => Some(t),
+				None => {
+					// Note: Seriously?
+					//eprintln!("{:?} isn't a {}!", &e, std::any::type_name::<T>());
+					None
+				},
+			}
+		} else {
+			None
+		}
+	}
+
 	pub fn iter_mut(
 		&mut self,
 	) -> std::collections::hash_map::ValuesMut<'_, u32, Box<(dyn Entity + 'static)>> {
