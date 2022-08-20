@@ -182,21 +182,21 @@ impl App for RarApp {
 
 			debug_renderer.add_text(&Vector2::new(0.0, 0.0), "TEST", 150.0, 5.0, &Color::green());
 			debug_renderer.add_text(
-				&Vector2::new(-500.0, -175.0),
+				&Vector2::new(-500.0 * 0.0, -175.0),
 				"0123456789",
 				75.0,
 				3.0,
 				&Color::red(),
 			);
 			debug_renderer.add_text(
-				&Vector2::new(-500.0, -175.0 - 100.0),
+				&Vector2::new(-500.0 * 0.0, -175.0 - 100.0),
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 				75.0,
 				7.0,
 				&Color::from_rgba(0.075, 0.075, 0.095, 1.0),
 			);
 			debug_renderer.add_text(
-				&Vector2::new(-500.0 + 5.0, -175.0 - 100.0 + 5.0),
+				&Vector2::new(-500.0 * 0.0 + 5.0, -175.0 - 100.0 + 5.0),
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 				75.0,
 				7.0,
