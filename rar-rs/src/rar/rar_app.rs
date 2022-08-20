@@ -36,6 +36,8 @@ pub struct RarApp {
 	//	player: Player,
 	fun:        Vec<Vector2>,
 	game_state: Box<dyn GameState>,
+
+	debug_zoomed_out: bool,
 }
 
 impl RarApp {
@@ -55,6 +57,7 @@ impl RarApp {
 			// player: Player::new(),
 			fun:        Vec::new(),
 			game_state: Box::new(GameStateGame::new()),
+			debug_zoomed_out: false,
 		}
 	}
 	// :TODO: Consider moving this into game package
@@ -168,6 +171,10 @@ impl App for RarApp {
 			}
 		}
 
+		if wuc.was_key_pressed( '^' as u8 ) {
+			self.debug_zoomed_out = !self.debug_zoomed_out;
+		}
+
 		self.viewport_size = wuc.window_size;
 
 		let scaling = 1024.0 / self.viewport_size.y;
@@ -264,7 +271,18 @@ impl App for RarApp {
 				renderer.clear(&color);
 
 				//				let scaling = self.scaling * 0.5;
-				let scaling = 0.5;
+				let scaling = if !self.debug_zoomed_out{
+				 0.5
+				} else {
+					if let Some(debug_renderer) = &*self.debug_renderer {
+						let mut debug_renderer = debug_renderer.borrow_mut();
+						let w = self.size.x;
+						let rect = ( -0.5 * w, -512.0, w, 1024.0 ).into();
+						debug_renderer.add_rectangle( &rect, 1.0, &Color::white());
+					}
+					0.6
+				};
+
 				//				dbg!(&scaling);
 				let left = -self.size.x * scaling;
 				let right = self.size.x * scaling;
