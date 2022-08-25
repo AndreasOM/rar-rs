@@ -187,7 +187,7 @@ impl App for RarApp {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.begin_frame();
 
-			debug_renderer.add_text(&Vector2::new(0.0, 0.0), "TEST", 150.0, 5.0, &Color::green());
+//			debug_renderer.add_text(&Vector2::new(0.0, 0.0), "TEST", 150.0, 5.0, &Color::green());
 			debug_renderer.add_text(
 				&Vector2::new(-500.0 * 0.0, -175.0),
 				"0123456789",

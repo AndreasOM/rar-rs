@@ -1,4 +1,5 @@
 use derive_getters::Getters;
+use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
 
 use crate::rar::entities::{EntityId, EntityManager, Player};
@@ -27,6 +28,7 @@ pub struct Camera {
 	state:               CameraState,
 	punch_factor:        f32,
 	target_punch_factor: f32,
+	frame_size:          Vector2,
 }
 
 impl Default for Camera {
@@ -38,6 +40,7 @@ impl Default for Camera {
 			state:               CameraState::default(),
 			punch_factor:        1.0,
 			target_punch_factor: 1.0,
+			frame_size:          Vector2::default(),
 			//			..Default::default()
 		}
 	}
@@ -50,6 +53,17 @@ impl Camera {
 		self.target_pos = *target_pos;
 	}
 
+	pub fn set_frame_size(&mut self, frame_size: &Vector2) {
+		self.frame_size = *frame_size;
+	}
+
+	pub fn frame(&self) -> Rectangle {
+		let f = Rectangle::default()
+			.with_size(&self.frame_size)
+			.with_center(&self.pos);
+
+		f
+	}
 	pub fn offset(&self) -> Vector2 {
 		self.pos.scaled_vector2(&Vector2::new(-1.0, -1.0))
 	}

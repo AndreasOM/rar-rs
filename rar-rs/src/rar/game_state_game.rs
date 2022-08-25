@@ -15,6 +15,9 @@ use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 
+const MAP_TEXT_SCALE: f32 = 20.0;
+const MAP_TEXT_WIDTH: f32 = 2.0;
+
 #[derive(Debug, Default)]
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
@@ -214,6 +217,10 @@ impl GameState for GameStateGame {
 			e.update(&mut euc);
 		}
 
+		// :HACK: we really need a better place to calculate our aspect ratio fixed frame
+		let scaling = 1024.0 / wuc.window_size.y;
+		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
+		self.camera.set_frame_size(&frame_size);
 		self.camera.update(wuc.time_step, &self.entity_manager);
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
@@ -251,7 +258,23 @@ impl GameState for GameStateGame {
 		} else {
 			32.0 / self.camera.scale()
 		};
-		debug_renderer.add_circle(&self.camera.pos().add(&offset), r, 3.0, &Color::white());
+		// camera info
+		let cam_pos = self.camera.pos().add(&offset);
+		debug_renderer.add_circle(&cam_pos, r, 3.0, &Color::white());
+		//		let cam_pos_text = format!("{:+07.1} / {:+07.1}", self.camera.pos().x, self.camera.pos().y );
+		let cam_pos_text = format!(
+			"{:+07.0}/{:+07.0}",
+			self.camera.pos().x,
+			self.camera.pos().y
+		);
+		//		let cam_pos_text = format!("{:+07.0} / {:+07.0}", cam_pos.x, cam_pos.y );
+		debug_renderer.add_text(
+			&cam_pos.add(&Vector2::new(0.0, 50.0)),
+			&cam_pos_text,
+			25.0,
+			3.0,
+			&Color::white(),
+		);
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
@@ -301,15 +324,15 @@ impl GameState for GameStateGame {
 									debug_renderer.add_text(
 										&rect.center().add(&Vector2::new(3.0, 3.0)),
 										o.class(),
-										40.0,
-										5.0,
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
 										&Color::black(),
 									);
 									debug_renderer.add_text(
 										&rect.center(),
 										o.class(),
-										40.0,
-										5.0,
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
 										&color,
 										//&Color::rainbow(self.total_time as f32 * 20.0),
 									);
@@ -319,7 +342,13 @@ impl GameState for GameStateGame {
 									let pos = offset.add(pos);
 									//let pos = pos.add( &Vector2::new( 0.0, 0.0 ) );
 									debug_renderer.add_circle(&pos, 50.0, 5.0, &color);
-									debug_renderer.add_text(&pos, o.class(), 40.0, 5.0, &color);
+									debug_renderer.add_text(
+										&pos,
+										o.class(),
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
+										&color,
+									);
 								},
 								map::ObjectData::Unknown => {},
 								d => {
@@ -332,6 +361,23 @@ impl GameState for GameStateGame {
 				}
 			}
 		}
+		let frame = self.camera.frame();
+		let cam_frame_text = format!(
+			"{:+07.0}/{:+07.0} {:4.0}X{:4.0}",
+			frame.x(),
+			frame.y(),
+			frame.width(),
+			frame.height(),
+		);
+		debug_renderer.add_text(
+			&Vector2::new(0.0, 512.0 - 30.0),
+			&cam_frame_text,
+			25.0,
+			3.0,
+			&Color::white(),
+		);
+
+		debug_renderer.add_rectangle(&frame, 7.0, &Color::from_rgba(0.9, 0.8, 0.6, 0.8));
 	}
 
 	fn name(&self) -> &str {
