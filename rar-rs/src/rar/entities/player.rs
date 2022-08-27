@@ -1,13 +1,10 @@
 use std::collections::HashMap;
 use std::convert::From;
 
-use oml_game::math::Matrix22;
 use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
-use rand::prelude::*;
 
 use crate::rar::effect_ids::EffectId;
-use crate::rar::entities::entity_configuration::EntityConfigurationState;
 use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
@@ -56,7 +53,7 @@ impl From<PlayerDirection> for &str {
 #[derive(Debug)]
 pub struct EntityStateDirection {
 	name:             String,
-	template:         String,
+	//	template:         String,	-> moved into animated_texture
 	animated_texture: AnimatedTexture,
 }
 
@@ -66,7 +63,7 @@ impl EntityStateDirection {
 		animated_texture.setup(template, first_frame, last_frame, fps);
 		Self {
 			name: name.to_string(),
-			template: template.to_string(),
+			//			template: template.to_string(),
 			animated_texture,
 		}
 	}
@@ -74,28 +71,34 @@ impl EntityStateDirection {
 
 #[derive(Debug)]
 pub struct EntityState {
-	name:        String,
+	name:       String,
+	// -> moved into animated_texture
+	/*
 	first_frame: u16,
 	last_frame:  u16,
 	size:        [f32; 2],
 	offset:      [f32; 2],
-	directions:  HashMap<String, EntityStateDirection>,
+	*/
+	directions: HashMap<String, EntityStateDirection>,
 }
 
 impl EntityState {
 	pub fn new(
 		name: &str,
-		first_frame: u16,
-		last_frame: u16,
-		size: &[f32; 2],
-		offset: &[f32; 2],
+		_first_frame: u16,
+		_last_frame: u16,
+		_size: &[f32; 2],
+		_offset: &[f32; 2],
 	) -> Self {
 		Self {
-			name: name.to_string(),
+			name:       name.to_string(),
+			// -> moved into animated_texture
+			/*
 			first_frame,
 			last_frame,
 			size: size.clone(),
 			offset: offset.clone(),
+			*/
 			directions: HashMap::new(),
 		}
 	}
@@ -177,7 +180,7 @@ impl Player {
 			PlayerState::Backflip => {
 				// :TODO: reset animation to frame 0
 				self.state = state; // :HACK: so we get the correct state direction below
-				if let Some(mut state_direction) = self.get_state_direction_mut() {
+				if let Some(state_direction) = self.get_state_direction_mut() {
 					println!("{:#?}", &state_direction);
 					state_direction.animated_texture.set_autoloop(false);
 					state_direction.animated_texture.set_current_frame(0);
@@ -207,7 +210,7 @@ impl Player {
 	}
 
 	fn update_waiting_for_start(&mut self, euc: &mut EntityUpdateContext) {
-		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
 			if pic.is_left_pressed || pic.is_right_pressed {
 				self.goto_state(PlayerState::Idle); // :TODO: start logic
 			}
@@ -215,7 +218,7 @@ impl Player {
 	}
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
-		if let Some(mut pic) = euc.player_input_context(self.input_context_index) {
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
 			if pic.is_up_pressed {
 				self.goto_state(PlayerState::Backflip);
 			// self.speed = -100.0;
@@ -235,13 +238,17 @@ impl Player {
 		self.pos = self.pos.add(&self.movement);
 	}
 
-	fn update_backflip(&mut self, euc: &mut EntityUpdateContext) {
-		if let Some(mut state_direction) = self.get_state_direction_mut() {
+	fn update_backflip(&mut self, _euc: &mut EntityUpdateContext) {
+		if let Some(state_direction) = self.get_state_direction_mut() {
 			// println!("{:#?}", &state_direction );
 			if state_direction.animated_texture.completed() {
 				self.goto_state(PlayerState::Idle);
 			}
 		}
+	}
+
+	pub fn set_spawn_pos(&mut self, spawn_pos: &Vector2) {
+		self.spawn_pos = *spawn_pos;
 	}
 
 	pub fn set_pos(&mut self, pos: &Vector2) {
@@ -265,7 +272,7 @@ impl Player {
 	}
 
 	fn setup_from_configuration(&mut self, ec: &EntityConfiguration) {
-		for (sk, sv) in ec.states_iter() {
+		for (_sk, sv) in ec.states_iter() {
 			let mut s = EntityState::new(
 				sv.name(),
 				sv.first_frame(),
@@ -274,8 +281,8 @@ impl Player {
 				sv.offset(),
 			);
 
-			for (dk, dv) in sv.directions_iter() {
-				let mut d = EntityStateDirection::new(
+			for (_dk, dv) in sv.directions_iter() {
+				let d = EntityStateDirection::new(
 					dv.name(),
 					dv.template(),
 					sv.first_frame(),
@@ -291,9 +298,9 @@ impl Player {
 
 	fn get_state_direction_mut(&mut self) -> Option<&mut EntityStateDirection> {
 		let ps: &str = self.state.into();
-		if let Some(mut state) = self.states.get_mut(ps) {
+		if let Some(state) = self.states.get_mut(ps) {
 			let d: &str = self.direction.into();
-			if let Some(mut state_direction) = state.directions.get_mut(d) {
+			if let Some(state_direction) = state.directions.get_mut(d) {
 				// println!("{:#?}", &state_direction );
 				return Some(state_direction);
 			}
@@ -334,7 +341,7 @@ impl Entity for Player {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
 
-		if let Some(mut state_direction) = self.get_state_direction_mut() {
+		if let Some(state_direction) = self.get_state_direction_mut() {
 			// println!("{:#?}", &state_direction );
 			state_direction.animated_texture.update(euc.time_step());
 		}
@@ -343,6 +350,7 @@ impl Entity for Player {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
 			PlayerState::Backflip => self.update_backflip(euc),
+			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},
 		}
 
@@ -370,7 +378,7 @@ impl Entity for Player {
 		renderer.use_layer(LayerId::Player as u8);
 		renderer.use_effect(EffectId::Textured as u16);
 
-		if let Some(mut state_direction) = self.get_state_direction() {
+		if let Some(state_direction) = self.get_state_direction() {
 			state_direction.animated_texture.r#use(renderer);
 		}
 

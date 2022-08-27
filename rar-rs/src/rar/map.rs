@@ -1,6 +1,8 @@
 use derive_getters::Getters;
-use oml_game::math::Rectangle;
+use oml_game::math::{Rectangle, Vector2};
 use oml_game::system::System;
+
+use crate::rar::Tileset;
 
 /* we could use an enum for the different layer types, but for now we just mix into on struct?!
 #[derive(Debug)]
@@ -21,6 +23,9 @@ pub enum ObjectData {
 	Rectangle {
 		rect: Rectangle,
 	},
+	Point {
+		pos: Vector2,
+	},
 	#[default]
 	Unknown,
 }
@@ -34,19 +39,23 @@ pub struct Object {
 
 impl Object {
 	pub fn hflip(&mut self, pivot_y: f32) {
-		let mut data: &mut ObjectData = &mut self.data;
+		let data: &mut ObjectData = &mut self.data;
 		//		let mut u = ObjectData::Unknown;
 		//		data = &mut u;
 		match data {
 			ObjectData::Rectangle { rect } => {
-				let pos = rect.pos();
+				let pos = rect.bottom_left();
 				let size = rect.size();
 				//let pos.y = - pos.y;
 
-				rect.set_y(pivot_y - pos.y - size.y);
+				rect.hflip(pivot_y);
+				//				rect.set_y(pivot_y - pos.y - size.y);
+			},
+			ObjectData::Point { pos } => {
+				pos.y = pivot_y - pos.y;
 			},
 			_ => {
-				println!("Warning: hflip for {:?} not implemented", &data);
+				panic!("Warning: hflip for {:?} not implemented", &data);
 			},
 		}
 	}
@@ -124,6 +133,13 @@ pub struct Chunk {
 }
 
 #[derive(Debug, Default, Getters)]
+pub struct MapTileset {
+	firstgid: u32,
+	source:   String,
+	tileset:  Option<Tileset>,
+}
+
+#[derive(Debug, Default, Getters)]
 pub struct Layer {
 	layertype: LayerType,
 	name:      String,
@@ -132,6 +148,17 @@ pub struct Layer {
 }
 
 impl Layer {
+	pub fn list_objects_for_class(&self, class: &str) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for o in self.objects.iter() {
+			if o.class() == class {
+				r.push(o);
+			}
+		}
+		r
+	}
+
 	pub fn add_chunk(&mut self, chunk: Chunk) {
 		self.chunks.push(chunk);
 	}
@@ -150,6 +177,7 @@ impl Layer {
 #[derive(Debug, Default, Getters)]
 pub struct Map {
 	layers:     Vec<Layer>,
+	tilesets:   Vec<MapTileset>,
 	upsideup:   bool,
 	tileheight: u32,
 	tilewidth:  u32,
@@ -162,9 +190,35 @@ impl Map {
 			..Default::default()
 		}
 	}
+	pub fn list_objects_in_layer_for_class(&self, layer: &str, class: &str) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for l in self.layers.iter() {
+			if l.name() == layer {
+				let mut rl = l.list_objects_for_class(class);
+				r.append(&mut rl);
+			}
+		}
+		r
+	}
 
 	pub fn add_layer(&mut self, layer: Layer) {
 		self.layers.push(layer);
+	}
+
+	pub fn add_tileset(&mut self, tileset: MapTileset) {
+		self.tilesets.push(tileset);
+	}
+
+	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
+		for ts in self.tilesets.iter_mut() {
+			let mut tileset = Tileset::new();
+			tileset.load(system, &ts.source)?;
+
+			ts.tileset = Some(tileset);
+		}
+
+		Ok(())
 	}
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
@@ -181,7 +235,7 @@ impl Map {
 
 			*self = map_tmj.into();
 		} else {
-			return anyhow::bail!("No remaining loader for map: {}", &name);
+			anyhow::bail!("No remaining loader for map: {}", &name);
 		}
 		Ok(())
 	}
@@ -191,6 +245,22 @@ impl Map {
 			l.hflip(pivot_y);
 		}
 		self.upsideup = !self.upsideup;
+	}
+
+	pub fn get_tile_image(&self, tid: u32) -> &str {
+		// :TODO: combine tileset on load?!
+		for mts in self.tilesets.iter() {
+			if let Some(ts) = &mts.tileset {
+				if tid >= mts.firstgid {
+					let image = ts.get_tile_image(tid - mts.firstgid);
+					if !image.is_empty() {
+						return image;
+					}
+				}
+			}
+		}
+		//"tile_default_block"
+		""
 	}
 }
 
@@ -209,7 +279,10 @@ impl From<&map_tmj::Chunk> for Chunk {
 impl From<&map_tmj::Object> for Object {
 	fn from(otmj: &map_tmj::Object) -> Self {
 		let data = if otmj.point() {
-			ObjectData::Unknown
+			//			ObjectData::Unknown
+			ObjectData::Point {
+				pos: (otmj.x(), otmj.y()).into(),
+			}
 		} else {
 			ObjectData::Rectangle {
 				rect: (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),
@@ -220,6 +293,24 @@ impl From<&map_tmj::Object> for Object {
 			name: otmj.name().to_owned(),
 			class: otmj.class().to_owned(),
 			data,
+		}
+	}
+}
+impl From<&map_tmj::Tileset> for MapTileset {
+	fn from(tstmj: &map_tmj::Tileset) -> Self {
+		let source = tstmj.source();
+		let source = source
+			.split("/")
+			.last()
+			.unwrap_or(source)
+			.split(".")
+			.nth(0)
+			.unwrap_or(source)
+			.to_owned();
+		Self {
+			firstgid: *tstmj.firstgid(),
+			source,
+			..Default::default()
 		}
 	}
 }
@@ -264,6 +355,10 @@ impl From<map_tmj::MapTmj> for Map {
 		m.upsideup = false; // tiled is upside down!
 		for l in mtmj.layers() {
 			m.add_layer(l.into());
+		}
+
+		for ts in mtmj.tilesets() {
+			m.add_tileset(ts.into());
 		}
 
 		m

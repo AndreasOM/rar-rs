@@ -3,20 +3,20 @@ use oml_game::system::System;
 
 #[derive(Debug, Default, Getters)]
 pub struct Tile {
-	id: u32,
-	image: String,
-	imagewidth: u32,
+	id:          u32,
+	image:       String,
+	imagewidth:  u32,
 	imageheight: u32,
 }
 
 #[derive(Debug, Default, Getters)]
 pub struct Tileset {
-	columns: u32,
-	name: String,
-	tilecount: u32,
-	tilewidth: u32,
+	columns:    u32,
+	name:       String,
+	tilecount:  u32,
+	tilewidth:  u32,
 	tileheight: u32,
-	tiles: Vec< Tile >,
+	tiles:      Vec<Tile>, // :TODO: make hashmap based on id?
 }
 
 impl Tileset {
@@ -26,8 +26,8 @@ impl Tileset {
 		}
 	}
 
-	pub fn add_tile( &mut self, tile: Tile ) {
-		self.tiles.push( tile );
+	pub fn add_tile(&mut self, tile: Tile) {
+		self.tiles.push(tile);
 	}
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
@@ -43,21 +43,28 @@ impl Tileset {
 			dbg!(&tileset_tsj);
 
 			*self = tileset_tsj.into();
+			Ok(())
 		} else {
-			return anyhow::bail!("No remaining loader for tileset: {}", &name);
+			anyhow::bail!("No remaining loader for tileset: {}", &name);
 		}
-		Ok(())
 	}
 
+	pub fn get_tile_image(&self, tid: u32) -> &str {
+		if let Some(tile) = self.tiles.iter().find(|&t| t.id == tid) {
+			&tile.image
+		} else {
+			""
+		}
+	}
 }
 
 impl From<&tileset_tsj::Tile> for Tile {
 	fn from(ttsj: &tileset_tsj::Tile) -> Self {
 		let image = ttsj.image();
 		Self {
-			id: *ttsj.id(),
-			image: image.split(".").nth(0).unwrap_or(image).to_owned(),
-			imagewidth: *ttsj.imagewidth(),
+			id:          *ttsj.id(),
+			image:       image.split(".").nth(0).unwrap_or(image).to_owned(),
+			imagewidth:  *ttsj.imagewidth(),
 			imageheight: *ttsj.imageheight(),
 		}
 	}

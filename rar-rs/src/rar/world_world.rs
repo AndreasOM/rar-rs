@@ -1,7 +1,7 @@
 use oml_game::system::System;
 //use serde_json::Result;
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
+use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -34,6 +34,7 @@ impl Map {
 
 #[derive(Debug, Serialize, Deserialize)]
 //#[serde(deny_unknown_fields)]
+#[allow(non_snake_case)]
 pub struct WorldWorld {
 	//	layers: Vec<Layer>,
 	#[serde(rename = "type")]

@@ -9,8 +9,8 @@ pub trait GameState {
 	}
 	fn teardown(&mut self) {}
 	fn update(&mut self, _wuc: &mut WindowUpdateContext) {}
-	fn render(&mut self, renderer: &mut Renderer) {}
-	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {}
+	fn render(&mut self, _renderer: &mut Renderer) {}
+	fn render_debug(&mut self, _debug_renderer: &mut DebugRenderer) {}
 	fn name(&self) -> &str {
 		"[trait] GameState"
 	}

@@ -14,11 +14,11 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 
 use crate::rar::effect_ids::EffectId;
-use crate::rar::entities::entity::Entity;
-use crate::rar::entities::{EntityConfigurationManager, Player};
+//use crate::rar::entities::entity::Entity;
+//use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
 use crate::rar::layer_ids::LayerId;
-use crate::rar::EntityUpdateContext;
+//use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 
 pub struct RarApp {
@@ -36,6 +36,8 @@ pub struct RarApp {
 	//	player: Player,
 	fun:        Vec<Vector2>,
 	game_state: Box<dyn GameState>,
+
+	debug_zoomed_out: bool,
 }
 
 impl RarApp {
@@ -55,6 +57,7 @@ impl RarApp {
 			// player: Player::new(),
 			fun:        Vec::new(),
 			game_state: Box::new(GameStateGame::new()),
+			debug_zoomed_out: false,
 		}
 	}
 	// :TODO: Consider moving this into game package
@@ -122,6 +125,13 @@ impl App for RarApp {
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::TexturedDesaturated as u16,
+			"Textured Desaturated",
+			"textured_desaturated_vs.glsl",
+			"textured_desaturated_fs.glsl",
+		));
 
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
 		TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
@@ -129,7 +139,7 @@ impl App for RarApp {
 
 		self.renderer = Some(renderer);
 
-		self.game_state.setup(&mut self.system);
+		self.game_state.setup(&mut self.system)?;
 
 		Ok(())
 	}
@@ -161,6 +171,10 @@ impl App for RarApp {
 			}
 		}
 
+		if wuc.was_key_pressed( '^' as u8 ) {
+			self.debug_zoomed_out = !self.debug_zoomed_out;
+		}
+
 		self.viewport_size = wuc.window_size;
 
 		let scaling = 1024.0 / self.viewport_size.y;
@@ -172,6 +186,30 @@ impl App for RarApp {
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.begin_frame();
+
+//			debug_renderer.add_text(&Vector2::new(0.0, 0.0), "TEST", 150.0, 5.0, &Color::green());
+			debug_renderer.add_text(
+				&Vector2::new(-500.0 * 0.0, -175.0),
+				"0123456789",
+				75.0,
+				3.0,
+				&Color::red(),
+			);
+			debug_renderer.add_text(
+				&Vector2::new(-500.0 * 0.0, -175.0 - 100.0),
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+				75.0,
+				7.0,
+				&Color::from_rgba(0.075, 0.075, 0.095, 1.0),
+			);
+			debug_renderer.add_text(
+				&Vector2::new(-500.0 * 0.0 + 5.0, -175.0 - 100.0 + 5.0),
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+				75.0,
+				7.0,
+				&Color::rainbow(self.total_time as f32 * 36.0 * 5.0),
+			);
+			//debug_renderer.add_text(&Vector2::new(0.0, 0.0), "T", &Color::green());
 		}
 
 		/*
@@ -233,7 +271,18 @@ impl App for RarApp {
 				renderer.clear(&color);
 
 				//				let scaling = self.scaling * 0.5;
-				let scaling = 0.5;
+				let scaling = if !self.debug_zoomed_out{
+				 0.5
+				} else {
+					if let Some(debug_renderer) = &*self.debug_renderer {
+						let mut debug_renderer = debug_renderer.borrow_mut();
+						let w = self.size.x;
+						let rect = ( -0.5 * w, -512.0, w, 1024.0 ).into();
+						debug_renderer.add_rectangle( &rect, 1.0, &Color::white());
+					}
+					0.6
+				};
+
 				//				dbg!(&scaling);
 				let left = -self.size.x * scaling;
 				let right = self.size.x * scaling;

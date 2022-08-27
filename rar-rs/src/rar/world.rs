@@ -1,6 +1,7 @@
 use derive_getters::Getters;
 use oml_game::system::System;
 
+use crate::rar::map;
 use crate::rar::Map;
 
 pub const UPSIDEUP: bool = true;
@@ -15,6 +16,11 @@ pub struct WorldMap {
 	map:      Option<Map>,
 }
 
+impl WorldMap {
+	pub fn map_mut(&mut self) -> &mut Option<Map> {
+		&mut self.map
+	}
+}
 #[derive(Debug, Default, Getters)]
 pub struct World {
 	maps: Vec<WorldMap>,
@@ -23,6 +29,18 @@ pub struct World {
 impl World {
 	pub fn new() -> Self {
 		Self { maps: Vec::new() }
+	}
+
+	pub fn list_objects_in_layer_for_class(&self, layer: &str, class: &str) -> Vec<&map::Object> {
+		let mut r = Vec::new();
+
+		for wm in self.maps.iter() {
+			if let Some(m) = &wm.map {
+				let mut rm = m.list_objects_in_layer_for_class(layer, class);
+				r.append(&mut rm);
+			}
+		}
+		r
 	}
 
 	fn add_map(&mut self, map: WorldMap) {
@@ -42,6 +60,15 @@ impl World {
 		}
 		Ok(())
 	}
+	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
+		for wm in self.maps.iter_mut() {
+			if let Some(m) = wm.map_mut() {
+				m.load_all_tilesets(system)?;
+			}
+		}
+
+		Ok(())
+	}
 
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
 		//		return anyhow::bail!("Just testing...");
@@ -56,10 +83,10 @@ impl World {
 			dbg!(&world_world);
 
 			*self = world_world.into();
+			Ok(())
 		} else {
-			return anyhow::bail!("No remaining loader for world: {}", &name);
+			anyhow::bail!("No remaining loader for world: {}", &name);
 		}
-		Ok(())
 	}
 }
 

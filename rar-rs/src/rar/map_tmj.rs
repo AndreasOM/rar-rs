@@ -2,9 +2,18 @@ use derive_getters::Getters;
 use oml_game::system::System;
 //use serde_json::Result;
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
 
+//use serde_json::{Result, Value};
 use crate::rar::map::TileMap;
+
+#[derive(Debug, Default, Getters, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Tileset {
+	firstgid: u32,
+	source:   String,
+	//	#[serde(rename = "type")]
+	//	tilesettype: String,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -46,7 +55,7 @@ impl Object {
 	}
 }
 
-#[derive(Debug, Getters, Serialize, Deserialize)]
+#[derive(Debug, Default, Getters, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Chunk {
 	data:   String,
@@ -58,7 +67,7 @@ pub struct Chunk {
 	tiles:  TileMap, //Vec< u32 >,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Layer {
 	name:        String,
@@ -119,20 +128,34 @@ impl Layer {
 		&self.objects
 	}
 }
-#[derive(Debug, Serialize, Deserialize)]
-//#[serde(deny_unknown_fields)]
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MapTmj {
-	layers:     Vec<Layer>,
-	tileheight: u32,
-	tilewidth:  u32,
+	layers:           Vec<Layer>,
+	tileheight:       u32,
+	tilewidth:        u32,
+	compressionlevel: i32,
+	width:            u32,
+	height:           u32,
+	infinite:         bool,
+	nextlayerid:      u32,
+	nextobjectid:     u32,
+	orientation:      String,
+	renderorder:      String,
+	tiledversion:     String,
+	tilesets:         Vec<Tileset>,
+	#[serde(rename = "type")]
+	maptype:          String,
+	version:          String,
 }
 
 impl MapTmj {
 	pub fn new() -> Self {
 		Self {
-			layers:     Vec::new(),
+			layers: Vec::new(),
 			tileheight: 0,
-			tilewidth:  0,
+			tilewidth: 0,
+			..Default::default()
 		}
 	}
 
@@ -148,6 +171,10 @@ impl MapTmj {
 		&self.layers
 	}
 
+	pub fn tilesets(&self) -> &Vec<Tileset> {
+		&self.tilesets
+	}
+
 	fn decode_chunks(&mut self) -> anyhow::Result<()> {
 		/*
 		The base64-encoded and optionally compressed layer data is somewhat more complicated to parse. First you need to base64-decode it, then you may need to decompress it. Now you have an array of bytes, which should be interpreted as an array of unsigned 32-bit integers using little-endian byte ordering.
@@ -158,12 +185,12 @@ impl MapTmj {
 			if let Some(chunks) = &mut l.chunks {
 				for c in chunks.iter_mut() {
 					if l.encoding != "base64" {
-						return anyhow::bail!("Non base64 layer encoding not supported!");
+						anyhow::bail!("Non base64 layer encoding not supported!");
 					}
 					if l.compression != "" {
-						return anyhow::bail!("Compressed layers not supported!");
+						anyhow::bail!("Compressed layers not supported!");
 					}
-					let l = c.data.len() / 4;
+					//let l = c.data.len() / 4;
 					let mut v = TileMap::new(c.width, c.height); //Vec::with_capacity(l);
 
 					let data = base64::decode(&c.data)?;
@@ -190,7 +217,7 @@ impl MapTmj {
 		let mut tmj_file = system.default_filesystem_mut().open(&name);
 		let tmj_string = tmj_file.read_as_string();
 
-		let v: Value = serde_json::from_str(&tmj_string)?;
+		//let v: Value = serde_json::from_str(&tmj_string)?;
 		//		dbg!(&v);
 
 		let tmj: MapTmj = serde_json::from_str(&tmj_string)?;
