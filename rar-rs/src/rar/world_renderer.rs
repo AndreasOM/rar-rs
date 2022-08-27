@@ -38,10 +38,26 @@ impl WorldRenderer {
 
 	pub fn render(&mut self, renderer: &mut Renderer, camera: &Camera, world: &World) {
 		//		dbg!(&self);
+		let frame = camera.frame();
+		let left = frame.left();
+		let right = frame.right();
+		let top = frame.top();
+		let bottom = frame.bottom();
+
+		let mut tiles_rendered = 0;
+		let mut chunks_with_tiles_rendered = 0;
 		for m in world.maps() {
 			//			dbg!(&m.filename());
 			if let Some(map) = m.map() {
 				// dbg!( &map );
+				let th = *map.tileheight();
+				let tw = *map.tilewidth();
+
+				let tile_left = (left / tw as f32).floor() as i32;
+				let tile_right = (right / tw as f32).ceil() as i32;
+				dbg!(&tile_left);
+				dbg!(&tile_right);
+
 				for l in map.layers() {
 					if let Some(enabled_layer) = self.enabled_layers.get(l.name()) {
 						//						dbg!( &l.name() );
@@ -50,39 +66,67 @@ impl WorldRenderer {
 						renderer.use_layer(enabled_layer.layer_id);
 						renderer.use_effect(enabled_layer.effect_id);
 
+
 						match l.layertype() {
 							LayerType::Objects => {},
 							LayerType::Tile => {
 								for c in l.chunks() {
+									dbg!(&c);
 									let tm = c.tile_map();
 									let w = tm.width();
 									let h = tm.height();
-
 									let ox = *c.x();
+									let oy = *c.y();
+
+									//dbg!(&tile_left, &ox);
+									let tile_left = tile_left - ox;
+									let tile_left = if tile_left < 0 {
+										0
+									} else {
+										tile_left as u32
+									};
+									let tile_right = tile_right - ox;
+									let tile_right = if tile_right < 0 {
+										0
+									} else {
+										tile_right as u32
+									};
+									let tile_right = if tile_right < w {
+										tile_right
+									} else {
+										w
+									};
+
+									dbg!(&tile_left);
+									dbg!(&tile_right);
 
 									// :TODO: optimise the following four boundaries
 									let sy = 0;
-									let ey = w;
-									let sx = 0;
-									let ex = h;
+									let ey = h;
+									let sx = tile_left;
+									let ex = tile_right;
 									//									println!("Chunk ->");
-									let th = *map.tileheight();
-									let tw = *map.tilewidth();
 									//									let th = 32;
 									//									let tw = 32;
 									let size = Vector2::new(tw as f32, th as f32);
-									let mut pos = Vector2::new(0.0, 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
+									let pos = Vector2::new(0.5 * ( tw as f32 ), 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
+
+									let pos = pos.add( &Vector2::new( (sx as f32) * tw as f32, -(sy as f32) * th as f32 ) );
 
 									let mut pos = pos.add( &camera.offset() );
-									
+
 									// :HACK: apply chunk offset
-									pos = pos.add(&Vector2::new((ox as f32) * (tw as f32), 0.0));
+									pos = pos.add(&Vector2::new((ox as f32) * (tw as f32), (oy as f32) * (th as f32)));
 									let inc_x = Vector2::new(tw as f32, 0.0);
 									// including undo row
 									let inc_y =
 										Vector2::new(0.0 - ((tw * (ex - sx)) as f32), -(th as f32));
+
+									let mut tiles_rendered_in_chunk = 0;
 									for y in sy..ey {
 										for x in sx..ex {
+
+											tiles_rendered_in_chunk += 1;
 											let tid = tm.get_xy(x, y);
 											if tid > 0 {
 												let image = map.get_tile_image(tid);
@@ -110,6 +154,10 @@ impl WorldRenderer {
 										pos = pos.add(&inc_y);
 										//										println!();
 									}
+									tiles_rendered += tiles_rendered_in_chunk;
+									if tiles_rendered_in_chunk > 0 {
+										chunks_with_tiles_rendered += 1;
+									}
 								}
 							},
 							LayerType::None => {},
@@ -118,5 +166,6 @@ impl WorldRenderer {
 				}
 			}
 		}
+		println!("Tiles rendered {}, Chunks with tiles {}", tiles_rendered, chunks_with_tiles_rendered );
 	}
 }

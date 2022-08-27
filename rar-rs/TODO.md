@@ -5,9 +5,10 @@
 
 - [ ] Render tilemap
     - [x] Use correct texture
-    - [ ] Apply chunk offset
-    - [ ] Render only visible parts of world
+    - [x] Apply chunk offset
+    - [x] Render only visible parts of world
     - [x] Allow per layer configuration of render effect and layer
+    - [ ] Cleanup visibilty check for chunks
 
 
 ## TODO
@@ -25,6 +26,9 @@
 - [ ] Remove dead from entity manager
 
 ## Done
+
+### Episode 0011 - 3.5h + ...
+- [x] Render only visible tiles (x axis check only for now)
 
 ### Episode 0010 - 2.0h + 3.5h  -> 20.0h + 17.5h        -> 37.5h
 - [x] Add test helper to 'T'erminate and 'R'espawn player

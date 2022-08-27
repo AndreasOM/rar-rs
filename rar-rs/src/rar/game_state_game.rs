@@ -143,11 +143,13 @@ impl GameState for GameStateGame {
 			LayerId::TileMap1 as u8,
 			EffectId::Textured as u16,
 		);
+		/*
 		self.world_renderer.enable_layer(
 			"Tile Layer 2",
 			LayerId::TileMap2 as u8,
 			EffectId::TexturedDesaturated as u16,
 		);
+		*/
 
 		Ok(())
 	}
