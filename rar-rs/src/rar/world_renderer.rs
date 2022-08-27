@@ -5,7 +5,7 @@ use oml_game::math::Vector2;
 //use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 
-use crate::rar::{map::LayerType, World};
+use crate::rar::{camera::Camera,map::LayerType, World};
 
 #[derive(Debug, Default)]
 struct EnabledLayer {
@@ -36,7 +36,7 @@ impl WorldRenderer {
 		//		layer.enabled = true;
 	}
 
-	pub fn render(&mut self, renderer: &mut Renderer, world: &World) {
+	pub fn render(&mut self, renderer: &mut Renderer, camera: &Camera, world: &World) {
 		//		dbg!(&self);
 		for m in world.maps() {
 			//			dbg!(&m.filename());
@@ -73,6 +73,8 @@ impl WorldRenderer {
 									let size = Vector2::new(tw as f32, th as f32);
 									let mut pos = Vector2::new(0.0, 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
 
+									let mut pos = pos.add( &camera.offset() );
+									
 									// :HACK: apply chunk offset
 									pos = pos.add(&Vector2::new((ox as f32) * (tw as f32), 0.0));
 									let inc_x = Vector2::new(tw as f32, 0.0);

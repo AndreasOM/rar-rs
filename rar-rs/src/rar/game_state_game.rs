@@ -229,6 +229,7 @@ impl GameState for GameStateGame {
 		//		renderer.mul_matrix( &mtx );
 		if !self.use_fixed_camera {
 			// :TODO: cycle through all cameras
+			/*
 			renderer.add_translation_for_layer(LayerId::Player as u8, &self.camera.offset());
 			renderer.add_scaling_for_layer(LayerId::Player as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 
@@ -239,25 +240,39 @@ impl GameState for GameStateGame {
 				&self.camera.offset().scaled_vector2(&Vector2::new(1.5, 1.0)),
 			);
 			renderer.add_scaling_for_layer(LayerId::TileMap2 as u8, self.camera.scale()); // :TODO: handle via MatrixStack
+			*/
 		}
 		for e in self.entity_manager.iter_mut() {
-			e.render(renderer);
+			e.render(renderer, &self.camera);
 		}
 
-		self.world_renderer.render(renderer, &self.world);
+		self.world_renderer.render(renderer, &self.camera, &self.world);
 		//		renderer.pop_matrix();
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
-		let offset = if !self.use_fixed_camera {
-			self.camera.offset()
-		} else {
+		let offset = if self.use_fixed_camera {
 			Vector2::zero()
-		};
-		let r = if !self.use_fixed_camera {
-			32.0
 		} else {
-			32.0 / self.camera.scale()
+			self.camera.offset()
 		};
+		let r = if self.use_fixed_camera {
+			32.0 / self.camera.scale()
+		} else {
+			32.0
+		};
+		let cam_fixed = if self.use_fixed_camera {
+			"FIXED"
+		} else {
+			"FREE"
+		};
+		debug_renderer.add_text(
+			&Vector2::new(0.0, 400.0),
+			&cam_fixed,
+			25.0,
+			3.0,
+			&Color::white(),
+		);
+
 		// camera info
 		let cam_pos = self.camera.pos().add(&offset);
 		debug_renderer.add_circle(&cam_pos, r, 3.0, &Color::white());
@@ -377,7 +392,16 @@ impl GameState for GameStateGame {
 			&Color::white(),
 		);
 
+		let frame = if self.use_fixed_camera {
+			frame
+		} else {
+			frame.with_offset( &offset )
+		};
 		debug_renderer.add_rectangle(&frame, 7.0, &Color::from_rgba(0.9, 0.8, 0.6, 0.8));
+		let cam_frame_center = frame.center();
+		let screen_center = Vector2::zero();
+
+		debug_renderer.add_line( &screen_center, cam_frame_center, 3.0, &Color::white());
 	}
 
 	fn name(&self) -> &str {

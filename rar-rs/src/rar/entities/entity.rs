@@ -1,5 +1,6 @@
 use oml_game::renderer::Renderer;
 
+use crate::rar::camera::Camera;
 use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityType;
 use crate::rar::EntityUpdateContext;
@@ -59,7 +60,7 @@ pub trait Entity {
 	fn setup(&mut self, _ec: &EntityConfiguration) {}
 	fn teardown(&mut self);
 	fn update(&mut self, euc: &mut EntityUpdateContext);
-	fn render(&mut self, renderer: &mut Renderer);
+	fn render(&mut self, renderer: &mut Renderer, camera: &Camera);
 
 	fn name(&self) -> &str;
 	fn entity_type(&self) -> EntityType;
