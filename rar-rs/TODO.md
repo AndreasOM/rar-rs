@@ -19,13 +19,14 @@
 - [ ] Move world when player gets close to edge
 - [ ] Add test case for entity configuration loading from yaml
 - [ ] Decide if entities should have components, e.g position
+- [ ] Load renderer setup from config file
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
 
 ## Done
 
-### Episode 0010 - 2.0h + 3.5h...
+### Episode 0010 - 2.0h + 3.5h  -> 20.0h + 17.5h        -> 37.5h
 - [x] Add test helper to 'T'erminate and 'R'espawn player
 - [x] Use player spawn position from map
 - [x] Use camera start position from map
