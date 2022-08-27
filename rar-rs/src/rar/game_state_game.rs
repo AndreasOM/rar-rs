@@ -248,7 +248,8 @@ impl GameState for GameStateGame {
 			e.render(renderer, &self.camera);
 		}
 
-		self.world_renderer.render(renderer, &self.camera, &self.world);
+		self.world_renderer
+			.render(renderer, &self.camera, &self.world);
 		//		renderer.pop_matrix();
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
@@ -397,13 +398,13 @@ impl GameState for GameStateGame {
 		let frame = if self.use_fixed_camera {
 			frame
 		} else {
-			frame.with_offset( &offset )
+			frame.with_offset(&offset)
 		};
 		debug_renderer.add_rectangle(&frame, 7.0, &Color::from_rgba(0.9, 0.8, 0.6, 0.8));
 		let cam_frame_center = frame.center();
 		let screen_center = Vector2::zero();
 
-		debug_renderer.add_line( &screen_center, cam_frame_center, 3.0, &Color::white());
+		debug_renderer.add_line(&screen_center, cam_frame_center, 3.0, &Color::white());
 	}
 
 	fn name(&self) -> &str {

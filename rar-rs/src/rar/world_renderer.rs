@@ -5,7 +5,7 @@ use oml_game::math::Vector2;
 //use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 
-use crate::rar::{camera::Camera,map::LayerType, World};
+use crate::rar::{camera::Camera, map::LayerType, World};
 
 #[derive(Debug, Default)]
 struct EnabledLayer {
@@ -55,8 +55,6 @@ impl WorldRenderer {
 
 				let tile_left = (left / tw as f32).floor() as i32;
 				let tile_right = (right / tw as f32).ceil() as i32;
-				dbg!(&tile_left);
-				dbg!(&tile_right);
 
 				for l in map.layers() {
 					if let Some(enabled_layer) = self.enabled_layers.get(l.name()) {
@@ -66,66 +64,46 @@ impl WorldRenderer {
 						renderer.use_layer(enabled_layer.layer_id);
 						renderer.use_effect(enabled_layer.effect_id);
 
-
 						match l.layertype() {
 							LayerType::Objects => {},
 							LayerType::Tile => {
 								for c in l.chunks() {
-									dbg!(&c);
 									let tm = c.tile_map();
 									let w = tm.width();
 									let h = tm.height();
 									let ox = *c.x();
 									let oy = *c.y();
 
-									//dbg!(&tile_left, &ox);
-									let tile_left = tile_left - ox;
-									let tile_left = if tile_left < 0 {
-										0
-									} else {
-										tile_left as u32
-									};
-									let tile_right = tile_right - ox;
-									let tile_right = if tile_right < 0 {
-										0
-									} else {
-										tile_right as u32
-									};
-									let tile_right = if tile_right < w {
-										tile_right
-									} else {
-										w
-									};
-
-									dbg!(&tile_left);
-									dbg!(&tile_right);
-
-									// :TODO: optimise the following four boundaries
+									// :TODO: optimise the following two boundaries
 									let sy = 0;
 									let ey = h;
-									let sx = tile_left;
-									let ex = tile_right;
-									//									println!("Chunk ->");
-									//									let th = 32;
-									//									let tw = 32;
+									let sx = (tile_left - ox).clamp(0, w as i32) as u32;
+									let ex = (tile_right - ox).clamp(0, w as i32) as u32;
+
 									let size = Vector2::new(tw as f32, th as f32);
-									let pos = Vector2::new(0.5 * ( tw as f32 ), 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
+									let pos =
+										Vector2::new(0.5 * (tw as f32), 512.0 - 0.5 * (th as f32)); // :TODO: world offset etc
 
-									let pos = pos.add( &Vector2::new( (sx as f32) * tw as f32, -(sy as f32) * th as f32 ) );
+									let pos = pos.add(&Vector2::new(
+										(sx as f32) * tw as f32,
+										-(sy as f32) * th as f32,
+									));
 
-									let mut pos = pos.add( &camera.offset() );
+									let mut pos = pos.add(&camera.offset());
 
 									// :HACK: apply chunk offset
-									pos = pos.add(&Vector2::new((ox as f32) * (tw as f32), (oy as f32) * (th as f32)));
+									pos = pos.add(&Vector2::new(
+										(ox as f32) * (tw as f32),
+										(oy as f32) * (th as f32),
+									));
 									let inc_x = Vector2::new(tw as f32, 0.0);
-									// including undo row
+									// including undo row aka carriage return ;)
 									let inc_y =
 										Vector2::new(0.0 - ((tw * (ex - sx)) as f32), -(th as f32));
 
 									let mut tiles_rendered_in_chunk = 0;
 									for y in sy..ey {
 										for x in sx..ex {
-
 											tiles_rendered_in_chunk += 1;
 											let tid = tm.get_xy(x, y);
 											if tid > 0 {
@@ -137,22 +115,9 @@ impl WorldRenderer {
 													println!("Warning: No tile for TID: {}", tid);
 												}
 											}
-											/*
-											if tid == 1 {
-												renderer.use_texture("tile_default_block");
-												renderer.render_textured_quad(&pos, &size);
-											}
-											else if tid == 2 {
-												renderer.use_texture("tile_default_block_green");
-												renderer.render_textured_quad(&pos, &size);
-											}
-											*/
 											pos = pos.add(&inc_x);
-
-											//											print!("{:1}", tid);
 										}
 										pos = pos.add(&inc_y);
-										//										println!();
 									}
 									tiles_rendered += tiles_rendered_in_chunk;
 									if tiles_rendered_in_chunk > 0 {
@@ -166,6 +131,9 @@ impl WorldRenderer {
 				}
 			}
 		}
-		println!("Tiles rendered {}, Chunks with tiles {}", tiles_rendered, chunks_with_tiles_rendered );
+		println!(
+			"Tiles rendered {}, Chunks with tiles {}",
+			tiles_rendered, chunks_with_tiles_rendered
+		);
 	}
 }

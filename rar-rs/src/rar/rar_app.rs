@@ -55,8 +55,8 @@ impl RarApp {
 
 			// entity_configuration_manager: EntityConfigurationManager::new(),
 			// player: Player::new(),
-			fun:        Vec::new(),
-			game_state: Box::new(GameStateGame::new()),
+			fun:              Vec::new(),
+			game_state:       Box::new(GameStateGame::new()),
 			debug_zoomed_out: false,
 		}
 	}
@@ -171,7 +171,7 @@ impl App for RarApp {
 			}
 		}
 
-		if wuc.was_key_pressed( '^' as u8 ) {
+		if wuc.was_key_pressed('^' as u8) {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
 		}
 
@@ -187,29 +187,29 @@ impl App for RarApp {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.begin_frame();
 
-/*
-			debug_renderer.add_text(
-				&Vector2::new(-500.0 * 0.0, -175.0),
-				"0123456789",
-				75.0,
-				3.0,
-				&Color::red(),
-			);
-			debug_renderer.add_text(
-				&Vector2::new(-500.0 * 0.0, -175.0 - 100.0),
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-				75.0,
-				7.0,
-				&Color::from_rgba(0.075, 0.075, 0.095, 1.0),
-			);
-			debug_renderer.add_text(
-				&Vector2::new(-500.0 * 0.0 + 5.0, -175.0 - 100.0 + 5.0),
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-				75.0,
-				7.0,
-				&Color::rainbow(self.total_time as f32 * 36.0 * 5.0),
-			);
-*/			
+			/*
+						debug_renderer.add_text(
+							&Vector2::new(-500.0 * 0.0, -175.0),
+							"0123456789",
+							75.0,
+							3.0,
+							&Color::red(),
+						);
+						debug_renderer.add_text(
+							&Vector2::new(-500.0 * 0.0, -175.0 - 100.0),
+							"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+							75.0,
+							7.0,
+							&Color::from_rgba(0.075, 0.075, 0.095, 1.0),
+						);
+						debug_renderer.add_text(
+							&Vector2::new(-500.0 * 0.0 + 5.0, -175.0 - 100.0 + 5.0),
+							"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+							75.0,
+							7.0,
+							&Color::rainbow(self.total_time as f32 * 36.0 * 5.0),
+						);
+			*/
 		}
 
 		/*
@@ -271,14 +271,14 @@ impl App for RarApp {
 				renderer.clear(&color);
 
 				//				let scaling = self.scaling * 0.5;
-				let scaling = if !self.debug_zoomed_out{
-				 0.5
+				let scaling = if !self.debug_zoomed_out {
+					0.5
 				} else {
 					if let Some(debug_renderer) = &*self.debug_renderer {
 						let mut debug_renderer = debug_renderer.borrow_mut();
 						let w = self.size.x;
-						let rect = ( -0.5 * w, -512.0, w, 1024.0 ).into();
-						debug_renderer.add_rectangle( &rect, 1.0, &Color::white());
+						let rect = (-0.5 * w, -512.0, w, 1024.0).into();
+						debug_renderer.add_rectangle(&rect, 1.0, &Color::white());
 					}
 					0.6
 				};

@@ -383,7 +383,7 @@ impl Entity for Player {
 			state_direction.animated_texture.r#use(renderer);
 		}
 
-		let pos = self.pos.add( &camera.offset() );
+		let pos = self.pos.add(&camera.offset());
 
 		renderer.render_textured_quad(&pos, &self.size);
 	}
