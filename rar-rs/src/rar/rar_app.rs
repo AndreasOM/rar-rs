@@ -133,9 +133,9 @@ impl App for RarApp {
 			"textured_desaturated_fs.glsl",
 		));
 
-		TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
-		TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
-		TextureAtlas::load_all(&mut self.system, &mut renderer, "tileset-default-%d");
+		//TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
+		//TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
+		//TextureAtlas::load_all(&mut self.system, &mut renderer, "tileset-default-%d");
 
 		self.renderer = Some(renderer);
 
@@ -238,6 +238,10 @@ impl App for RarApp {
 		}
 
 		self.game_state.update(wuc);
+
+		if let Some(renderer) = &mut self.renderer {
+			renderer.update(&mut self.system);
+		}
 
 		// :HACK:
 		if let Some(debug_renderer) = &*self.debug_renderer {
