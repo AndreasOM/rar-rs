@@ -131,9 +131,11 @@ impl WorldRenderer {
 				}
 			}
 		}
+		/*
 		println!(
 			"Tiles rendered {}, Chunks with tiles {}",
 			tiles_rendered, chunks_with_tiles_rendered
 		);
+		*/
 	}
 }
