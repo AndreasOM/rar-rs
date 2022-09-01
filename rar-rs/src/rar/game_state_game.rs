@@ -15,8 +15,6 @@ use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 
-const MAP_TEXT_SCALE: f32 = 20.0;
-const MAP_TEXT_WIDTH: f32 = 2.0;
 
 #[derive(Debug, Default)]
 pub struct GameStateGame {
@@ -25,6 +23,7 @@ pub struct GameStateGame {
 	world: World,
 	world_renderer: WorldRenderer,
 	camera: Camera,
+	fixed_camera: Camera,
 	use_fixed_camera: bool,
 	total_time: f64,
 	player_id: EntityId,
@@ -38,7 +37,7 @@ impl GameStateGame {
 			world: World::new(),
 			..Default::default()
 		}
-	}
+	}	
 }
 
 impl GameState for GameStateGame {
@@ -83,6 +82,9 @@ impl GameState for GameStateGame {
 		self.world.load(system, "dev")?;
 		self.world.load_all_maps(system)?;
 		self.world.load_all_tilesets(system)?;
+
+		self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?;
+		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
 
 		let player_spawns = self
 			.world
@@ -224,11 +226,22 @@ impl GameState for GameStateGame {
 		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
 		self.camera.set_frame_size(&frame_size);
 		self.camera.update(wuc.time_step, &self.entity_manager);
+
+		self.fixed_camera.set_frame_size(&frame_size);
+		self.fixed_camera.update(wuc.time_step, &self.entity_manager);
+
+		self.world_renderer.update( wuc.time_step );
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
 		//		let mtx = Matrix44::identity();
 		// :TODO: apply camera offset
 		//		renderer.mul_matrix( &mtx );
+		let active_camera = if self.use_fixed_camera {
+			&self.fixed_camera
+		} else {
+			&self.camera
+		};
+		/*
 		if !self.use_fixed_camera {
 			// :TODO: cycle through all cameras
 			/*
@@ -244,20 +257,17 @@ impl GameState for GameStateGame {
 			renderer.add_scaling_for_layer(LayerId::TileMap2 as u8, self.camera.scale()); // :TODO: handle via MatrixStack
 			*/
 		}
+		*/
 		for e in self.entity_manager.iter_mut() {
-			e.render(renderer, &self.camera);
+			e.render(renderer, active_camera);
 		}
 
 		self.world_renderer
-			.render(renderer, &self.camera, &self.world);
+			.render(renderer, active_camera, &self.world);
 		//		renderer.pop_matrix();
 	}
+
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
-		let offset = if self.use_fixed_camera {
-			Vector2::zero()
-		} else {
-			self.camera.offset()
-		};
 		let r = if self.use_fixed_camera {
 			32.0 / self.camera.scale()
 		} else {
@@ -276,6 +286,13 @@ impl GameState for GameStateGame {
 			&Color::white(),
 		);
 
+		let active_camera = if self.use_fixed_camera {
+			&self.fixed_camera
+		} else {
+			&self.camera
+		};
+		let offset = active_camera.offset();
+
 		// camera info
 		let cam_pos = self.camera.pos().add(&offset);
 		debug_renderer.add_circle(&cam_pos, r, 3.0, &Color::white());
@@ -293,89 +310,11 @@ impl GameState for GameStateGame {
 			3.0,
 			&Color::white(),
 		);
+
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
-					//if l.name() == "CameraControl" {
-					for o in l.objects() {
-						//						dbg!(&o);
-						let mut color = Color::rainbow(self.total_time as f32 * 20.0); //Color::white();
-						let mut width = 3.0;
-						let mut do_debug_render = true;
-						match (l.name().as_str(), o.class().as_str()) {
-							("Player", "PlayerSpawn") => {
-								//color = Color::red();
-								width = 9.0;
-							},
-							("Player", "PlayerKill") => {
-								color = Color::red();
-								width = 9.0;
-							},
-							("CameraControl", "CameraStart") => {
-								//color = Color::blue();
-								width = 9.0;
-							},
-							("CameraControl", "CameraFreeze") => {
-								color = Color::blue();
-								width = 9.0;
-							},
-							("CameraControl", "CameraThaw") => {
-								color = Color::green();
-								width = 9.0;
-							},
-							(_, "Test") => {
-								do_debug_render = false;
-							},
-							_ => {
-								println!("{}[] {}[{}]", l.name(), o.name(), o.class());
-								do_debug_render = false;
-							},
-						};
-						if do_debug_render {
-							match o.data() {
-								map::ObjectData::Rectangle { rect } => {
-									let mut rect = rect.clone();
-									//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
-									rect.offset(&offset);
-
-									debug_renderer.add_rectangle(&rect, width, &color);
-									debug_renderer.add_text(
-										&rect.center().add(&Vector2::new(3.0, 3.0)),
-										o.class(),
-										MAP_TEXT_SCALE,
-										MAP_TEXT_WIDTH,
-										&Color::black(),
-									);
-									debug_renderer.add_text(
-										&rect.center(),
-										o.class(),
-										MAP_TEXT_SCALE,
-										MAP_TEXT_WIDTH,
-										&color,
-										//&Color::rainbow(self.total_time as f32 * 20.0),
-									);
-									//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
-								},
-								map::ObjectData::Point { pos } => {
-									let pos = offset.add(pos);
-									//let pos = pos.add( &Vector2::new( 0.0, 0.0 ) );
-									debug_renderer.add_circle(&pos, 50.0, 5.0, &color);
-									debug_renderer.add_text(
-										&pos,
-										o.class(),
-										MAP_TEXT_SCALE,
-										MAP_TEXT_WIDTH,
-										&color,
-									);
-								},
-								map::ObjectData::Unknown => {},
-								d => {
-									println!("Unhandled {:?}", &d);
-								},
-							}
-						}
-					}
-					//}
+					self.world_renderer.render_debug_layer_objects( debug_renderer, active_camera, l );
 				}
 			}
 		}
@@ -395,6 +334,7 @@ impl GameState for GameStateGame {
 			&Color::white(),
 		);
 
+		// :HACK: we always want to see the moving camera's frame!
 		let frame = if self.use_fixed_camera {
 			frame
 		} else {

@@ -88,6 +88,16 @@ impl World {
 			anyhow::bail!("No remaining loader for world: {}", &name);
 		}
 	}
+
+	pub fn generate_collider_layers(&mut self, name: &str, layers: &Vec<&str> ) -> anyhow::Result<()>  {
+		for wm in self.maps.iter_mut() {
+			if let Some(m) = wm.map_mut() {
+				m.generate_collider_layers(name, layers)?;
+			}
+		}
+
+		Ok(())
+	}
 }
 
 impl From<WorldWorld> for World {

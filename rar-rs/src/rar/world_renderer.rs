@@ -1,11 +1,18 @@
 use std::collections::HashMap;
 
+use tracing::*;
+
 use oml_game::math::Vector2;
 //use oml_game::renderer::debug_renderer::DebugRenderer;
-//use oml_game::renderer::Color;
+use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
+use oml_game::renderer::debug_renderer::DebugRenderer;
 
-use crate::rar::{camera::Camera, map::LayerType, World};
+use crate::rar::{camera::Camera, map, map::{Layer,LayerType}, World};
+
+
+const MAP_TEXT_SCALE: f32 = 20.0;
+const MAP_TEXT_WIDTH: f32 = 2.0;
 
 #[derive(Debug, Default)]
 struct EnabledLayer {
@@ -16,6 +23,7 @@ struct EnabledLayer {
 #[derive(Debug, Default)]
 pub struct WorldRenderer {
 	enabled_layers: HashMap<String, EnabledLayer>,
+	total_time: f64,
 }
 
 impl WorldRenderer {
@@ -35,14 +43,16 @@ impl WorldRenderer {
 		layer.effect_id = effect_id;
 		//		layer.enabled = true;
 	}
-
+	pub fn update(&mut self, time_step: f64 ) {
+		self.total_time += time_step;
+	}
 	pub fn render(&mut self, renderer: &mut Renderer, camera: &Camera, world: &World) {
 		//		dbg!(&self);
 		let frame = camera.frame();
 		let left = frame.left();
 		let right = frame.right();
-		let top = frame.top();
-		let bottom = frame.bottom();
+		let _top = frame.top();
+		let _bottom = frame.bottom();
 
 		let mut tiles_rendered = 0;
 		let mut chunks_with_tiles_rendered = 0;
@@ -131,11 +141,107 @@ impl WorldRenderer {
 				}
 			}
 		}
-		/*
+		if false {
 		println!(
 			"Tiles rendered {}, Chunks with tiles {}",
 			tiles_rendered, chunks_with_tiles_rendered
 		);
-		*/
+		}
 	}
+
+	pub fn render_debug_layer_objects( &self, debug_renderer: &mut DebugRenderer, camera: &Camera, layer: &Layer ) {
+		let l = layer;
+
+		let offset = camera.offset();
+
+					//if l.name() == "CameraControl" {
+					for o in l.objects() {
+						//						dbg!(&o);
+						let mut color = Color::rainbow(self.total_time as f32 * 20.0); //Color::white();
+						let mut width = 3.0;
+						let mut do_debug_render = true;
+						match (l.name().as_str(), o.class().as_str()) {
+							("Player", "PlayerSpawn") => {
+								//color = Color::red();
+								width = 9.0;
+							},
+							("Player", "PlayerKill") => {
+								color = Color::red();
+								width = 9.0;
+							},
+							("CameraControl", "CameraStart") => {
+								//color = Color::blue();
+								width = 9.0;
+							},
+							("CameraControl", "CameraFreeze") => {
+								color = Color::blue();
+								width = 9.0;
+							},
+							("CameraControl", "CameraThaw") => {
+								color = Color::green();
+								width = 9.0;
+							},
+							("Collider", _) => {
+								color = Color::green();
+								width = 3.0;
+							},
+							(_, "Test") => {
+								do_debug_render = false;
+							},
+							_ => {
+								warn!("Object not handled: {}[] {}[{}]", l.name(), o.name(), o.class());
+								do_debug_render = false;
+							},
+						};
+						if do_debug_render {
+							match o.data() {
+								map::ObjectData::Rectangle { rect } => {
+									let mut rect = rect.clone();
+									//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
+									rect.offset(&offset);
+
+									debug_renderer.add_rectangle(&rect, width, &color);
+									debug_renderer.add_text(
+										&rect.center().add(&Vector2::new(3.0, 3.0)),
+										o.class(),
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
+										&Color::black(),
+									);
+									debug_renderer.add_text(
+										&rect.center(),
+										o.class(),
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
+										&color,
+										//&Color::rainbow(self.total_time as f32 * 20.0),
+									);
+									//								debug_renderer.add_text(rect.pos(), o.class(), 50.0, 5.0, &Color::from_rgba( 0.75, 0.75, 0.95, 1.0 ));
+								},
+								map::ObjectData::Point { pos } => {
+									let pos = offset.add(pos);
+									//let pos = pos.add( &Vector2::new( 0.0, 0.0 ) );
+									debug_renderer.add_circle(&pos, 50.0, 5.0, &color);
+									debug_renderer.add_text(
+										&pos,
+										o.class(),
+										MAP_TEXT_SCALE,
+										MAP_TEXT_WIDTH,
+										&color,
+									);
+								},
+								map::ObjectData::Unknown => {},
+								/*
+								d => {
+									println!("Unhandled {:?}", &d);
+								},
+								*/
+							}
+						}
+					}
+					//}
+
+
+	}
+
 }
