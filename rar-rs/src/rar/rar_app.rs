@@ -13,7 +13,8 @@ use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 
-use crate::rar::effect_ids::EffectId;
+//use crate::rar::effect_ids::EffectId;
+use crate::rar::effect_ids::*;
 //use crate::rar::entities::entity::Entity;
 //use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
@@ -105,7 +106,7 @@ impl App for RarApp {
 
 		renderer.register_effect(Effect::create(
 			&mut self.system,
-			EffectId::Background as u16,
+			EffectIdBackground::as_u16(),
 			"Background",
 			"background_vs.glsl",
 			"background_fs.glsl",
@@ -113,21 +114,21 @@ impl App for RarApp {
 
 		renderer.register_effect(Effect::create(
 			&mut self.system,
-			EffectId::Colored as u16,
+			EffectIdColored::as_u16(),
 			"Colored",
 			"colored_vs.glsl",
 			"colored_fs.glsl",
 		));
 		renderer.register_effect(Effect::create(
 			&mut self.system,
-			EffectId::Textured as u16,
+			EffectIdTextured::as_u16(),
 			"Textured",
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
 		renderer.register_effect(Effect::create(
 			&mut self.system,
-			EffectId::TexturedDesaturated as u16,
+			EffectIdTexturedDesaturated::as_u16(),
 			"Textured Desaturated",
 			"textured_desaturated_vs.glsl",
 			"textured_desaturated_fs.glsl",
@@ -162,7 +163,7 @@ impl App for RarApp {
 			if self.debug_renderer.is_none() {
 				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
 					LayerId::DebugRenderer as u8,
-					EffectId::Colored as u16,
+					EffectIdColored::as_u16(),
 				))));
 				println!("Enabled debug renderer");
 			} else {

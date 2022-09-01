@@ -5,7 +5,8 @@ use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
 
 use crate::rar::camera::Camera;
-use crate::rar::effect_ids::EffectId;
+//use crate::rar::effect_ids::EffectId;
+use crate::rar::effect_ids::*;
 use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
@@ -377,7 +378,7 @@ impl Entity for Player {
 		}
 
 		renderer.use_layer(LayerId::Player as u8);
-		renderer.use_effect(EffectId::Textured as u16);
+		renderer.use_effect(EffectIdTextured::as_u16());
 
 		if let Some(state_direction) = self.get_state_direction() {
 			state_direction.animated_texture.r#use(renderer);

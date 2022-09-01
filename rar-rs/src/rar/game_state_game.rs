@@ -6,7 +6,8 @@ use oml_game::system::System;
 use oml_game::window::WindowUpdateContext;
 
 use crate::rar::camera::Camera;
-use crate::rar::effect_ids::EffectId;
+//use crate::rar::effect_ids::EffectId;
+use crate::rar::effect_ids::*;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{
 	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
@@ -141,7 +142,7 @@ impl GameState for GameStateGame {
 		self.world_renderer.enable_layer(
 			"Tile Layer 1",
 			LayerId::TileMap1 as u8,
-			EffectId::Textured as u16,
+			EffectIdTextured::as_u16(),
 		);
 		/*
 		self.world_renderer.enable_layer(
