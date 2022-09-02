@@ -1,6 +1,7 @@
 mod game_state;
 pub use game_state::GameState;
 mod game_state_game;
+mod game_state_menu;
 pub mod rar_app;
 pub use rar_app::RarApp;
 pub mod effect_ids;

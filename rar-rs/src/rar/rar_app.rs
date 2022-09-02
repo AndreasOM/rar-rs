@@ -1,12 +1,16 @@
+use std::collections::VecDeque;
+use std::collections::HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use tracing::*;
 
 use oml_game::math::{Matrix44, Vector2};
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
 use oml_game::renderer::Renderer;
-use oml_game::renderer::TextureAtlas;
+//use oml_game::renderer::TextureAtlas;
 use oml_game::system::filesystem_disk::FilesystemDisk;
 use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
@@ -17,10 +21,21 @@ use crate::rar::effect_ids::EffectId;
 //use crate::rar::entities::entity::Entity;
 //use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
+use crate::rar::game_state_menu::GameStateMenu;
 use crate::rar::layer_ids::LayerId;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 
+#[derive(Debug)]
+#[derive(PartialEq)]
+#[derive(Hash)]
+#[derive(Eq)]
+enum GameStates {
+	Menu,
+	Game,
+}
+
+#[derive(Debug)]
 pub struct RarApp {
 	renderer:       Option<Renderer>,
 	size:           Vector2,
@@ -35,13 +50,21 @@ pub struct RarApp {
 	//	entity_configuration_manager: EntityConfigurationManager,
 	//	player: Player,
 	fun:        Vec<Vector2>,
-	game_state: Box<dyn GameState>,
+//	game_state: Box<dyn GameState>,
 
+	game_states: HashMap< GameStates, Box<dyn GameState> >,
+	active_game_state: GameStates,
+
+	next_game_states: VecDeque< GameStates >,
 	debug_zoomed_out: bool,
 }
 
-impl RarApp {
-	pub fn new() -> Self {
+impl Default for RarApp {
+	fn default() -> Self {
+		let mut game_states: HashMap< GameStates, Box< dyn GameState >> = HashMap::new();
+		game_states.insert( GameStates::Menu, Box::new(GameStateMenu::new() ) );
+		game_states.insert( GameStates::Game, Box::new( GameStateGame::new() ) );
+
 		Self {
 			renderer:       None,
 			size:           Vector2::zero(),
@@ -56,8 +79,19 @@ impl RarApp {
 			// entity_configuration_manager: EntityConfigurationManager::new(),
 			// player: Player::new(),
 			fun:              Vec::new(),
-			game_state:       Box::new(GameStateGame::new()),
+//			game_state:       Box::new(GameStateGame::new()),
+//			game_state:       Box::new(GameStateMenu::new()),
 			debug_zoomed_out: false,
+			active_game_state: GameStates::Menu,
+			game_states,
+			next_game_states: VecDeque::new(),
+		}
+	}
+}
+impl RarApp {
+	pub fn new() -> Self {
+		Self {
+			..Default::default()
 		}
 	}
 	// :TODO: Consider moving this into game package
@@ -78,6 +112,16 @@ impl RarApp {
 		}
 
 		lfs.add_filesystem(Box::new(dfs));
+	}
+	fn game_state( &mut self ) -> &mut Box<dyn GameState> {
+		match self.game_states.get_mut( &self.active_game_state ) {
+			Some( gs ) => { return gs },
+			None => {
+			}
+		}
+//		error!("Active GameState {:?} not in {:#?}", &self.active_game_state, &self.game_states );
+		error!("Active GameState >{:?}< not found", &self.active_game_state );
+		panic!("");
 	}
 }
 
@@ -139,17 +183,32 @@ impl App for RarApp {
 
 		self.renderer = Some(renderer);
 
-		self.game_state.setup(&mut self.system)?;
+		//self.game_state().setup(&mut self.system)?;
+		if let Some( game_state ) = self.game_states.get_mut( &self.active_game_state ){
+			game_state.setup(&mut self.system)?;
+		}
 
 		Ok(())
 	}
+
 	fn teardown(&mut self) {
-		self.game_state.teardown();
+		self.game_state().teardown();
 	}
 	fn is_done(&self) -> bool {
 		self.is_done
 	}
-	fn update(&mut self, wuc: &mut WindowUpdateContext) {
+	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result< () >{
+		if let Some( next_game_state ) = self.next_game_states.pop_front() {
+			if let Some( old_game_state ) = self.game_states.get_mut( &self.active_game_state ){
+				old_game_state.teardown();
+			}
+
+			if let Some( new_game_state ) = self.game_states.get_mut( &next_game_state ){
+				new_game_state.setup(&mut self.system)?;
+			}
+
+			self.active_game_state = next_game_state;
+		}
 		self.total_time += wuc.time_step;
 
 		if wuc.is_escape_pressed {
@@ -237,7 +296,19 @@ impl App for RarApp {
 			}
 		}
 
-		self.game_state.update(wuc);
+		let responses = self.game_state().update(wuc);
+
+		for r in responses.iter() {
+			match r.name() {
+				"StartGame" => {
+					debug!("StartGame");
+					self.next_game_states.push_back( GameStates::Game );
+				},
+				o => {
+					warn!("Unhandled GameStateResponse: >{}<", &o);
+				},
+			}
+		};
 
 		if let Some(renderer) = &mut self.renderer {
 			renderer.update(&mut self.system);
@@ -246,7 +317,10 @@ impl App for RarApp {
 		// :HACK:
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
-			self.game_state.render_debug(&mut debug_renderer);
+			//self.game_state().render_debug(&mut debug_renderer);
+				if let Some( game_state ) = self.game_states.get_mut( &self.active_game_state ){
+					game_state.render_debug(&mut debug_renderer);
+				}
 		}
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
@@ -258,6 +332,7 @@ impl App for RarApp {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.end_frame();
 		}
+		Ok(())
 	}
 	fn render(&mut self) {
 		// :TODO: if let ???
@@ -303,7 +378,11 @@ impl App for RarApp {
 
 				renderer.set_mvp_matrix(&mvp);
 
-				self.game_state.render(renderer);
+				//self.game_state().render(renderer);
+				if let Some( game_state ) = self.game_states.get_mut( &self.active_game_state ){
+					game_state.render(renderer);
+				}
+
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();

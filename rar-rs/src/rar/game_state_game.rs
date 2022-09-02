@@ -11,6 +11,7 @@ use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{
 	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
 };
+use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
@@ -159,7 +160,7 @@ impl GameState for GameStateGame {
 		self.world_renderer.teardown();
 		self.entity_manager.teardown();
 	}
-	fn update(&mut self, wuc: &mut WindowUpdateContext) {
+	fn update(&mut self, wuc: &mut WindowUpdateContext) -> Vec< GameStateResponse > {
 		let mut euc = EntityUpdateContext::new();
 
 		self.total_time += wuc.time_step;
@@ -231,6 +232,8 @@ impl GameState for GameStateGame {
 		self.fixed_camera.update(wuc.time_step, &self.entity_manager);
 
 		self.world_renderer.update( wuc.time_step );
+
+		Vec::new()
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
 		//		let mtx = Matrix44::identity();

@@ -44,7 +44,7 @@ impl Entity for Background {
 
 	fn update(&mut self, _euc: &mut EntityUpdateContext) {}
 
-	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {
+	fn render(&mut self, renderer: &mut Renderer, _camera: &Camera) {
 		renderer.use_texture("bg-title");
 		renderer.use_layer(LayerId::Background as u8);
 		renderer.use_effect(EffectId::Background as u16);
