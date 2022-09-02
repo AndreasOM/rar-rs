@@ -16,7 +16,6 @@ use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 
-
 #[derive(Debug, Default)]
 pub struct GameStateGame {
 	entity_configuration_manager: EntityConfigurationManager,
@@ -38,7 +37,7 @@ impl GameStateGame {
 			world: World::new(),
 			..Default::default()
 		}
-	}	
+	}
 }
 
 impl GameState for GameStateGame {
@@ -84,7 +83,8 @@ impl GameState for GameStateGame {
 		self.world.load_all_maps(system)?;
 		self.world.load_all_tilesets(system)?;
 
-		self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?;
+		self.world
+			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
 		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
 
 		let player_spawns = self
@@ -160,7 +160,7 @@ impl GameState for GameStateGame {
 		self.world_renderer.teardown();
 		self.entity_manager.teardown();
 	}
-	fn update(&mut self, wuc: &mut WindowUpdateContext) -> Vec< GameStateResponse > {
+	fn update(&mut self, wuc: &mut WindowUpdateContext) -> Vec<GameStateResponse> {
 		let mut euc = EntityUpdateContext::new();
 
 		self.total_time += wuc.time_step;
@@ -229,9 +229,10 @@ impl GameState for GameStateGame {
 		self.camera.update(wuc.time_step, &self.entity_manager);
 
 		self.fixed_camera.set_frame_size(&frame_size);
-		self.fixed_camera.update(wuc.time_step, &self.entity_manager);
+		self.fixed_camera
+			.update(wuc.time_step, &self.entity_manager);
 
-		self.world_renderer.update( wuc.time_step );
+		self.world_renderer.update(wuc.time_step);
 
 		Vec::new()
 	}
@@ -317,7 +318,11 @@ impl GameState for GameStateGame {
 		for wm in self.world.maps() {
 			if let Some(m) = wm.map() {
 				for l in m.layers() {
-					self.world_renderer.render_debug_layer_objects( debug_renderer, active_camera, l );
+					self.world_renderer.render_debug_layer_objects(
+						debug_renderer,
+						active_camera,
+						l,
+					);
 				}
 			}
 		}

@@ -1,11 +1,9 @@
 use derive_getters::Getters;
-
 use oml_game::math::{Rectangle, Vector2};
 use oml_game::system::System;
+use tracing::*;
 
 use crate::rar::Tileset;
-
-use tracing::*;
 
 /* we could use an enum for the different layer types, but for now we just mix into on struct?!
 #[derive(Debug)]
@@ -41,7 +39,7 @@ pub struct Object {
 }
 
 impl Object {
-	pub fn with_data( mut self, data: ObjectData ) -> Self {
+	pub fn with_data(mut self, data: ObjectData) -> Self {
 		self.data = data;
 
 		self
@@ -156,7 +154,7 @@ pub struct Layer {
 }
 
 impl Layer {
-	pub fn set_name( &mut self, name: &str ) {
+	pub fn set_name(&mut self, name: &str) {
 		self.name = name.to_string();
 	}
 	pub fn list_objects_for_class(&self, class: &str) -> Vec<&Object> {
@@ -232,58 +230,66 @@ impl Map {
 		Ok(())
 	}
 
-	pub fn generate_collider_layers(&mut self, name: &str, layers: &Vec<&str> ) -> anyhow::Result<()>  {
-		if let Some( layer ) = self.layers.iter().find(|l| l.name == name ) {
-			warn!("Layer >{}< already exists -> {:#?}", &name, layer );
+	pub fn generate_collider_layers(
+		&mut self,
+		name: &str,
+		layers: &Vec<&str>,
+	) -> anyhow::Result<()> {
+		if let Some(layer) = self.layers.iter().find(|l| l.name == name) {
+			warn!("Layer >{}< already exists -> {:#?}", &name, layer);
 			anyhow::bail!("Layer already exists: {}", &name);
 		}
 
 		let mut layer = Layer::default();
-		layer.set_name( name );
+		layer.set_name(name);
 
 		// for now we just use data from *all* layers
 		for l in self.layers.iter() {
-			if !layers.iter().any(|ul| l.name().starts_with( ul )) {
-				debug!("Skipping layer >{}< as for Collider layer >{}<", l.name(), name );				
+			if !layers.iter().any(|ul| l.name().starts_with(ul)) {
+				debug!(
+					"Skipping layer >{}< as for Collider layer >{}<",
+					l.name(),
+					name
+				);
 				continue;
 			} else {
-				// debug!("Using layer >{}< as for Collider layer >{}< -> {:#?}", l.name(), name, &l );				
+				// debug!("Using layer >{}< as for Collider layer >{}< -> {:#?}", l.name(), name, &l );
 			}
 			/* ignore objects for now
 			for o in l.objects().iter() {
 
 			}
 			*/
-			let tile_size = Vector2::new( self.tilewidth as f32, self.tileheight as f32 );
-			let half_tile_size = tile_size.scaled( 0.5 );
+			let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
+			let half_tile_size = tile_size.scaled(0.5);
 			for c in l.chunks().iter() {
 				let x = *c.x() as f32;
 				let y = *c.y() as f32;
 				let y = y + 7.0; // :HACK: what the fudge?
-				let start = tile_size.scaled_vector2( &Vector2::new( x, y ) );
+				let start = tile_size.scaled_vector2(&Vector2::new(x, y));
 				let tm = c.tile_map();
 				// no visibility checks here, it's pre-processed anyway
 				// :HACK: just create one collider per none-zero tile
 				for y in 0..*c.height() {
 					for x in 0..*c.width() {
-
 						// :TODO: maybe we need the tilemap here to lookup non-1x1 tiles?
-						let tid = tm.get_xy( x, y );
+						let tid = tm.get_xy(x, y);
 						if tid > 0 {
-							let pos = start.add( &tile_size.scaled_vector2( &Vector2::new( x as f32, y as f32 * -1.0 ) ) );
-							let pos = pos.add( &half_tile_size );
-							let rect = Rectangle::default().with_size( &tile_size ).with_center( &pos );
+							let pos = start.add(
+								&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)),
+							);
+							let pos = pos.add(&half_tile_size);
+							let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
 							let od = ObjectData::Rectangle { rect };
-							let o = Object::default().with_data( od );
-							layer.add_object( o );
+							let o = Object::default().with_data(od);
+							layer.add_object(o);
 						}
 					}
-				}				
-
+				}
 			}
 		}
 
-		self.add_layer( layer );
+		self.add_layer(layer);
 
 		Ok(())
 	}
