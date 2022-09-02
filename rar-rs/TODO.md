@@ -3,6 +3,7 @@
 
 ## In Progress
 
+- [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [ ] Generate tilemap colliders
 
@@ -10,6 +11,7 @@
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
+    - [] Implement game state `menu`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -23,7 +25,7 @@
 
 ## Done
 
-### Episode 0011 - 3.5h + 2h...
+### Episode 0011 - 3.5h + 4h...
 - [x] Render only visible tiles (x axis check only for now)
 - [x] Render tilemap
     - [x] Use correct texture
