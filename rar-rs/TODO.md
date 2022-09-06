@@ -3,29 +3,39 @@
 
 ## In Progress
 
-- [ ] Render tilemap
-    - [x] Use correct texture
-    - [ ] Apply chunk offset
-    - [ ] Render only visible parts of world
-    - [x] Allow per layer configuration of render effect and layer
-
+- [ ] Add world selection via menu
+- [ ] Add tilemap collision
+    - [ ] Generate tilemap colliders
 
 ## TODO
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
+    - [] Implement game state `menu`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
 - [ ] Add test case for entity configuration loading from yaml
 - [ ] Decide if entities should have components, e.g position
+- [ ] Load renderer setup from config file
+- [ ] Add basic UI
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
 
 ## Done
 
-### Episode 0010 - 2.0h + 3.5h...
+### Episode 0011 - 3.5h + 4h...
+- [x] Render only visible tiles (x axis check only for now)
+- [x] Render tilemap
+    - [x] Use correct texture
+    - [x] Apply chunk offset
+    - [x] Render only visible parts of world
+    - [x] Allow per layer configuration of render effect and layer
+    - [x] Cleanup visibilty check for chunks
+
+
+### Episode 0010 - 2.0h + 3.5h  -> 20.0h + 17.5h        -> 37.5h
 - [x] Add test helper to 'T'erminate and 'R'espawn player
 - [x] Use player spawn position from map
 - [x] Use camera start position from map

@@ -1,0 +1,21 @@
+renderer:
+  layers: [
+    "None",
+    "Background",
+    "TileMap1",
+    "TileMap2",
+    "Player",
+    "Debug",
+    "Ui",
+    "DebugRenderer",
+  ]
+
+  effects:
+    - name: "Background"
+      shaders:
+        vertex: "background_vs.glsl"
+        fragment: "background_fs.glsl"
+    - name: "Textured"
+      shaders:
+        vertex: "textured_vs.glsl"
+        fragment: "textured_fs.glsl"

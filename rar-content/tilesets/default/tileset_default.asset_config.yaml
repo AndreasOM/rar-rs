@@ -6,7 +6,7 @@ input:
   - "*.png"
 parameters: {
 }
-cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input}"
+cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input} --reference-path ${data_directory}"
 
 
 --- 

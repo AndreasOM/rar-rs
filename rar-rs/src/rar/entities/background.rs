@@ -1,6 +1,7 @@
 use oml_game::math::Matrix32;
 use oml_game::renderer::Renderer;
 
+use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::{Entity, EntityConfiguration, EntityData, EntityType};
 use crate::rar::layer_ids::LayerId;
@@ -43,7 +44,7 @@ impl Entity for Background {
 
 	fn update(&mut self, _euc: &mut EntityUpdateContext) {}
 
-	fn render(&mut self, renderer: &mut Renderer) {
+	fn render(&mut self, renderer: &mut Renderer, _camera: &Camera) {
 		renderer.use_texture("bg-title");
 		renderer.use_layer(LayerId::Background as u8);
 		renderer.use_effect(EffectId::Background as u16);

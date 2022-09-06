@@ -4,6 +4,7 @@ use std::convert::From;
 use oml_game::math::Vector2;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
 
+use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::Entity;
 use crate::rar::entities::EntityConfiguration;
@@ -369,7 +370,7 @@ impl Entity for Player {
 		}
 	}
 
-	fn render(&mut self, renderer: &mut Renderer) {
+	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {
 		if self.state == PlayerState::Dead {
 			// dead means offscreen, nothing to be rendered
 			return;
@@ -382,7 +383,9 @@ impl Entity for Player {
 			state_direction.animated_texture.r#use(renderer);
 		}
 
-		renderer.render_textured_quad(&self.pos, &self.size);
+		let pos = self.pos.add(&camera.offset());
+
+		renderer.render_textured_quad(&pos, &self.size);
 	}
 
 	fn name(&self) -> &str {
