@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
@@ -14,6 +16,7 @@ use crate::rar::entities::{
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
+use crate::rar::AppUpdateContext;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 
 #[derive(Debug, Default)]
@@ -27,6 +30,7 @@ pub struct GameStateGame {
 	use_fixed_camera: bool,
 	total_time: f64,
 	player_id: EntityId,
+	world_name: String,
 }
 
 impl GameStateGame {
@@ -35,8 +39,12 @@ impl GameStateGame {
 			entity_manager: EntityManager::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),
 			world: World::new(),
+			world_name: "dev".to_string(),
 			..Default::default()
 		}
+	}
+	pub fn select_world(&mut self, world: &str) {
+		self.world_name = world.to_string();
 	}
 }
 
@@ -79,7 +87,7 @@ impl GameState for GameStateGame {
 		self.entity_manager.add(Box::new(background));
 
 		// load world
-		self.world.load(system, "dev")?;
+		self.world.load(system, &self.world_name)?;
 		self.world.load_all_maps(system)?;
 		self.world.load_all_tilesets(system)?;
 
@@ -160,8 +168,13 @@ impl GameState for GameStateGame {
 		self.world_renderer.teardown();
 		self.entity_manager.teardown();
 	}
-	fn update(&mut self, wuc: &mut WindowUpdateContext) -> Vec<GameStateResponse> {
+	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut euc = EntityUpdateContext::new();
+
+		let wuc = match auc.wuc() {
+			Some(wuc) => wuc,
+			None => return Vec::new(),
+		};
 
 		self.total_time += wuc.time_step;
 		if wuc.was_key_pressed('p' as u8) {
@@ -357,5 +370,11 @@ impl GameState for GameStateGame {
 
 	fn name(&self) -> &str {
 		"[GameState] Game"
+	}
+	fn as_any(&self) -> &(dyn Any + 'static) {
+		self
+	}
+	fn as_any_mut(&mut self) -> &mut (dyn Any + 'static) {
+		self
 	}
 }

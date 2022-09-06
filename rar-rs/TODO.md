@@ -22,10 +22,15 @@
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
+- [ ] Understand how to organise tiled worlds
 
 ## Done
 
-### Episode 0011 - 3.5h + 4h...
+### Epsiode 0012 - 2.0h + ...
+- [x] Add specific getters for GameState
+- [x] Add AppUpdateContext
+
+### Episode 0011 - 3.5h + 4h    -> 23.5h + 21.5h        -> 45h
 - [x] Render only visible tiles (x axis check only for now)
 - [x] Render tilemap
     - [x] Use correct texture
