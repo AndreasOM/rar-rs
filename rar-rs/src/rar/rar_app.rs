@@ -169,6 +169,14 @@ impl App for RarApp {
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
+		// :TODO: use correct shaders
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::ColoredTextured as u16,
+			"ColoredTextured",
+			"textured_vs.glsl",
+			"textured_fs.glsl",
+		));
 		renderer.register_effect(Effect::create(
 			&mut self.system,
 			EffectId::TexturedDesaturated as u16,
