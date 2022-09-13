@@ -3,7 +3,6 @@ use std::any::Any;
 use oml_game::math::Matrix32;
 use oml_game::math::Rectangle;
 use oml_game::renderer::Renderer;
-
 use tracing::*;
 
 use crate::rar::effect_ids::EffectId;
@@ -22,14 +21,14 @@ impl GameStateMenu {
 	pub fn new() -> Self {
 		Self {
 			buttons: [
-				("dev", (-128.0,-64.0,256.0, 64.0).into() ),
-				("debug", (-128.0,64.0,256.0, 64.0).into() ),
-			].to_vec(),
+				("dev", (-128.0, -64.0, 256.0, 64.0).into()),
+				("debug", (-128.0, 64.0, 256.0, 64.0).into()),
+			]
+			.to_vec(),
 			..Default::default()
 		}
 	}
 }
-
 
 impl GameState for GameStateMenu {
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
@@ -44,7 +43,7 @@ impl GameState for GameStateMenu {
 			debug!("{}", auc.cursor_pos().y);
 			for b in self.buttons.iter() {
 				let r = &b.1;
-				if r.contains( auc.cursor_pos() ) {
+				if r.contains(auc.cursor_pos()) {
 					debug!("Clicked {}", &b.0);
 					let world = b.0;
 					let sw = GameStateResponseDataSelectWorld::new(world);
@@ -55,14 +54,14 @@ impl GameState for GameStateMenu {
 					continue;
 				}
 			}
-/*
-			let world = if auc.cursor_pos().y < 0.0 {
-				"dev"
-			} else {
-				"debug"
-			};
+			/*
+						let world = if auc.cursor_pos().y < 0.0 {
+							"dev"
+						} else {
+							"debug"
+						};
 
-*/
+			*/
 		}
 
 		responses
