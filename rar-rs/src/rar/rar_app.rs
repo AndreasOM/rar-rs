@@ -17,13 +17,18 @@ use oml_game::App;
 use tracing::*;
 
 use crate::rar::effect_ids::EffectId;
+use crate::rar::game_state::get_game_state_as_specific;
+use crate::rar::game_state::get_game_state_as_specific_mut;
+use crate::rar::game_state::get_game_state_response_data_as_specific;
 //use crate::rar::entities::entity::Entity;
 //use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
 use crate::rar::game_state_menu::GameStateMenu;
 use crate::rar::layer_ids::LayerId;
+use crate::rar::AppUpdateContext;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
+use crate::rar::GameStateResponseDataSelectWorld;
 
 #[derive(Debug, PartialEq, Hash, Eq)]
 enum GameStates {
@@ -291,13 +296,38 @@ impl App for RarApp {
 			}
 		}
 
-		let responses = self.game_state().update(wuc);
+		let mut auc = AppUpdateContext::new()
+			.set_time_step(wuc.time_step)
+			.set_cursor_pos(&self.cursor_pos)
+			.set_wuc(&wuc);
+
+		let responses = self.game_state().update(&mut auc);
 
 		for r in responses.iter() {
 			match r.name() {
 				"StartGame" => {
 					debug!("StartGame");
 					self.next_game_states.push_back(GameStates::Game);
+				},
+				"SelectWorld" => {
+					debug!("SelectWorld");
+					debug!("{:?}", &r);
+					if let Some(data) = r.data() {
+						if let Some(swd) = get_game_state_response_data_as_specific::<
+							GameStateResponseDataSelectWorld,
+						>(data)
+						{
+							debug!("data -> {:?}", &swd);
+							debug!("SelectWorld -> {}", &swd.world());
+							if let Some(gs) = self.game_states.get_mut(&GameStates::Game) {
+								if let Some(gsg) =
+									get_game_state_as_specific_mut::<GameStateGame>(gs)
+								{
+									gsg.select_world(&swd.world());
+								}
+							}
+						}
+					}
 				},
 				o => {
 					warn!("Unhandled GameStateResponse: >{}<", &o);
