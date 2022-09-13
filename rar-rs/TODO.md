@@ -4,7 +4,8 @@
 ## In Progress
 
 - [ ] Add simple button handling for menu
-    - [ ] Add real UI system
+    - [ ] Add real UI system (from fiiish-rs)
+        - [ ] Handle resizing
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
@@ -29,7 +30,7 @@
 
 ## Done
 
-### Episode 0013 - 1.0h... +
+### Episode 0013 - 2.0h... +
 - [x] Add dummy UI buttons
 
 ### Epsiode 0012 - 2.0h + 0.0h  -> 25.5h + 21.5h        -> 47h

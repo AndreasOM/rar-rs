@@ -27,3 +27,5 @@ mod world;
 pub use world::World;
 mod world_renderer;
 pub use world_renderer::WorldRenderer;
+
+mod dialogs;
