@@ -63,6 +63,17 @@ pub trait UiElement {
 		None
 	}
 	//	fn set_size( &mut self, size: &Vector2 ) {}
+	/*
+	fn containerize( e: impl UiElement + 'static ) -> UiElementContainer where Self: Sized {
+		UiElementContainer::new( Box::new( e ) )
+	}
+	*/
+	fn containerize(self) -> UiElementContainer
+	where
+		Self: 'static + Sized,
+	{
+		UiElementContainer::new(Box::new(self))
+	}
 }
 
 impl std::fmt::Debug for dyn UiElement {

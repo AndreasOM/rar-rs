@@ -22,6 +22,11 @@ impl UiButton {
 			image:     None,
 		}
 	}
+	/*
+	pub fn containerize( self ) -> UiElementContainer{
+		UiElementContainer::new( Box::new( self ) )
+	}
+	*/
 }
 
 impl UiElement for UiButton {

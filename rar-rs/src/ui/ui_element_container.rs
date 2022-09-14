@@ -69,6 +69,14 @@ impl UiElementContainerData {
 	) -> UiElementContainerHandle {
 		self.add_child(UiElementContainer::new(Box::new(element)))
 	}
+
+	pub fn add_child_element_container(
+		&mut self,
+		element_container: UiElementContainer,
+	) -> UiElementContainerHandle {
+		self.add_child(element_container)
+	}
+
 }
 
 #[derive(Debug, Clone)]
@@ -353,6 +361,21 @@ impl UiElementContainer {
 		element: impl UiElement + 'static,
 	) -> &mut UiElementContainerHandle {
 		self.add_child(UiElementContainer::new(Box::new(element)))
+	}
+
+	pub fn add_child_element_container(
+		&mut self,
+		element_container: UiElementContainer,
+	) -> &mut UiElementContainerHandle {
+		self.add_child(element_container)
+	}
+
+	pub fn with_child_element_containers(
+		mut self,
+		child_containers: &[UiElementContainer],
+	) -> Self {
+		todo!("");
+		self
 	}
 
 	pub fn layout(&mut self, pos: &Vector2) {
