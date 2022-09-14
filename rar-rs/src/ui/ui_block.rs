@@ -1,13 +1,7 @@
 use oml_game::math::Vector2;
-use oml_game::renderer::{
-	Color,
-	Renderer,
-	//	Texture,
-};
+use oml_game::renderer::Color;
 
-use crate::ui::{
-	UiElement, UiElementContainer, UiElementContainerData, UiElementFadeState, UiEvent, UiRenderer,
-};
+use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
 pub struct UiBlock {
 	size:  Vector2,

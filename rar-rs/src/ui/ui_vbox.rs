@@ -1,9 +1,6 @@
 use oml_game::math::Vector2;
-use oml_game::renderer::Renderer;
 
-use crate::ui::{
-	UiElement, UiElementContainer, UiElementContainerData, UiElementFadeState, UiRenderer,
-};
+use crate::ui::{UiElement, UiElementContainerData};
 
 #[derive(Debug)]
 pub struct UiVbox {
@@ -18,6 +15,12 @@ impl UiVbox {
 	pub fn set_padding(&mut self, padding: f32) {
 		self.padding = padding;
 		//		self.recalculate_size(); // :TODO:
+	}
+
+	pub fn with_padding(mut self, padding: f32) -> Self {
+		self.padding = padding;
+
+		self
 	}
 }
 

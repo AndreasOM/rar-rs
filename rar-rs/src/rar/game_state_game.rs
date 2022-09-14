@@ -5,8 +5,8 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
-use oml_game::window::WindowUpdateContext;
 
+//use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;

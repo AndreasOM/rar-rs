@@ -76,7 +76,6 @@ impl UiElementContainerData {
 	) -> UiElementContainerHandle {
 		self.add_child(element_container)
 	}
-
 }
 
 #[derive(Debug, Clone)]
@@ -151,7 +150,7 @@ impl UiElementContainer {
 		}
 	}
 
-	pub fn new_from_element(mut element: impl UiElement + 'static) -> Self {
+	pub fn new_from_element(element: impl UiElement + 'static) -> Self {
 		UiElementContainer::new(Box::new(element))
 	}
 
@@ -370,20 +369,14 @@ impl UiElementContainer {
 		self.add_child(element_container)
 	}
 
-	fn print_type_of<T>(_: &T) {
-	    println!("{}", std::any::type_name::<T>())
-	}
-
 	pub fn with_child_element_containers(
 		mut self,
 		child_containers: Vec<UiElementContainer>,
 	) -> Self {
-		//Self::print_type_of( &child_containers );
-		
 		for cc in child_containers {
 			self.add_child(cc);
 		}
-		
+
 		self
 	}
 
@@ -408,8 +401,8 @@ impl UiElementContainer {
 		self.data.name = name.to_owned();
 	}
 
-	pub fn with_name( mut self, name: &str ) -> Self {
-		self.set_name( name );
+	pub fn with_name(mut self, name: &str) -> Self {
+		self.set_name(name);
 		self
 	}
 
@@ -457,6 +450,7 @@ impl UiElementContainer {
 					None
 				}
 			},
+			#[allow(unreachable_patterns)]
 			_ => None,
 		}
 	}

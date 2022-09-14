@@ -2,11 +2,9 @@ use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
-use oml_game::renderer::Color;
 
-use crate::ui::{
-	UiElementBase, UiElementContainer, UiElementContainerData, UiEvent, UiEventResponse, UiRenderer,
-};
+//use oml_game::renderer::Color;
+use crate::ui::{UiElementContainer, UiElementContainerData, UiEvent, UiEventResponse, UiRenderer};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct UiElementFadeData {
@@ -63,11 +61,7 @@ pub trait UiElement {
 		None
 	}
 	//	fn set_size( &mut self, size: &Vector2 ) {}
-	/*
-	fn containerize( e: impl UiElement + 'static ) -> UiElementContainer where Self: Sized {
-		UiElementContainer::new( Box::new( e ) )
-	}
-	*/
+
 	fn containerize(self) -> UiElementContainer
 	where
 		Self: 'static + Sized,

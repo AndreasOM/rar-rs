@@ -50,12 +50,7 @@ impl Object {
 		//		data = &mut u;
 		match data {
 			ObjectData::Rectangle { rect } => {
-				let pos = rect.bottom_left();
-				let size = rect.size();
-				//let pos.y = - pos.y;
-
 				rect.hflip(pivot_y);
-				//				rect.set_y(pivot_y - pos.y - size.y);
 			},
 			ObjectData::Point { pos } => {
 				pos.y = pivot_y - pos.y;

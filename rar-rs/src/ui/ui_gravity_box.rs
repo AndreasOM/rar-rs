@@ -1,13 +1,14 @@
 use oml_game::math::Vector2;
-use oml_game::renderer::Renderer;
 
-use crate::ui::{UiElement, UiElementContainer, UiElementContainerData};
+use crate::ui::{UiElement, UiElementContainerData};
 
+/*
 #[derive(Debug)]
 struct Child {
 	pub element: Box<dyn UiElement>,
 	pub gravity: Vector2,
 }
+*/
 
 #[derive(Debug)]
 pub struct UiGravityBox {

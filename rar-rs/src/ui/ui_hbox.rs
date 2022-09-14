@@ -1,9 +1,6 @@
 use oml_game::math::Vector2;
-use oml_game::renderer::Renderer;
 
-use crate::ui::{
-	UiElement, UiElementContainer, UiElementContainerData, UiElementFadeState, UiRenderer,
-};
+use crate::ui::{UiElement, UiElementContainerData};
 
 #[derive(Debug)]
 pub struct UiHbox {
@@ -50,7 +47,7 @@ impl UiElement for UiHbox {
 		let padding = self.padding;
 
 		let mut w1 = 0.0;
-		let mut w0 = 0.0;
+		//let mut w0 = 0.0;
 
 		for c in container.borrow_children().iter() {
 			let c = c.borrow();
@@ -59,7 +56,7 @@ impl UiElement for UiHbox {
 			if total_size.y < cs.y {
 				total_size.y = cs.y;
 			}
-			w0 = w1;
+			let w0 = w1;
 			w1 = 0.5 * cs.x;
 			c_positions_x.push(w0 + w1);
 		}

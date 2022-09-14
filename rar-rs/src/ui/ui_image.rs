@@ -1,9 +1,6 @@
 use oml_game::math::Vector2;
-use oml_game::renderer::Renderer;
 
-use crate::ui::{
-	UiElement, UiElementContainer, UiElementContainerData, UiElementFadeState, UiEvent, UiRenderer,
-};
+use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
 pub struct UiImage {
 	imagename: String,

@@ -18,7 +18,7 @@ impl UiSystem {
 	}
 
 	pub fn teardown(&mut self) {
-		if let Some(root) = self.root.take() {}
+		if let Some(_root) = self.root.take() {}
 	}
 
 	pub fn set_root(&mut self, root: UiElementContainer) {

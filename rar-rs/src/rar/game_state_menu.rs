@@ -2,12 +2,12 @@ use std::any::Any;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 use oml_game::math::Matrix32;
-use oml_game::math::Rectangle;
+//use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
-use tracing::*;
 
+//use tracing::*;
 use crate::rar::dialogs::WorldSelectionDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
@@ -16,29 +16,30 @@ use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
 //use crate::rar::GameStateResponseDataSelectWorld;
 use crate::ui::UiElementContainer;
-use crate::ui::UiEvent;
+//use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
-use crate::ui::UiRenderer;
+//use crate::ui::UiRenderer;
 use crate::ui::UiSystem;
 
 #[derive(Debug)]
 pub struct GameStateMenu {
 	//	world_selection_dialog: Option< WorldSelectionDialog >,
-	world_selection_dialog:  Option<UiElementContainer>,
+	//world_selection_dialog:  Option<UiElementContainer>,
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
-	buttons:                 Vec<(&'static str, Rectangle)>,
+	//buttons:                 Vec<(&'static str, Rectangle)>,
 }
 
 impl Default for GameStateMenu {
 	fn default() -> Self {
 		let (tx, rx) = channel();
 		Self {
-			world_selection_dialog:  None,
+			//world_selection_dialog:  None,
 			ui_system:               UiSystem::default(),
 			event_response_sender:   tx,
 			event_response_receiver: rx,
+			/*
 			buttons:                 [
 			/*
 				("dev", (-128.0, -64.0, 256.0, 64.0).into()),
@@ -46,6 +47,7 @@ impl Default for GameStateMenu {
 			*/
 			]
 			.to_vec(),
+			*/
 		}
 	}
 }

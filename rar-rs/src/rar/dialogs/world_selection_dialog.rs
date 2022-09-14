@@ -11,6 +11,16 @@ impl WorldSelectionDialog {
 			..Default::default()
 		}
 	}
+	fn create_world_button(name: &str, size: &Vector2) -> UiElementContainer {
+		let mut world_button_container = UiButton::new("ui-button", size)
+			.containerize()
+			.with_name(name);
+
+		world_button_container.fade_out(0.0);
+		world_button_container.fade_in(1.0);
+
+		world_button_container
+	}
 }
 
 impl UiElement for WorldSelectionDialog {
@@ -20,68 +30,21 @@ impl UiElement for WorldSelectionDialog {
 	fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
 		self
 	}
+
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		let mut vbox = UiVbox::new();
-		vbox.set_padding(16.0);
-
-		//let mut vbox = container.add_child_element(vbox);
-		let vbox = vbox.containerize();
-/*
-		let mut vbox = container.add_child_element_container(vbox);
-		let mut vbox = vbox.borrow_mut();
-*/
-		let vbox = vbox.with_name("World Selection Dialog - vbox");
-
-		/*
-		vbox.add_child_element_container({
-			let world_dev_button = UiButton::new("ui-button", &Vector2::new(256.0, 64.0));
-			//let mut world_dev_button_container = UiElementContainer::new(Box::new(world_dev_button));
-			//let mut world_dev_button_container = UiButton::containerize( world_dev_button );
-			let mut world_dev_button_container = world_dev_button.containerize();
-
-			world_dev_button_container.set_name("dev");
-			world_dev_button_container.fade_out(0.0);
-			world_dev_button_container.fade_in(1.0);
-
-			world_dev_button_container
-		});
-
-		vbox.add_child_element_container({
-			let world_debug_button = UiButton::new("ui-button", &Vector2::new(256.0, 64.0));
-			let mut world_debug_button_container = world_debug_button.containerize();
-
-			world_debug_button_container.set_name("debug");
-			world_debug_button_container.fade_out(0.0);
-			world_debug_button_container.fade_in(1.0);
-
-			world_debug_button_container
-		});
-		*/
-
-		let vbox = vbox.with_child_element_containers( [
-			{
-				let world_dev_button = UiButton::new("ui-button", &Vector2::new(256.0, 64.0));
-				//let mut world_dev_button_container = UiElementContainer::new(Box::new(world_dev_button));
-				//let mut world_dev_button_container = UiButton::containerize( world_dev_button );
-				let mut world_dev_button_container = world_dev_button.containerize();
-
-				world_dev_button_container.set_name("dev");
-				world_dev_button_container.fade_out(0.0);
-				world_dev_button_container.fade_in(1.0);
-
-				world_dev_button_container
-			},
-			{
-				let world_debug_button = UiButton::new("ui-button", &Vector2::new(256.0, 64.0));
-				let mut world_debug_button_container = world_debug_button.containerize();
-
-				world_debug_button_container.set_name("debug");
-				world_debug_button_container.fade_out(0.0);
-				world_debug_button_container.fade_in(1.0);
-
-				world_debug_button_container
-			}			
-		].into());
-		container.add_child_element_container(vbox);
+		let button_size = Vector2::new(256.0, 64.0);
+		container.add_child_element_container(
+			UiVbox::new()
+				.with_padding(16.0)
+				.containerize()
+				.with_name("World Selection Dialog - vbox")
+				.with_child_element_containers(
+					[
+						Self::create_world_button("dev", &button_size),
+						Self::create_world_button("debug", &button_size),
+					]
+					.into(),
+				),
+		);
 	}
 }
