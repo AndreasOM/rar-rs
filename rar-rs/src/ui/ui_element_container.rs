@@ -370,11 +370,20 @@ impl UiElementContainer {
 		self.add_child(element_container)
 	}
 
+	fn print_type_of<T>(_: &T) {
+	    println!("{}", std::any::type_name::<T>())
+	}
+
 	pub fn with_child_element_containers(
 		mut self,
-		child_containers: &[UiElementContainer],
+		child_containers: Vec<UiElementContainer>,
 	) -> Self {
-		todo!("");
+		//Self::print_type_of( &child_containers );
+		
+		for cc in child_containers {
+			self.add_child(cc);
+		}
+		
 		self
 	}
 
@@ -397,6 +406,11 @@ impl UiElementContainer {
 	}
 	pub fn set_name(&mut self, name: &str) {
 		self.data.name = name.to_owned();
+	}
+
+	pub fn with_name( mut self, name: &str ) -> Self {
+		self.set_name( name );
+		self
 	}
 
 	pub fn pos(&self) -> &Vector2 {
