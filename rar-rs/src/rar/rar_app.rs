@@ -222,9 +222,11 @@ impl App for RarApp {
 		if wuc.is_escape_pressed {
 			self.is_done = true;
 		}
+		/*
 		if wuc.mouse_buttons[0] {
-			println!("{} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
+			println!("Mouse pressed: {} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
 		}
+		*/
 		if wuc.was_key_pressed(']' as u8) {
 			if self.debug_renderer.is_none() {
 				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
