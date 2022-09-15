@@ -17,7 +17,7 @@ use oml_game::App;
 use tracing::*;
 
 use crate::rar::effect_ids::EffectId;
-use crate::rar::game_state::get_game_state_as_specific;
+//use crate::rar::game_state::get_game_state_as_specific;
 use crate::rar::game_state::get_game_state_as_specific_mut;
 use crate::rar::game_state::get_game_state_response_data_as_specific;
 //use crate::rar::entities::entity::Entity;
@@ -169,6 +169,14 @@ impl App for RarApp {
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
+		// :TODO: use correct shaders
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::ColoredTextured as u16,
+			"ColoredTextured",
+			"textured_vs.glsl",
+			"textured_fs.glsl",
+		));
 		renderer.register_effect(Effect::create(
 			&mut self.system,
 			EffectId::TexturedDesaturated as u16,
@@ -214,9 +222,11 @@ impl App for RarApp {
 		if wuc.is_escape_pressed {
 			self.is_done = true;
 		}
+		/*
 		if wuc.mouse_buttons[0] {
-			println!("{} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
+			println!("Mouse pressed: {} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
 		}
+		*/
 		if wuc.was_key_pressed(']' as u8) {
 			if self.debug_renderer.is_none() {
 				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
@@ -300,6 +310,10 @@ impl App for RarApp {
 			.set_time_step(wuc.time_step)
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc);
+
+		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+			game_state.set_size(&self.size); // :TODO: only call on change;
+		}
 
 		let responses = self.game_state().update(&mut auc);
 

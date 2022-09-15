@@ -7,5 +7,6 @@ pub enum LayerId {
 	Player        = 5,
 	Debug         = 7,
 	Ui            = 8,
+	UiFront       = 9,
 	DebugRenderer = 11,
 }

@@ -1,11 +1,12 @@
+use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
+
 //use oml_game::window::WindowUpdateContext;
-use tracing::*;
-
+//use tracing::*;
 use crate::rar::AppUpdateContext;
-
+/*
 pub fn get_game_state_as_specific<'a, T: 'a + 'static>(
 	gs: &'a Box<dyn GameState>,
 ) -> Option<&'a T> {
@@ -17,6 +18,7 @@ pub fn get_game_state_as_specific<'a, T: 'a + 'static>(
 		},
 	}
 }
+*/
 
 pub fn get_game_state_as_specific_mut<'a, T: 'a + 'static>(
 	gs: &'a mut Box<dyn GameState>,
@@ -37,6 +39,7 @@ pub trait GameState {
 		Ok(())
 	}
 	fn teardown(&mut self) {}
+	fn set_size(&mut self, size: &Vector2) {}
 	fn update(&mut self, _wuc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()
 	}
