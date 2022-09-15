@@ -5,6 +5,7 @@ use std::sync::mpsc::Sender;
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
+use tracing::*;
 
 use crate::ui::{
 	UiElement, UiElementFadeData, UiElementFadeState, UiEvent, UiEventResponse, UiRenderer,
@@ -422,7 +423,8 @@ impl UiElementContainer {
 			UiEvent::MouseClick { pos, button } => {
 				let pos = pos.sub(self.pos());
 				if self.is_hit_by(&pos) {
-					//					println!( "Hit with {} children", self.borrow_base_mut().children.len() );
+					//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
+					debug!("Hit {:?}", &self);
 					for c in self.data.borrow_children_mut().iter_mut() {
 						let mut c = c.borrow_mut();
 						let cpos = pos.sub(c.pos());
@@ -446,7 +448,7 @@ impl UiElementContainer {
 					self.element
 						.handle_ui_event(&mut self.data, &event, event_sender)
 				} else {
-					//					println!( "Not hit" );
+					debug!("Not hit: {:?}", &self);
 					None
 				}
 			},

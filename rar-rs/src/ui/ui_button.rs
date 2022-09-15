@@ -39,7 +39,7 @@ impl UiElement for UiButton {
 		&mut self,
 		container: &mut UiElementContainerData,
 		_event: &UiEvent,
-		event_sender: &Sender<Box<dyn UiEventResponse>>,
+		_event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		println!("Button clicked");
 		//		let mut r = Vec::new();

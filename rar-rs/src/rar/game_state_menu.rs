@@ -4,8 +4,10 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use oml_game::math::Matrix32;
 //use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
+use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
+use tracing::*;
 
 //use tracing::*;
 use crate::rar::dialogs::WorldSelectionDialog;
@@ -14,10 +16,12 @@ use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
+use crate::rar::GameStateResponseDataSelectWorld;
 //use crate::rar::GameStateResponseDataSelectWorld;
 use crate::ui::UiElementContainer;
 //use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
+use crate::ui::UiEventResponseButtonClicked;
 //use crate::ui::UiRenderer;
 use crate::ui::UiSystem;
 
@@ -60,7 +64,8 @@ impl GameStateMenu {
 
 impl GameState for GameStateMenu {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
-		self.ui_system.setup(system)?;
+		self.ui_system
+			.setup(system, self.event_response_sender.clone())?;
 
 		let wsd = WorldSelectionDialog::new();
 
@@ -68,8 +73,9 @@ impl GameState for GameStateMenu {
 		wsd_container.set_name("World Selection Dialog");
 
 		// :HACK:
-		wsd_container.layout(&Vector2::zero());
+		//		wsd_container.layout(&Vector2::zero());
 		self.ui_system.set_root(wsd_container);
+		self.ui_system.layout();
 		//self.world_selection_dialog = Some(wsd_container);
 		Ok(())
 	}
@@ -81,10 +87,38 @@ impl GameState for GameStateMenu {
 		}
 		*/
 	}
+	fn set_size(&mut self, size: &Vector2) {
+		self.ui_system.set_size(size);
+	}
+
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut responses = Vec::new();
 
 		self.ui_system.update(auc);
+
+		// :TODO: not sure if we actually want to pass events this far up
+		for ev in self.event_response_receiver.try_recv() {
+			debug!("{:?}", &ev);
+			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
+				Some(e) => {
+					println!("Button {} clicked", &e.button_name);
+					match e.button_name.as_str() {
+						"dev" => {
+							let world = "dev";
+							let sw = GameStateResponseDataSelectWorld::new(world);
+							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
+							responses.push(r);
+							let r = GameStateResponse::new("StartGame");
+							responses.push(r);
+						},
+						_ => {
+							println!("Unhandled button click from {}", &e.button_name);
+						},
+					}
+				},
+				None => {},
+			};
+		}
 		/*
 		let wuc = match auc.wuc() {
 			Some(wuc) => wuc,
@@ -132,6 +166,10 @@ impl GameState for GameStateMenu {
 
 		self.ui_system.render(renderer);
 	}
+	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
+		self.ui_system.render_debug(debug_renderer);
+	}
+
 	fn as_any(&self) -> &(dyn Any + 'static) {
 		self
 	}

@@ -1,3 +1,4 @@
+use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
@@ -38,6 +39,7 @@ pub trait GameState {
 		Ok(())
 	}
 	fn teardown(&mut self) {}
+	fn set_size(&mut self, size: &Vector2) {}
 	fn update(&mut self, _wuc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()
 	}

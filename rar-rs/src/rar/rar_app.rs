@@ -311,6 +311,10 @@ impl App for RarApp {
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc);
 
+		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+			game_state.set_size(&self.size); // :TODO: only call on change;
+		}
+
 		let responses = self.game_state().update(&mut auc);
 
 		for r in responses.iter() {
