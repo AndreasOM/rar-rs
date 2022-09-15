@@ -20,6 +20,7 @@ use crate::rar::effect_ids::EffectId;
 //use crate::rar::game_state::get_game_state_as_specific;
 use crate::rar::game_state::get_game_state_as_specific_mut;
 use crate::rar::game_state::get_game_state_response_data_as_specific;
+use crate::rar::game_state_debug_collisions::GameStateDebugCollisions;
 //use crate::rar::entities::entity::Entity;
 //use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
@@ -34,6 +35,7 @@ use crate::rar::GameStateResponseDataSelectWorld;
 enum GameStates {
 	Menu,
 	Game,
+	DebugCollisions,
 }
 
 #[derive(Debug)]
@@ -65,6 +67,10 @@ impl Default for RarApp {
 		let mut game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
 		game_states.insert(GameStates::Menu, Box::new(GameStateMenu::new()));
 		game_states.insert(GameStates::Game, Box::new(GameStateGame::new()));
+		game_states.insert(
+			GameStates::DebugCollisions,
+			Box::new(GameStateDebugCollisions::new()),
+		);
 
 		Self {
 			renderer: None,
@@ -342,6 +348,10 @@ impl App for RarApp {
 							}
 						}
 					}
+				},
+				"DebugCollisions" => {
+					debug!("DebugCollisions");
+					self.next_game_states.push_back(GameStates::DebugCollisions);
 				},
 				o => {
 					warn!("Unhandled GameStateResponse: >{}<", &o);

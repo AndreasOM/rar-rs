@@ -5,6 +5,7 @@ pub use game_state::GameState;
 mod game_state_response_data;
 pub use game_state_response_data::*;
 
+mod game_state_debug_collisions;
 mod game_state_game;
 mod game_state_menu;
 pub mod rar_app;

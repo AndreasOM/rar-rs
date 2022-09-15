@@ -26,13 +26,13 @@ use crate::ui::UiEventResponseButtonClicked;
 use crate::ui::UiSystem;
 
 #[derive(Debug)]
-pub struct GameStateMenu {
+pub struct GameStateDebugCollisions {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
 }
 
-impl Default for GameStateMenu {
+impl Default for GameStateDebugCollisions {
 	fn default() -> Self {
 		let (tx, rx) = channel();
 		Self {
@@ -43,23 +43,24 @@ impl Default for GameStateMenu {
 	}
 }
 
-impl GameStateMenu {
+impl GameStateDebugCollisions {
 	pub fn new() -> Self {
 		Default::default()
 	}
 }
 
-impl GameState for GameStateMenu {
+impl GameState for GameStateDebugCollisions {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
+		/*
 		self.ui_system.set_root(
 			WorldSelectionDialog::new()
 				.containerize()
-				.with_name("World Selection Dialog"),
+				.with_name("World Selection Dialog")
 		);
-
+		*/
 		self.ui_system.layout();
 		Ok(())
 	}
@@ -76,6 +77,7 @@ impl GameState for GameStateMenu {
 		self.ui_system.update(auc);
 
 		// :TODO: not sure if we actually want to pass events this far up
+		/*
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
 			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
@@ -90,10 +92,6 @@ impl GameState for GameStateMenu {
 							let r = GameStateResponse::new("StartGame");
 							responses.push(r);
 						},
-						"DebugCollisions" => {
-							let r = GameStateResponse::new("DebugCollisions");
-							responses.push(r);
-						},
 						_ => {
 							println!("Unhandled button click from {}", &e.button_name);
 						},
@@ -102,6 +100,7 @@ impl GameState for GameStateMenu {
 				None => {},
 			};
 		}
+		*/
 
 		responses
 	}
@@ -118,10 +117,6 @@ impl GameState for GameStateMenu {
 		renderer.render_textured_fullscreen_quad();
 
 		renderer.set_tex_matrix(&Matrix32::identity());
-
-		renderer.use_texture("ui-button");
-		renderer.use_layer(LayerId::Ui as u8);
-		renderer.use_effect(EffectId::Textured as u16);
 
 		self.ui_system.render(renderer);
 	}
