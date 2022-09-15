@@ -18,7 +18,7 @@ use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
 //use crate::rar::GameStateResponseDataSelectWorld;
-use crate::ui::UiElementContainer;
+use crate::ui::UiElement;
 //use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
@@ -67,14 +67,12 @@ impl GameState for GameStateMenu {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		let wsd = WorldSelectionDialog::new();
+		self.ui_system.set_root(
+			WorldSelectionDialog::new()
+				.containerize()
+				.with_name("World Selection Dialog"),
+		);
 
-		let mut wsd_container = UiElementContainer::new(Box::new(wsd));
-		wsd_container.set_name("World Selection Dialog");
-
-		// :HACK:
-		//		wsd_container.layout(&Vector2::zero());
-		self.ui_system.set_root(wsd_container);
 		self.ui_system.layout();
 		//self.world_selection_dialog = Some(wsd_container);
 		Ok(())
