@@ -17,6 +17,7 @@ use oml_game::App;
 use tracing::*;
 
 use crate::rar::effect_ids::EffectId;
+use crate::rar::font_ids::FontId;
 //use crate::rar::game_state::get_game_state_as_specific;
 use crate::rar::game_state::get_game_state_as_specific_mut;
 use crate::rar::game_state::get_game_state_response_data_as_specific;
@@ -175,13 +176,19 @@ impl App for RarApp {
 			"textured_vs.glsl",
 			"textured_fs.glsl",
 		));
-		// :TODO: use correct shaders
 		renderer.register_effect(Effect::create(
 			&mut self.system,
 			EffectId::ColoredTextured as u16,
 			"ColoredTextured",
-			"textured_vs.glsl",
-			"textured_fs.glsl",
+			"coloredtextured_vs.glsl",
+			"coloredtextured_fs.glsl",
+		));
+		renderer.register_effect(Effect::create(
+			&mut self.system,
+			EffectId::FontColored as u16,
+			"FontColored",
+			"fontcolored_vs.glsl",
+			"fontcolored_fs.glsl",
 		));
 		renderer.register_effect(Effect::create(
 			&mut self.system,
@@ -194,6 +201,8 @@ impl App for RarApp {
 		//TextureAtlas::load_all(&mut self.system, &mut renderer, "player-atlas-%d");
 		//TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
 		//TextureAtlas::load_all(&mut self.system, &mut renderer, "tileset-default-%d");
+
+		renderer.load_font(&mut self.system, FontId::Default as u8, "c64");
 
 		self.renderer = Some(renderer);
 
