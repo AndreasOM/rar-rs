@@ -192,6 +192,10 @@ impl UiElementContainer {
 		self.data.fade_state = *fade_state;
 	}
 
+	pub fn with_fade_in(mut self, duration: f32) -> Self {
+		self.fade_in(duration);
+		self
+	}
 	pub fn fade_in(&mut self, duration: f32) {
 		let fs = self.fade_state();
 		if duration == 0.0 {
@@ -220,6 +224,10 @@ impl UiElementContainer {
 				},
 			}
 		}
+	}
+	pub fn with_fade_out(mut self, duration: f32) -> Self {
+		self.fade_out(duration);
+		self
 	}
 	pub fn fade_out(&mut self, duration: f32) {
 		let fs = self.fade_state();
@@ -393,6 +401,10 @@ impl UiElementContainer {
 	pub fn set_size(&mut self, size: &Vector2) {
 		//		self.element.set_size( size );
 		self.data.size = *size;
+	}
+	pub fn with_size(mut self, size: &Vector2) -> Self {
+		self.data.size = *size;
+		self
 	}
 
 	pub fn name(&self) -> &str {

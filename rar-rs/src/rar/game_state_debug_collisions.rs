@@ -4,19 +4,21 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use oml_game::math::Matrix32;
 //use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
+use oml_game::math::Rectangle;
+use oml_game::renderer::Color;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
 //use tracing::*;
-use crate::rar::dialogs::WorldSelectionDialog;
+
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
-use crate::rar::GameStateResponseDataSelectWorld;
+
 //use crate::rar::GameStateResponseDataSelectWorld;
 use crate::ui::UiElement;
 //use crate::ui::UiEvent;
@@ -26,41 +28,52 @@ use crate::ui::UiEventResponseButtonClicked;
 use crate::ui::UiSystem;
 
 #[derive(Debug)]
-pub struct GameStateMenu {
+pub struct GameStateDebugCollisions {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
+	rectangles:					Vec< Rectangle >,
+	target_pos:					Vector2,
 }
 
-impl Default for GameStateMenu {
+impl Default for GameStateDebugCollisions {
 	fn default() -> Self {
 		let (tx, rx) = channel();
 		Self {
 			ui_system:               UiSystem::default(),
 			event_response_sender:   tx,
 			event_response_receiver: rx,
+			rectangles: Vec::new(),
+			target_pos:          Vector2::zero(),
 		}
 	}
 }
 
-impl GameStateMenu {
+impl GameStateDebugCollisions {
 	pub fn new() -> Self {
 		Default::default()
 	}
 }
 
-impl GameState for GameStateMenu {
+impl GameState for GameStateDebugCollisions {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
+		/*
 		self.ui_system.set_root(
 			WorldSelectionDialog::new()
 				.containerize()
-				.with_name("World Selection Dialog"),
+				.with_name("World Selection Dialog")
 		);
-
+		*/
 		self.ui_system.layout();
+
+		// add some rects
+		self.rectangles.push( (50.0,50.0, 100.0,100.0).into() );
+		self.rectangles.push( (50.0,-250.0, 100.0,100.0).into() );
+		self.rectangles.push( (-150.0,50.0, 100.0,100.0).into() );
+		self.rectangles.push( (-150.0,-250.0, 100.0,100.0).into() );
 		Ok(())
 	}
 	fn teardown(&mut self) {
@@ -76,6 +89,7 @@ impl GameState for GameStateMenu {
 		self.ui_system.update(auc);
 
 		// :TODO: not sure if we actually want to pass events this far up
+		/*
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
 			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
@@ -90,10 +104,6 @@ impl GameState for GameStateMenu {
 							let r = GameStateResponse::new("StartGame");
 							responses.push(r);
 						},
-						"DebugCollisions" => {
-							let r = GameStateResponse::new("DebugCollisions");
-							responses.push(r);
-						},
 						_ => {
 							println!("Unhandled button click from {}", &e.button_name);
 						},
@@ -102,6 +112,9 @@ impl GameState for GameStateMenu {
 				None => {},
 			};
 		}
+		*/
+
+		self.target_pos = *auc.cursor_pos();
 
 		responses
 	}
@@ -119,14 +132,21 @@ impl GameState for GameStateMenu {
 
 		renderer.set_tex_matrix(&Matrix32::identity());
 
-		renderer.use_texture("ui-button");
-		renderer.use_layer(LayerId::Ui as u8);
-		renderer.use_effect(EffectId::Textured as u16);
-
 		self.ui_system.render(renderer);
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		self.ui_system.render_debug(debug_renderer);
+
+		for r in self.rectangles.iter() {
+			let c = if r.contains( &self.target_pos ) {
+				Color::blue()
+			} else {
+				Color::green()
+			};
+			debug_renderer.add_rectangle( &r, 3.0, &c );
+		}
+
+		debug_renderer.add_line( &Vector2::zero(), &self.target_pos, 5.0, &Color::red() );
 	}
 
 	fn as_any(&self) -> &(dyn Any + 'static) {

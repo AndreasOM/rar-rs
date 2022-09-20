@@ -3,9 +3,11 @@
 
 ## In Progress
 
+- [ ] Add basic rectangle rectangle collision test
+
 - [ ] Add simple button handling for menu
     - [ ] Add real UI system (from fiiish-rs)
-        - [ ] Handle resizing
+        - [x] Handle resizing
         - [x] Implement tree like creation of UI hierarchies (aka trees)
 
 - [ ] Add world selection via menu
@@ -31,7 +33,11 @@
 
 ## Done
 
-### Episode 0013 - 2.0h + 1.0h... +
+### Episode 0014 - 2.0h + ...   ->
+- Add text to UI system
+- Add dummy font
+
+### Episode 0013 - 2.0h + 1.5h  ->
 - [x] Add dummy UI buttons
 
 ### Epsiode 0012 - 2.0h + 0.0h  -> 25.5h + 21.5h        -> 47h
