@@ -4,19 +4,21 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use oml_game::math::Matrix32;
 //use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
+use oml_game::math::Rectangle;
+use oml_game::renderer::Color;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
 //use tracing::*;
-use crate::rar::dialogs::WorldSelectionDialog;
+
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
-use crate::rar::GameStateResponseDataSelectWorld;
+
 //use crate::rar::GameStateResponseDataSelectWorld;
 use crate::ui::UiElement;
 //use crate::ui::UiEvent;
@@ -30,6 +32,8 @@ pub struct GameStateDebugCollisions {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
+	rectangles:					Vec< Rectangle >,
+	target_pos:					Vector2,
 }
 
 impl Default for GameStateDebugCollisions {
@@ -39,6 +43,8 @@ impl Default for GameStateDebugCollisions {
 			ui_system:               UiSystem::default(),
 			event_response_sender:   tx,
 			event_response_receiver: rx,
+			rectangles: Vec::new(),
+			target_pos:          Vector2::zero(),
 		}
 	}
 }
@@ -62,6 +68,12 @@ impl GameState for GameStateDebugCollisions {
 		);
 		*/
 		self.ui_system.layout();
+
+		// add some rects
+		self.rectangles.push( (50.0,50.0, 100.0,100.0).into() );
+		self.rectangles.push( (50.0,-250.0, 100.0,100.0).into() );
+		self.rectangles.push( (-150.0,50.0, 100.0,100.0).into() );
+		self.rectangles.push( (-150.0,-250.0, 100.0,100.0).into() );
 		Ok(())
 	}
 	fn teardown(&mut self) {
@@ -102,6 +114,8 @@ impl GameState for GameStateDebugCollisions {
 		}
 		*/
 
+		self.target_pos = *auc.cursor_pos();
+
 		responses
 	}
 	fn render(&mut self, renderer: &mut Renderer) {
@@ -122,6 +136,17 @@ impl GameState for GameStateDebugCollisions {
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		self.ui_system.render_debug(debug_renderer);
+
+		for r in self.rectangles.iter() {
+			let c = if r.contains( &self.target_pos ) {
+				Color::blue()
+			} else {
+				Color::green()
+			};
+			debug_renderer.add_rectangle( &r, 3.0, &c );
+		}
+
+		debug_renderer.add_line( &Vector2::zero(), &self.target_pos, 5.0, &Color::red() );
 	}
 
 	fn as_any(&self) -> &(dyn Any + 'static) {
