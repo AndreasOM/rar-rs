@@ -3,13 +3,6 @@
 
 ## In Progress
 
-- [ ] Add basic rectangle rectangle collision test
-
-- [ ] Add simple button handling for menu
-    - [ ] Add real UI system (from fiiish-rs)
-        - [x] Handle resizing
-        - [x] Implement tree like creation of UI hierarchies (aka trees)
-
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [ ] Generate tilemap colliders
@@ -18,7 +11,7 @@
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
-    - [] Implement game state `menu`
+    - [ ] Implement game state `menu`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -30,14 +23,22 @@
 ## TODO - off stream
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
+- [ ] Pass world through to Player update.
 
 ## Done
 
-### Episode 0014 - 2.0h + ...   ->
-- Add text to UI system
-- Add dummy font
+### Epsiode 0015 - 2.0h + ...
+- [x] Add basic rectangle rectangle collision test
 
-### Episode 0013 - 2.0h + 1.5h  ->
+### Episode 0014 - 2.0h + 0.0h   -> 29.5h + 23.0h       -> 52.5h
+- [x] Add text to UI system
+- [x] Add dummy font
+- [x] Add simple button handling for menu
+    - [x] Add real UI system (from fiiish-rs)
+        - [x] Handle resizing
+        - [x] Implement tree like creation of UI hierarchies (aka trees)
+
+### Episode 0013 - 2.0h + 1.5h  -> 27.5h + 23.0h        -> 50.5h
 - [x] Add dummy UI buttons
 
 ### Epsiode 0012 - 2.0h + 0.0h  -> 25.5h + 21.5h        -> 47h
