@@ -163,6 +163,16 @@ impl Layer {
 		r
 	}
 
+	pub fn list_objects(&self) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for o in self.objects.iter() {
+			r.push(o);
+		}
+		r
+	}
+
+
 	pub fn add_chunk(&mut self, chunk: Chunk) {
 		self.chunks.push(chunk);
 	}
@@ -200,6 +210,18 @@ impl Map {
 		for l in self.layers.iter() {
 			if l.name() == layer {
 				let mut rl = l.list_objects_for_class(class);
+				r.append(&mut rl);
+			}
+		}
+		r
+	}
+
+	pub fn list_objects_in_layer(&self, layer: &str) -> Vec<&Object> {
+		let mut r = Vec::new();
+
+		for l in self.layers.iter() {
+			if l.name() == layer {
+				let mut rl = l.list_objects();
 				r.append(&mut rl);
 			}
 		}

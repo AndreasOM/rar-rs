@@ -95,6 +95,17 @@ impl GameState for GameStateGame {
 			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
 		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
 
+		/*
+		let colliders = self
+			.world
+			.list_objects_in_layer("Collider");
+		for c in colliders.iter() {
+			dbg!(&c);
+		}
+
+		todo!("");
+		*/
+
 		let player_spawns = self
 			.world
 			.list_objects_in_layer_for_class("Player", "PlayerSpawn");
@@ -170,6 +181,8 @@ impl GameState for GameStateGame {
 	}
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut euc = EntityUpdateContext::new();
+
+		euc.set_world(&self.world);
 
 		let wuc = match auc.wuc() {
 			Some(wuc) => wuc,

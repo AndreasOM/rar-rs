@@ -27,7 +27,7 @@ pub struct World {
 }
 
 impl World {
-	pub fn new() -> Self {
+	pub const fn new() -> Self {
 		Self { maps: Vec::new() }
 	}
 
@@ -37,6 +37,18 @@ impl World {
 		for wm in self.maps.iter() {
 			if let Some(m) = &wm.map {
 				let mut rm = m.list_objects_in_layer_for_class(layer, class);
+				r.append(&mut rm);
+			}
+		}
+		r
+	}
+
+	pub fn list_objects_in_layer(&self, layer: &str) -> Vec<&map::Object> {
+		let mut r = Vec::new();
+
+		for wm in self.maps.iter() {
+			if let Some(m) = &wm.map {
+				let mut rm = m.list_objects_in_layer(layer);
 				r.append(&mut rm);
 			}
 		}

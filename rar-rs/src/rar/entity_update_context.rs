@@ -6,22 +6,27 @@ use std::rc::Rc;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 
 use crate::rar::PlayerInputContext;
+use crate::rar::World;
 
 #[derive(Debug)]
-pub struct EntityUpdateContext {
+pub struct EntityUpdateContext<'a> {
 	time_step:             f64,
 	player_input_contexts: Vec<PlayerInputContext>,
+	world:					&'a World,
 	//	world_movement: Vector2,
 	//	change_background_state: bool,
 	//	game_state: GameState,
 	pub debug_renderer:    Rc<Option<RefCell<DebugRenderer>>>,
 }
 
-impl EntityUpdateContext {
+static EMPTY_WORLD: World = World::new();
+
+impl<'a> EntityUpdateContext<'a> {
 	pub fn new() -> Self {
 		Self {
 			time_step:             0.0,
 			player_input_contexts: Vec::new(),
+			world:					&EMPTY_WORLD,
 			//			world_movement: Vector2::zero(),
 			//			change_background_state: false,
 			//			game_state: GameState::None,
@@ -66,6 +71,14 @@ impl EntityUpdateContext {
 	*/
 	pub fn set_debug_renderer(&mut self, debug_renderer: &Rc<Option<RefCell<DebugRenderer>>>) {
 		self.debug_renderer = Rc::clone(debug_renderer);
+	}
+
+	pub fn set_world(&mut self, world: &'a World) {
+		self.world = world;
+	}
+
+	pub fn world(&self) -> &World {
+		self.world
 	}
 	/*
 		pub fn game_state( &self ) -> &GameState {
