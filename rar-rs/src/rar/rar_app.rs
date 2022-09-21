@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::rc::Rc;
 
 use oml_game::math::{Matrix44, Vector2};
+use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
@@ -242,6 +243,18 @@ impl App for RarApp {
 			println!("Mouse pressed: {} {}", wuc.mouse_pos.x, wuc.mouse_pos.y);
 		}
 		*/
+
+		// the generic DebugRenderer
+		if wuc.was_key_pressed( '\\' as u8 ) {
+			debug_renderer::debug_renderer_toggle(
+				LayerId::DebugRenderer as u8,
+				EffectId::Colored as u16
+			);			
+		}
+
+		debug_renderer::debug_renderer_begin_frame();
+
+		// the specific DebugRenderer
 		if wuc.was_key_pressed(']' as u8) {
 			if self.debug_renderer.is_none() {
 				self.debug_renderer = Rc::new(Some(RefCell::new(DebugRenderer::new(
@@ -446,7 +459,7 @@ impl App for RarApp {
 					debug_renderer.render(renderer);
 				}
 
-				//debug_renderer::debug_renderer_render( renderer );
+				debug_renderer::debug_renderer_render( renderer );
 				renderer.end_frame();
 			},
 			None => {},
