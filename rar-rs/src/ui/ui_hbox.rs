@@ -16,6 +16,12 @@ impl UiHbox {
 		self.padding = padding;
 		//		self.recalculate_size();	// :TODO:
 	}
+
+	pub fn with_padding(mut self, padding: f32) -> Self {
+		self.padding = padding;
+
+		self
+	}
 }
 
 impl UiElement for UiHbox {

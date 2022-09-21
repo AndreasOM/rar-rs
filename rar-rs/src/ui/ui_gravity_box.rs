@@ -30,8 +30,20 @@ impl UiGravityBox {
 		self.padding = padding;
 	}
 
+	pub fn with_padding(mut self, padding: f32) -> Self {
+		self.padding = padding;
+
+		self
+	}
+
 	pub fn set_gravity(&mut self, gravity: &Vector2) {
 		self.gravity = *gravity;
+	}
+
+	pub fn with_gravity(mut self, gravity: &Vector2) -> Self {
+		self.gravity = *gravity;
+
+		self
 	}
 }
 

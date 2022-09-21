@@ -13,6 +13,7 @@ use oml_game::system::System;
 use tracing::*;
 
 //use tracing::*;
+use crate::rar::dialogs::DebugNavigationDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
@@ -61,13 +62,12 @@ impl GameState for GameStateDebugCollisions {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		/*
 		self.ui_system.set_root(
-			WorldSelectionDialog::new()
+			DebugNavigationDialog::new()
 				.containerize()
-				.with_name("World Selection Dialog")
+				.with_name("Debug Navigation Dialog"),
 		);
-		*/
+
 		self.ui_system.layout();
 
 		// add some rects
@@ -89,6 +89,17 @@ impl GameState for GameStateDebugCollisions {
 	}
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
+		self.ui_system.layout();
+		if let Some(root) = self.ui_system.get_root_mut() {
+			root.set_size(size);
+			//			debug!("Set size of >{}< to {:?} => {:?}", root.name(), size, root.size());
+
+			if let Some(mut gbox) = root.find_child_mut(&["Debug Navigation Dialog - Gravity Box"])
+			{
+				let mut gbox = gbox.borrow_mut();
+				gbox.set_size(size);
+			}
+		}
 	}
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
@@ -97,19 +108,14 @@ impl GameState for GameStateDebugCollisions {
 		self.ui_system.update(auc);
 
 		// :TODO: not sure if we actually want to pass events this far up
-		/*
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
 			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
 				Some(e) => {
 					println!("Button {} clicked", &e.button_name);
 					match e.button_name.as_str() {
-						"dev" => {
-							let world = "dev";
-							let sw = GameStateResponseDataSelectWorld::new(world);
-							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
-							responses.push(r);
-							let r = GameStateResponse::new("StartGame");
+						"back" => {
+							let r = GameStateResponse::new("GotoMainMenu");
 							responses.push(r);
 						},
 						_ => {
@@ -120,7 +126,6 @@ impl GameState for GameStateDebugCollisions {
 				None => {},
 			};
 		}
-		*/
 
 		self.target_pos = *auc.cursor_pos();
 

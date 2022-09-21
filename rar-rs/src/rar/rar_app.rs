@@ -245,11 +245,11 @@ impl App for RarApp {
 		*/
 
 		// the generic DebugRenderer
-		if wuc.was_key_pressed( '\\' as u8 ) {
+		if wuc.was_key_pressed('\\' as u8) {
 			debug_renderer::debug_renderer_toggle(
 				LayerId::DebugRenderer as u8,
-				EffectId::Colored as u16
-			);			
+				EffectId::Colored as u16,
+			);
 		}
 
 		debug_renderer::debug_renderer_begin_frame();
@@ -347,6 +347,10 @@ impl App for RarApp {
 
 		for r in responses.iter() {
 			match r.name() {
+				"GotoMainMenu" => {
+					debug!("GotoMainMenu");
+					self.next_game_states.push_back(GameStates::Menu);
+				},
 				"StartGame" => {
 					debug!("StartGame");
 					self.next_game_states.push_back(GameStates::Game);
@@ -459,7 +463,7 @@ impl App for RarApp {
 					debug_renderer.render(renderer);
 				}
 
-				debug_renderer::debug_renderer_render( renderer );
+				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();
 			},
 			None => {},
