@@ -1,5 +1,5 @@
 use derive_getters::Getters;
-use oml_game::math::{Rectangle, Vector2};
+use oml_game::math::{Circle,Rectangle, Vector2};
 use oml_game::system::System;
 use tracing::*;
 
@@ -23,6 +23,7 @@ pub enum LayerType {
 pub enum ObjectData {
 	Rectangle {
 		rect: Rectangle,
+		bounding_circle: Option<Circle>,
 	},
 	Point {
 		pos: Vector2,
@@ -49,7 +50,7 @@ impl Object {
 		//		let mut u = ObjectData::Unknown;
 		//		data = &mut u;
 		match data {
-			ObjectData::Rectangle { rect } => {
+			ObjectData::Rectangle { rect, bounding_circle: _ } => {
 				rect.hflip(pivot_y);
 			},
 			ObjectData::Point { pos } => {
@@ -297,7 +298,8 @@ impl Map {
 							);
 							let pos = pos.add(&half_tile_size);
 							let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
-							let od = ObjectData::Rectangle { rect };
+							let bounding_circle = rect.calculate_bounding_circle();
+							let od = ObjectData::Rectangle { rect, bounding_circle: Some( bounding_circle) };
 							let o = Object::default().with_data(od);
 							layer.add_object(o);
 						}
@@ -376,6 +378,7 @@ impl From<&map_tmj::Object> for Object {
 		} else {
 			ObjectData::Rectangle {
 				rect: (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),
+				bounding_circle: None,
 			}
 		};
 

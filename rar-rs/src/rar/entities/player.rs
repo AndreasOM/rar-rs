@@ -282,15 +282,31 @@ impl Player {
 
 		let start = &self.old_pos;
 		let end = self.pos.clone();
+		let l = start.sub( &end ).length();
 		let r = Rectangle::default().with_size( &Vector2::new( 12.0, 120.0 ) ).with_center( &end );
+		let pc = r.calculate_bounding_circle();
+		//debug!("l: {}", l);
+		let er = pc.radius() + l * 1.0;
+		let pc = pc.with_radius( er );
+		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
 		for c in colliders {
 			match c.data() {
-				ObjectData::Rectangle{ rect } => {
+				ObjectData::Rectangle{ rect, bounding_circle } => {
 					let rect = rect.clone();
 					//rect.offset(&offset);
 
-					debug_renderer::debug_renderer_add_rectangle(&rect, 5.0, &Color::blue());
+					// if we have a bounding circle use that for a quick/cheap early out
+					if let Some( bounding_circle ) = bounding_circle {
+						if pc.overlaps( &bounding_circle ) {
+							debug_renderer::debug_renderer_add_circle(bounding_circle.center(), bounding_circle.radius(), 5.0, &Color::red());
+						} else {
+							debug_renderer::debug_renderer_add_circle(bounding_circle.center(), bounding_circle.radius(), 5.0, &Color::blue());
+							continue;
+						}
+					}
+
+					debug_renderer::debug_renderer_add_rectangle(&rect, 5.0, &Color::red());
 
 					if let Some(col) = rect.would_collide(&start, &end, &r) {
 						debug!("Collision: {:?}", &col);

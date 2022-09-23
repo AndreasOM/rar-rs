@@ -208,7 +208,7 @@ impl WorldRenderer {
 			};
 			if do_debug_render {
 				match o.data() {
-					map::ObjectData::Rectangle { rect } => {
+					map::ObjectData::Rectangle { rect, bounding_circle: _ } => {
 						let mut rect = rect.clone();
 						//								let offset = self.camera.scaled_vector2( &Vector2::new( -1.0, 1.0 ) );
 						rect.offset(&offset);
