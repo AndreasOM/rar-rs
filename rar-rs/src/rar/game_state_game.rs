@@ -1,6 +1,7 @@
 use std::any::Any;
 
 use oml_game::math::Vector2;
+use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
@@ -180,6 +181,16 @@ impl GameState for GameStateGame {
 		self.entity_manager.teardown();
 	}
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
+		// :HACK: make debug rendering relative to camera
+		{
+			let active_camera = if self.use_fixed_camera {
+				&self.fixed_camera
+			} else {
+				&self.camera
+			};
+			let offset = active_camera.offset();
+			debug_renderer::debug_renderer_set_offset( &offset );
+		}
 		let mut euc = EntityUpdateContext::new();
 
 		euc.set_world(&self.world);
