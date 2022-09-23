@@ -1,5 +1,5 @@
 use derive_getters::Getters;
-use oml_game::math::{Circle,Rectangle, Vector2};
+use oml_game::math::{Circle, Rectangle, Vector2};
 use oml_game::system::System;
 use tracing::*;
 
@@ -22,7 +22,7 @@ pub enum LayerType {
 #[derive(Debug, Default)]
 pub enum ObjectData {
 	Rectangle {
-		rect: Rectangle,
+		rect:            Rectangle,
 		bounding_circle: Option<Circle>,
 	},
 	Point {
@@ -50,7 +50,10 @@ impl Object {
 		//		let mut u = ObjectData::Unknown;
 		//		data = &mut u;
 		match data {
-			ObjectData::Rectangle { rect, bounding_circle: _ } => {
+			ObjectData::Rectangle {
+				rect,
+				bounding_circle: _,
+			} => {
 				rect.hflip(pivot_y);
 			},
 			ObjectData::Point { pos } => {
@@ -172,7 +175,6 @@ impl Layer {
 		}
 		r
 	}
-
 
 	pub fn add_chunk(&mut self, chunk: Chunk) {
 		self.chunks.push(chunk);
@@ -299,7 +301,10 @@ impl Map {
 							let pos = pos.add(&half_tile_size);
 							let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
 							let bounding_circle = rect.calculate_bounding_circle();
-							let od = ObjectData::Rectangle { rect, bounding_circle: Some( bounding_circle) };
+							let od = ObjectData::Rectangle {
+								rect,
+								bounding_circle: Some(bounding_circle),
+							};
 							let o = Object::default().with_data(od);
 							layer.add_object(o);
 						}
@@ -377,7 +382,7 @@ impl From<&map_tmj::Object> for Object {
 			}
 		} else {
 			ObjectData::Rectangle {
-				rect: (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),
+				rect:            (otmj.x(), otmj.y(), otmj.width(), otmj.height()).into(),
 				bounding_circle: None,
 			}
 		};

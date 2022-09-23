@@ -189,7 +189,7 @@ impl GameState for GameStateGame {
 				&self.camera
 			};
 			let offset = active_camera.offset();
-			debug_renderer::debug_renderer_set_offset( &offset );
+			debug_renderer::debug_renderer_set_offset(&offset);
 		}
 		let mut euc = EntityUpdateContext::new();
 

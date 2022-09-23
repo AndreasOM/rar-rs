@@ -12,7 +12,7 @@ use crate::rar::World;
 pub struct EntityUpdateContext<'a> {
 	time_step:             f64,
 	player_input_contexts: Vec<PlayerInputContext>,
-	world:					&'a World,
+	world:                 &'a World,
 	//	world_movement: Vector2,
 	//	change_background_state: bool,
 	//	game_state: GameState,
@@ -26,7 +26,7 @@ impl<'a> EntityUpdateContext<'a> {
 		Self {
 			time_step:             0.0,
 			player_input_contexts: Vec::new(),
-			world:					&EMPTY_WORLD,
+			world:                 &EMPTY_WORLD,
 			//			world_movement: Vector2::zero(),
 			//			change_background_state: false,
 			//			game_state: GameState::None,

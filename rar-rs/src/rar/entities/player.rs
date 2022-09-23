@@ -2,15 +2,10 @@ use std::cell::Cell;
 use std::collections::HashMap;
 use std::convert::From;
 
-use tracing::*;
-
-use oml_game::math::{
-	Cardinals,
-	Vector2,
-	Rectangle,
-};
+use oml_game::math::{Cardinals, Rectangle, Vector2};
 use oml_game::renderer::debug_renderer;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
+use tracing::*;
 
 use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
@@ -19,8 +14,8 @@ use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
-use crate::rar::EntityUpdateContext;
 use crate::rar::map::ObjectData;
+use crate::rar::EntityUpdateContext;
 
 const FPS: f32 = 25.0;
 
@@ -122,7 +117,7 @@ pub struct Player {
 	name:                String,
 	spawn_pos:           Vector2,
 	pos:                 Vector2,
-	old_pos:			 Vector2,
+	old_pos:             Vector2,
 	size:                Vector2,
 	state:               PlayerState,
 	direction:           PlayerDirection,
@@ -132,8 +127,8 @@ pub struct Player {
 	input_context_index: u8,
 	entity_data:         EntityData,
 
-	last_collision_line:	Cell<Option<(Vector2,Vector2,Color)>>,
-	states: HashMap<String, EntityState>,
+	last_collision_line: Cell<Option<(Vector2, Vector2, Color)>>,
+	states:              HashMap<String, EntityState>,
 }
 
 impl Player {
@@ -142,7 +137,7 @@ impl Player {
 			name:                "player".to_string(),
 			spawn_pos:           Vector2::new(0.0, 0.0),
 			pos:                 Vector2::zero(),
-			old_pos:			 Vector2::zero(),
+			old_pos:             Vector2::zero(),
 			size:                Vector2::new(128.0, 128.0),
 			state:               PlayerState::Dead,
 			direction:           PlayerDirection::Right,
@@ -247,7 +242,7 @@ impl Player {
 			} else {
 				self.speed.x = 0.0;
 			}
-		// :HACK:
+			// :HACK:
 			if pic.is_up_pressed {
 				self.speed.y = 100.0;
 			} else if pic.is_down_pressed {
@@ -259,7 +254,6 @@ impl Player {
 		self.movement.x = self.speed.x * euc.time_step() as f32;
 
 		self.movement.y = self.speed.y * euc.time_step() as f32;
-
 
 		self.pos = self.pos.add(&self.movement);
 	}
@@ -273,7 +267,7 @@ impl Player {
 		}
 	}
 
-	fn debug_colliders( &mut self, euc: &EntityUpdateContext ) {
+	fn debug_colliders(&mut self, euc: &EntityUpdateContext) {
 		let world = euc.world();
 		//debug!("World {:?}", world);
 		//list_objects_in_layer_for_class
@@ -282,26 +276,41 @@ impl Player {
 
 		let start = &self.old_pos;
 		let end = self.pos.clone();
-		let l = start.sub( &end ).length();
-		let r = Rectangle::default().with_size( &Vector2::new( 12.0, 120.0 ) ).with_center( &end );
+		let l = start.sub(&end).length();
+		let r = Rectangle::default()
+			.with_size(&Vector2::new(12.0, 120.0))
+			.with_center(&end);
 		let pc = r.calculate_bounding_circle();
 		//debug!("l: {}", l);
 		let er = pc.radius() + l * 1.0;
-		let pc = pc.with_radius( er );
+		let pc = pc.with_radius(er);
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
 		for c in colliders {
 			match c.data() {
-				ObjectData::Rectangle{ rect, bounding_circle } => {
+				ObjectData::Rectangle {
+					rect,
+					bounding_circle,
+				} => {
 					let rect = rect.clone();
 					//rect.offset(&offset);
 
 					// if we have a bounding circle use that for a quick/cheap early out
-					if let Some( bounding_circle ) = bounding_circle {
-						if pc.overlaps( &bounding_circle ) {
-							debug_renderer::debug_renderer_add_circle(bounding_circle.center(), bounding_circle.radius(), 5.0, &Color::red());
+					if let Some(bounding_circle) = bounding_circle {
+						if pc.overlaps(&bounding_circle) {
+							debug_renderer::debug_renderer_add_circle(
+								bounding_circle.center(),
+								bounding_circle.radius(),
+								5.0,
+								&Color::red(),
+							);
 						} else {
-							debug_renderer::debug_renderer_add_circle(bounding_circle.center(), bounding_circle.radius(), 5.0, &Color::blue());
+							debug_renderer::debug_renderer_add_circle(
+								bounding_circle.center(),
+								bounding_circle.radius(),
+								5.0,
+								&Color::blue(),
+							);
 							continue;
 						}
 					}
@@ -346,18 +355,15 @@ impl Player {
 
 						if let Some(l) = l {
 							debug!("{:?}", &l);
-							self.last_collision_line.set( Some( ( l.0, l.1, Color::red() ) ) );
+							self.last_collision_line.set(Some((l.0, l.1, Color::red())));
 						}
 					}
 
-
 					//debug!("{:?}", &rect);
-
-
 				},
 				o => {
 					debug!("Collider: {:?}", &o);
-				}
+				},
 			}
 			//break;
 		}
@@ -366,7 +372,7 @@ impl Player {
 			debug_renderer::debug_renderer_add_line(&l.0, &l.1, 3.0, &Color::red());
 		}
 
-//		debug!("Colliders {:?}", &colliders);
+		//		debug!("Colliders {:?}", &colliders);
 	}
 
 	pub fn set_spawn_pos(&mut self, spawn_pos: &Vector2) {
@@ -477,7 +483,7 @@ impl Entity for Player {
 			_ => {},
 		}
 
-		self.debug_colliders( euc );
+		self.debug_colliders(euc);
 
 		if let Some(debug_renderer) = &*euc.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
