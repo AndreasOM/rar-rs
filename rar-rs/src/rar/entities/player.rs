@@ -1,8 +1,11 @@
+use std::cell::Cell;
 use std::collections::HashMap;
 use std::convert::From;
 
-use oml_game::math::Vector2;
+use oml_game::math::{Cardinals, Rectangle, Vector2};
+use oml_game::renderer::debug_renderer;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
+use tracing::*;
 
 use crate::rar::camera::Camera;
 use crate::rar::effect_ids::EffectId;
@@ -11,6 +14,7 @@ use crate::rar::entities::EntityConfiguration;
 use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
+use crate::rar::map::ObjectData;
 use crate::rar::EntityUpdateContext;
 
 const FPS: f32 = 25.0;
@@ -113,16 +117,18 @@ pub struct Player {
 	name:                String,
 	spawn_pos:           Vector2,
 	pos:                 Vector2,
+	old_pos:             Vector2,
 	size:                Vector2,
 	state:               PlayerState,
 	direction:           PlayerDirection,
-	speed:               f32,
+	speed:               Vector2,
 	movement:            Vector2,
 	time_since_dying:    f32,
 	input_context_index: u8,
 	entity_data:         EntityData,
 
-	states: HashMap<String, EntityState>,
+	last_collision_line: Cell<Option<(Vector2, Vector2, Color)>>,
+	states:              HashMap<String, EntityState>,
 }
 
 impl Player {
@@ -131,14 +137,17 @@ impl Player {
 			name:                "player".to_string(),
 			spawn_pos:           Vector2::new(0.0, 0.0),
 			pos:                 Vector2::zero(),
+			old_pos:             Vector2::zero(),
 			size:                Vector2::new(128.0, 128.0),
 			state:               PlayerState::Dead,
 			direction:           PlayerDirection::Right,
-			speed:               0.0,
+			speed:               Vector2::zero(),
 			movement:            Vector2::zero(),
 			time_since_dying:    f32::MAX,
 			input_context_index: 0xff,
 			entity_data:         EntityData::default(),
+
+			last_collision_line: Cell::new(None),
 
 			states: HashMap::new(),
 		}
@@ -220,21 +229,31 @@ impl Player {
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
 		if let Some(pic) = euc.player_input_context(self.input_context_index) {
-			if pic.is_up_pressed {
+			if false && pic.is_up_pressed {
 				self.goto_state(PlayerState::Backflip);
 			// self.speed = -100.0;
 			// self.direction = PlayerDirection::Left;
 			} else if pic.is_left_pressed {
-				self.speed = -100.0;
+				self.speed.x = -100.0;
 				self.direction = PlayerDirection::Left;
 			} else if pic.is_right_pressed {
-				self.speed = 100.0;
+				self.speed.x = 100.0;
 				self.direction = PlayerDirection::Right;
 			} else {
-				self.speed = 0.0;
+				self.speed.x = 0.0;
 			}
+			// :HACK:
+			if pic.is_up_pressed {
+				self.speed.y = 100.0;
+			} else if pic.is_down_pressed {
+				self.speed.y = -100.0;
+			} else {
+				self.speed.y -= 5.0;
+			};
 		}
-		self.movement.x = self.speed * euc.time_step() as f32;
+		self.movement.x = self.speed.x * euc.time_step() as f32;
+
+		self.movement.y = self.speed.y * euc.time_step() as f32;
 
 		self.pos = self.pos.add(&self.movement);
 	}
@@ -246,6 +265,114 @@ impl Player {
 				self.goto_state(PlayerState::Idle);
 			}
 		}
+	}
+
+	fn debug_colliders(&mut self, euc: &EntityUpdateContext) {
+		let world = euc.world();
+		//debug!("World {:?}", world);
+		//list_objects_in_layer_for_class
+		//let colliders = world.list_objects_in_layer_for_class( "Collider", "Collider" );
+		let colliders = world.list_objects_in_layer("Collider");
+
+		let start = &self.old_pos;
+		let end = self.pos.clone();
+		let l = start.sub(&end).length();
+		let r = Rectangle::default()
+			.with_size(&Vector2::new(12.0, 120.0))
+			.with_center(&end);
+		let pc = r.calculate_bounding_circle();
+		//debug!("l: {}", l);
+		let er = pc.radius() + l * 1.0;
+		let pc = pc.with_radius(er);
+		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
+		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
+		for c in colliders {
+			match c.data() {
+				ObjectData::Rectangle {
+					rect,
+					bounding_circle,
+				} => {
+					let rect = rect.clone();
+					//rect.offset(&offset);
+
+					// if we have a bounding circle use that for a quick/cheap early out
+					if let Some(bounding_circle) = bounding_circle {
+						if pc.overlaps(&bounding_circle) {
+							debug_renderer::debug_renderer_add_circle(
+								bounding_circle.center(),
+								bounding_circle.radius(),
+								5.0,
+								&Color::red(),
+							);
+						} else {
+							debug_renderer::debug_renderer_add_circle(
+								bounding_circle.center(),
+								bounding_circle.radius(),
+								5.0,
+								&Color::blue(),
+							);
+							continue;
+						}
+					}
+
+					debug_renderer::debug_renderer_add_rectangle(&rect, 5.0, &Color::red());
+
+					if let Some(col) = rect.would_collide(&start, &end, &r) {
+						debug!("Collision: {:?}", &col);
+						let p = col.0 * 0.5;
+						let full = end.sub(&start).scaled(p);
+						let actual = start.add(&full);
+						let r = r.clone().with_center(&actual);
+						let l = match col.1 {
+							Cardinals::Bottom => {
+								self.pos = *r.center();
+								self.pos.y += 1.0;
+								self.speed.y = 0.0;
+								let x0 = r.left();
+								let x1 = r.right();
+								let y = r.bottom();
+								Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+							},
+							Cardinals::Top => {
+								let x0 = r.left();
+								let x1 = r.right();
+								let y = r.top();
+								Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+							},
+							Cardinals::Left => {
+								let x = r.left();
+								let y0 = r.bottom();
+								let y1 = r.top();
+								Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+							},
+							Cardinals::Right => {
+								let x = r.right();
+								let y0 = r.bottom();
+								let y1 = r.top();
+								Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+							},
+						};
+
+						if let Some(l) = l {
+							debug!("{:?}", &l);
+							self.last_collision_line.set(Some((l.0, l.1, Color::red())));
+						}
+					}
+
+					//debug!("{:?}", &rect);
+				},
+				o => {
+					debug!("Collider: {:?}", &o);
+				},
+			}
+			//break;
+		}
+
+		if let Some(l) = self.last_collision_line.get() {
+			debug_renderer::debug_renderer_add_line(&l.0, &l.1, 3.0, &Color::red());
+		}
+
+		//		debug!("Colliders {:?}", &colliders);
 	}
 
 	pub fn set_spawn_pos(&mut self, spawn_pos: &Vector2) {
@@ -342,6 +469,7 @@ impl Entity for Player {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
 
+		self.old_pos = self.pos;
 		if let Some(state_direction) = self.get_state_direction_mut() {
 			// println!("{:#?}", &state_direction );
 			state_direction.animated_texture.update(euc.time_step());
@@ -354,6 +482,8 @@ impl Entity for Player {
 			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},
 		}
+
+		self.debug_colliders(euc);
 
 		if let Some(debug_renderer) = &*euc.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();

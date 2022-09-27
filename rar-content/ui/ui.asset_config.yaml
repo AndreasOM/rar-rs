@@ -4,7 +4,7 @@ command: "combine"
 ## output:  "background-atlas-0"
 ## output:  "${input:basename .png}"
 output:  "ui"
-combine-inputs: false
+combine-inputs: true
 input:
   - "ui-*.png"
 parameters: {

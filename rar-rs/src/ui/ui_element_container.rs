@@ -436,14 +436,16 @@ impl UiElementContainer {
 				let pos = pos.sub(self.pos());
 				if self.is_hit_by(&pos) {
 					//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
-					debug!("Hit {:?}", &self);
+					//debug!("Hit {:?}", &self);
+					debug!("Hit {:?}", &pos);
+					self.dump_info("", &Vector2::zero());
 					for c in self.data.borrow_children_mut().iter_mut() {
 						let mut c = c.borrow_mut();
 						let cpos = pos.sub(c.pos());
 						//						let pos = *pos;
 						//						println!("New pos: {},{} (child @ {}, {} -> {}, {})", pos.x, pos.y , c.pos().x, c.pos().y, cpos.x, cpos.y );
 						if c.is_hit_by(&cpos) {
-							//							println!("Child is hit");
+							println!("Child is hit");
 							let ev = UiEvent::MouseClick {
 								pos,
 								button: *button,
@@ -453,7 +455,7 @@ impl UiElementContainer {
 								//								return Some( r );
 							}
 						} else {
-							//							println!("Child NOT hit");
+							debug!("Child >{}< NOT hit ({:?})", &c.name(), &c.size());
 						}
 					}
 					// no child hit, so try give to our element

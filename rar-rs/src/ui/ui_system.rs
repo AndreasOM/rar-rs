@@ -45,6 +45,14 @@ impl UiSystem {
 		self.root.take()
 	}
 
+	pub fn get_root(&mut self) -> &Option<UiElementContainer> {
+		&self.root
+	}
+
+	pub fn get_root_mut(&mut self) -> &mut Option<UiElementContainer> {
+		&mut self.root
+	}
+
 	pub fn set_size(&mut self, size: &Vector2) {
 		if let Some(root) = &mut self.root {
 			root.set_size(size);
