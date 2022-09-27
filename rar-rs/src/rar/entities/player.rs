@@ -468,6 +468,7 @@ impl Entity for Player {
 	fn update(&mut self, euc: &mut EntityUpdateContext) {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
+		//debug!("Player update time step: {}", euc.time_step() );
 
 		self.old_pos = self.pos;
 		if let Some(state_direction) = self.get_state_direction_mut() {
