@@ -465,7 +465,9 @@ impl Entity for Player {
 
 	fn teardown(&mut self) {}
 
-	fn update(&mut self, euc: &mut EntityUpdateContext) {
+	fn update(&mut self, euc: &mut EntityUpdateContext) {}
+
+	fn fixed_update(&mut self, euc: &mut EntityUpdateContext) {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
 		//debug!("Player update time step: {}", euc.time_step() );
@@ -485,6 +487,11 @@ impl Entity for Player {
 		}
 
 		self.debug_colliders(euc);
+		debug!(
+			"player delta pos y {} ({})",
+			self.pos.y - self.old_pos.y,
+			euc.time_step()
+		);
 
 		if let Some(debug_renderer) = &*euc.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();

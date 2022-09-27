@@ -39,7 +39,7 @@ pub trait GameState {
 		Ok(())
 	}
 	fn teardown(&mut self) {}
-	fn set_size(&mut self, size: &Vector2) {}
+	fn set_size(&mut self, _size: &Vector2) {}
 	fn update(&mut self, _wuc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()
 	}

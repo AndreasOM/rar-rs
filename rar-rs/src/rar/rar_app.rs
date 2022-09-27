@@ -222,7 +222,7 @@ impl App for RarApp {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
-		// debug!("App update time step: {}", wuc.time_step() );
+		debug!("App update time step: {}", wuc.time_step());
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {

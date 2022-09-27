@@ -6,6 +6,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
+use tracing::*;
 
 //use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
@@ -30,6 +31,7 @@ pub struct GameStateGame {
 	fixed_camera: Camera,
 	use_fixed_camera: bool,
 	total_time: f64,
+	time_to_use_for_update: f64,
 	player_id: EntityId,
 	world_name: String,
 }
@@ -259,6 +261,20 @@ impl GameState for GameStateGame {
 			e.update(&mut euc);
 		}
 
+		self.time_to_use_for_update += wuc.time_step;
+		const TIME_STEP: f64 = 1.0 / 100.0;
+		euc = euc.set_time_step(TIME_STEP);
+		let mut fixed_update_count = 0;
+		while self.time_to_use_for_update > 0.0 {
+			self.time_to_use_for_update -= TIME_STEP;
+			for e in self.entity_manager.iter_mut() {
+				e.fixed_update(&mut euc);
+			}
+			fixed_update_count += 1;
+		}
+
+		debug!("fixed_update_count {}", fixed_update_count);
+
 		// :HACK: we really need a better place to calculate our aspect ratio fixed frame
 		let scaling = 1024.0 / wuc.window_size.y;
 		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
@@ -273,6 +289,7 @@ impl GameState for GameStateGame {
 
 		Vec::new()
 	}
+
 	fn render(&mut self, renderer: &mut Renderer) {
 		//		let mtx = Matrix44::identity();
 		// :TODO: apply camera offset
