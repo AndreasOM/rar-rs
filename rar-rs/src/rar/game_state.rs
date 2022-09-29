@@ -43,6 +43,7 @@ pub trait GameState {
 	fn update(&mut self, _wuc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()
 	}
+	fn fixed_update(&mut self, _time_step: f64) {}
 	fn render(&mut self, _renderer: &mut Renderer) {}
 	fn render_debug(&mut self, _debug_renderer: &mut DebugRenderer) {}
 	fn name(&self) -> &str {

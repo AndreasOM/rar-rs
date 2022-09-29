@@ -60,7 +60,7 @@ pub trait Entity {
 	fn setup(&mut self, _ec: &EntityConfiguration) {}
 	fn teardown(&mut self);
 	fn update(&mut self, euc: &mut EntityUpdateContext);
-	fn fixed_update(&mut self, euc: &mut EntityUpdateContext) {}
+	fn fixed_update(&mut self, _euc: &EntityUpdateContext) {}
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera);
 
 	fn name(&self) -> &str;

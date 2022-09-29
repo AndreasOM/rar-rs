@@ -251,11 +251,6 @@ impl Player {
 				self.speed.y -= 5.0;
 			};
 		}
-		self.movement.x = self.speed.x * euc.time_step() as f32;
-
-		self.movement.y = self.speed.y * euc.time_step() as f32;
-
-		self.pos = self.pos.add(&self.movement);
 	}
 
 	fn update_backflip(&mut self, _euc: &mut EntityUpdateContext) {
@@ -465,14 +460,7 @@ impl Entity for Player {
 
 	fn teardown(&mut self) {}
 
-	fn update(&mut self, euc: &mut EntityUpdateContext) {}
-
-	fn fixed_update(&mut self, euc: &mut EntityUpdateContext) {
-		//		println!("Player: {:?}", &self);
-		// :TODO: time step
-		//debug!("Player update time step: {}", euc.time_step() );
-
-		self.old_pos = self.pos;
+	fn update(&mut self, euc: &mut EntityUpdateContext) {
 		if let Some(state_direction) = self.get_state_direction_mut() {
 			// println!("{:#?}", &state_direction );
 			state_direction.animated_texture.update(euc.time_step());
@@ -485,13 +473,6 @@ impl Entity for Player {
 			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},
 		}
-
-		self.debug_colliders(euc);
-		debug!(
-			"player delta pos y {} ({})",
-			self.pos.y - self.old_pos.y,
-			euc.time_step()
-		);
 
 		if let Some(debug_renderer) = &*euc.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -506,6 +487,25 @@ impl Entity for Player {
 			//			let radius = self.size.length() * 0.5;
 			//			debug_renderer.add_circle( &self.pos, radius, 5.0, &color );
 		}
+	}
+
+	fn fixed_update(&mut self, euc: &EntityUpdateContext) {
+		//		println!("Player: {:?}", &self);
+		// :TODO: time step
+		//debug!("Player update time step: {}", euc.time_step() );
+
+		self.old_pos = self.pos;
+
+		self.movement.x = self.speed.x * euc.time_step() as f32;
+		self.movement.y = self.speed.y * euc.time_step() as f32;
+		self.pos = self.pos.add(&self.movement);
+
+		self.debug_colliders(euc);
+		debug!(
+			"player delta pos y {} ({})",
+			self.pos.y - self.old_pos.y,
+			euc.time_step()
+		);
 	}
 
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {

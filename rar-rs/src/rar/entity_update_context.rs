@@ -13,6 +13,7 @@ pub struct EntityUpdateContext<'a> {
 	time_step:             f64,
 	player_input_contexts: Vec<PlayerInputContext>,
 	world:                 &'a World,
+	fixed_update_count:    u32,
 	//	world_movement: Vector2,
 	//	change_background_state: bool,
 	//	game_state: GameState,
@@ -27,6 +28,7 @@ impl<'a> EntityUpdateContext<'a> {
 			time_step:             0.0,
 			player_input_contexts: Vec::new(),
 			world:                 &EMPTY_WORLD,
+			fixed_update_count:    0,
 			//			world_movement: Vector2::zero(),
 			//			change_background_state: false,
 			//			game_state: GameState::None,
@@ -55,6 +57,15 @@ impl<'a> EntityUpdateContext<'a> {
 		self
 	}
 
+	pub fn fixed_update_count(&self) -> u32 {
+		self.fixed_update_count
+	}
+
+	pub fn with_fixed_update_count(mut self, fixed_update_count: u32) -> Self {
+		self.fixed_update_count = fixed_update_count;
+		self
+	}
+
 	/*
 		pub fn world_movement(&self) -> &Vector2 {
 			&self.world_movement
@@ -73,8 +84,9 @@ impl<'a> EntityUpdateContext<'a> {
 		self.debug_renderer = Rc::clone(debug_renderer);
 	}
 
-	pub fn set_world(&mut self, world: &'a World) {
+	pub fn with_world(mut self, world: &'a World) -> Self {
 		self.world = world;
+		self
 	}
 
 	pub fn world(&self) -> &World {

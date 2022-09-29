@@ -411,6 +411,10 @@ impl App for RarApp {
 		}
 		Ok(())
 	}
+	fn fixed_update(&mut self, time_step: f64) {
+		debug!("Fixed Update: {}", time_step);
+		self.game_state().fixed_update(time_step);
+	}
 	fn render(&mut self) {
 		// :TODO: if let ???
 		match &mut self.renderer {

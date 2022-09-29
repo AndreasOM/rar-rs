@@ -31,9 +31,9 @@ pub struct GameStateGame {
 	fixed_camera: Camera,
 	use_fixed_camera: bool,
 	total_time: f64,
-	time_to_use_for_update: f64,
 	player_id: EntityId,
 	world_name: String,
+	fixed_update_count: u32,
 }
 
 impl GameStateGame {
@@ -183,6 +183,7 @@ impl GameState for GameStateGame {
 		self.entity_manager.teardown();
 	}
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
+		self.fixed_update_count = 0;
 		// :HACK: make debug rendering relative to camera
 		{
 			let active_camera = if self.use_fixed_camera {
@@ -193,9 +194,7 @@ impl GameState for GameStateGame {
 			let offset = active_camera.offset();
 			debug_renderer::debug_renderer_set_offset(&offset);
 		}
-		let mut euc = EntityUpdateContext::new();
-
-		euc.set_world(&self.world);
+		let mut euc = EntityUpdateContext::new().with_world(&self.world);
 
 		let wuc = match auc.wuc() {
 			Some(wuc) => wuc,
@@ -261,20 +260,6 @@ impl GameState for GameStateGame {
 			e.update(&mut euc);
 		}
 
-		self.time_to_use_for_update += wuc.time_step;
-		const TIME_STEP: f64 = 1.0 / 100.0;
-		euc = euc.set_time_step(TIME_STEP);
-		let mut fixed_update_count = 0;
-		while self.time_to_use_for_update > 0.0 {
-			self.time_to_use_for_update -= TIME_STEP;
-			for e in self.entity_manager.iter_mut() {
-				e.fixed_update(&mut euc);
-			}
-			fixed_update_count += 1;
-		}
-
-		debug!("fixed_update_count {}", fixed_update_count);
-
 		// :HACK: we really need a better place to calculate our aspect ratio fixed frame
 		let scaling = 1024.0 / wuc.window_size.y;
 		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
@@ -288,6 +273,18 @@ impl GameState for GameStateGame {
 		self.world_renderer.update(wuc.time_step);
 
 		Vec::new()
+	}
+	fn fixed_update(&mut self, time_step: f64) {
+		let euc = EntityUpdateContext::new()
+			.set_time_step(time_step)
+			.with_fixed_update_count(self.fixed_update_count)
+			.with_world(&self.world);
+
+		for e in self.entity_manager.iter_mut() {
+			e.fixed_update(&euc);
+		}
+
+		self.fixed_update_count += 1;
 	}
 
 	fn render(&mut self, renderer: &mut Renderer) {
