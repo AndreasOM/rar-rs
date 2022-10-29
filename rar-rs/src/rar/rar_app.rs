@@ -134,6 +134,13 @@ impl RarApp {
 }
 
 impl App for RarApp {
+	fn remember_window_layout(&self) -> bool {
+		true
+	}
+	fn app_name(&self) -> &str {
+		"rar-rs"
+	}
+
 	fn setup(&mut self, window: &mut Window) -> anyhow::Result<()> {
 		window.set_title("RAR - RS");
 

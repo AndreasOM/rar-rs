@@ -28,6 +28,10 @@
 
 ## Done
 
+### Epsiode 0016 - ??h + 2.0h  ->
+- [x] Split update into flexible and fixed step
+- [x] Remember window position and size across starts
+
 ### Epsiode 0015 - 2.0h + 2.0h  ->  31.5h   + 25h       -> 56.5h
 - [x] Add basic rectangle rectangle collision test
 - [x] Add player world collision
