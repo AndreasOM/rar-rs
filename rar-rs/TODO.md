@@ -11,6 +11,12 @@
 
 ## TODO
 
+- [ ] Setup automated builds on github
+- [ ] Work on art style ("look")
+- [ ] Create a test world
+- [ ] Implement camera system (with freeze & thaw)
+- [ ] Add audio/music support (via oml-audio)
+- [ ] Add collectables (-> coins, power ups, etc)
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
@@ -27,6 +33,9 @@
 - [ ] Understand how to organise tiled worlds
 
 ## Done
+
+### Epsiode 0017 - 1.5h +
+- [#] Failed attempt at updating glutin to 0.30.0
 
 ### Epsiode 0016 - 2.5h + 2.0h  ->  34.0h   + 27h       -> 61.0h
 - [x] Split update into flexible and fixed step
