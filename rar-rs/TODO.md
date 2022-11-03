@@ -28,7 +28,7 @@
 
 ## Done
 
-### Epsiode 0016 - ??h + 2.0h  ->
+### Epsiode 0016 - 2.5h + 2.0h  ->  34.0h   + 27h       -> 61.0h
 - [x] Split update into flexible and fixed step
 - [x] Remember window position and size across starts
 
