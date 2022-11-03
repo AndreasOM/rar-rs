@@ -5,13 +5,15 @@
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
-    - [ ] Generate tilemap colliders
+    - [x] Generate tilemap colliders
+    - [ ] Prepare optimized getting of potential colliders
+    - [ ] Add a fixed_update to entities
 
 ## TODO
 
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
-    - [ ] Implement game state `menu`
+    - [x] Implement game state `menu`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -23,14 +25,19 @@
 ## TODO - off stream
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
-- [ ] Pass world through to Player update.
 
 ## Done
 
-### Epsiode 0015 - 2.0h + ...
-- [x] Add basic rectangle rectangle collision test
+### Epsiode 0016 - 2.5h + 2.0h  ->  34.0h   + 27h       -> 61.0h
+- [x] Split update into flexible and fixed step
+- [x] Remember window position and size across starts
 
-### Episode 0014 - 2.0h + 0.0h   -> 29.5h + 23.0h       -> 52.5h
+### Epsiode 0015 - 2.0h + 2.0h  ->  31.5h   + 25h       -> 56.5h
+- [x] Add basic rectangle rectangle collision test
+- [x] Add player world collision
+- [x] Pass world through to Player update.
+
+### Episode 0014 - 2.0h + 0.0h  -> 29.5h + 23.0h        -> 52.5h
 - [x] Add text to UI system
 - [x] Add dummy font
 - [x] Add simple button handling for menu

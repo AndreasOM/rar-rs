@@ -6,6 +6,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
+use tracing::*;
 
 //use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
@@ -32,6 +33,7 @@ pub struct GameStateGame {
 	total_time: f64,
 	player_id: EntityId,
 	world_name: String,
+	fixed_update_count: u32,
 }
 
 impl GameStateGame {
@@ -181,6 +183,7 @@ impl GameState for GameStateGame {
 		self.entity_manager.teardown();
 	}
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
+		self.fixed_update_count = 0;
 		// :HACK: make debug rendering relative to camera
 		{
 			let active_camera = if self.use_fixed_camera {
@@ -191,9 +194,7 @@ impl GameState for GameStateGame {
 			let offset = active_camera.offset();
 			debug_renderer::debug_renderer_set_offset(&offset);
 		}
-		let mut euc = EntityUpdateContext::new();
-
-		euc.set_world(&self.world);
+		let mut euc = EntityUpdateContext::new().with_world(&self.world);
 
 		let wuc = match auc.wuc() {
 			Some(wuc) => wuc,
@@ -273,6 +274,19 @@ impl GameState for GameStateGame {
 
 		Vec::new()
 	}
+	fn fixed_update(&mut self, time_step: f64) {
+		let euc = EntityUpdateContext::new()
+			.set_time_step(time_step)
+			.with_fixed_update_count(self.fixed_update_count)
+			.with_world(&self.world);
+
+		for e in self.entity_manager.iter_mut() {
+			e.fixed_update(&euc);
+		}
+
+		self.fixed_update_count += 1;
+	}
+
 	fn render(&mut self, renderer: &mut Renderer) {
 		//		let mtx = Matrix44::identity();
 		// :TODO: apply camera offset

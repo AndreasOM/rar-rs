@@ -134,6 +134,13 @@ impl RarApp {
 }
 
 impl App for RarApp {
+	fn remember_window_layout(&self) -> bool {
+		true
+	}
+	fn app_name(&self) -> &str {
+		"rar-rs"
+	}
+
 	fn setup(&mut self, window: &mut Window) -> anyhow::Result<()> {
 		window.set_title("RAR - RS");
 
@@ -222,6 +229,8 @@ impl App for RarApp {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
+		debug!("App update time step: {}", wuc.time_step());
+
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {
 				old_game_state.teardown();
@@ -408,6 +417,10 @@ impl App for RarApp {
 			debug_renderer.end_frame();
 		}
 		Ok(())
+	}
+	fn fixed_update(&mut self, time_step: f64) {
+		debug!("Fixed Update: {}", time_step);
+		self.game_state().fixed_update(time_step);
 	}
 	fn render(&mut self) {
 		// :TODO: if let ???
