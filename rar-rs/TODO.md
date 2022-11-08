@@ -34,7 +34,7 @@
 
 ## Done
 
-### Epsiode 0017 - 1.5h +
+### Epsiode 0017 - 1.5h + 0.0h  ->  35.5h   + 27h       -> 62.5h
 - [#] Failed attempt at updating glutin to 0.30.0
 
 ### Epsiode 0016 - 2.5h + 2.0h  ->  34.0h   + 27h       -> 61.0h
