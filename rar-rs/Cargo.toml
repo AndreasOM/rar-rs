@@ -9,6 +9,15 @@ edition = "2021"
 name="rar"
 path="src/rar_main.rs"
 
+[features]
+#default = []
+default = [ "audio-apple" ]
+standalone = []
+#audio-apple = [ "oml-audio/use_apple" ]
+#audio-miniaudio = [ "oml-audio/use_miniaudio" ]
+audio-apple = []
+audio-miniaudio = []
+
 [dependencies]
 anyhow = "1.0.58"
 rand = "0.8.5"
