@@ -3,6 +3,10 @@
 
 ## In Progress
 
+- [ ] Automate packaging, and releasing
+    - [ ] Pack data
+    - [ ] Load data from pack
+    - [ ] Create github workflows
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
