@@ -41,7 +41,7 @@ on:
 
 jobs:
   build_package_sign:
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
       - uses: actions/checkout@v3
@@ -196,7 +196,7 @@ jobs:
           cd ${{ env.PARTS_FOLDER }}
           mkdir -p rar-data
           tar xzf \
-            ${{ env.PARTS_FOLDER }}/${{ env.FIIISH_DATA_TGZ }} \
+            ${{ env.PARTS_FOLDER }}/${{ env.DATA_TGZ }} \
             -C rar-data
 
       - name: List result
