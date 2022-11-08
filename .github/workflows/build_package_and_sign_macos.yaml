@@ -3,6 +3,11 @@ name: Build, Package, & Sign macOS
 on:
   workflow_dispatch:
     inputs:
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
       ref:
         description: 'The SHA of the commit to build'
         required: false
