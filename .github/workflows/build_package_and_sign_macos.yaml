@@ -118,19 +118,19 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('fiiish-rs/Cargo.lock')}}
+          key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('rar-rs/Cargo.lock')}}
 
       - name: Run cargo build --release for aarch64-apple-darwin
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --verbose --release --manifest-path fiiish-rs/Cargo.toml --target aarch64-apple-darwin --no-default-features --features "audio-apple"
+          args: --verbose --release --manifest-path rar-rs/Cargo.toml --target aarch64-apple-darwin --no-default-features --features "audio-apple"
 
       - name: Run cargo build --release for x86_64-apple-darwin
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --verbose --release --manifest-path fiiish-rs/Cargo.toml --target x86_64-apple-darwin --no-default-features --features "audio-apple"
+          args: --verbose --release --manifest-path rar-rs/Cargo.toml --target x86_64-apple-darwin --no-default-features --features "audio-apple"
 
       - name: Add Info.plist
         run: |
