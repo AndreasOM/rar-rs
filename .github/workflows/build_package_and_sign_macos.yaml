@@ -31,12 +31,12 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      #CODESIGN_CERT:
-        #required: true
-      #CODESIGN_CERT_PASS:
-        #required: true
-      #CODESIGN_CERT_IDENTITY:
-        #required: true
+      CODESIGN_CERT:
+        required: true
+      CODESIGN_CERT_PASS:
+        required: true
+      CODESIGN_CERT_IDENTITY:
+        required: true
 
 
 jobs:
@@ -88,15 +88,15 @@ jobs:
       - name: Prepare keychain
         run: |
           echo ":TODO:"
-          #keychain_password="$(openssl rand -hex 32)"
-          #security create-keychain -p "${keychain_password}" "the-keychain"
-          #echo "${{ secrets.CODESIGN_CERT }}" | base64 --decode > cert.p12
-          #md5 < cert.p12
-          #keychain_db="${HOME}/Library/Keychains/the-keychain-db"
-          #security import cert.p12 -k "${keychain_db}" -P "${{ secrets.CODESIGN_CERT_PASS }}" -T "$(command -v codesign)"
-          #security set-key-partition-list -S "apple-tool:,apple:" -s -k "${keychain_password}" "${keychain_db}"
-          #security default-keychain -d "user" -s "${keychain_db}"
-          #security find-identity -v
+          keychain_password="$(openssl rand -hex 32)"
+          security create-keychain -p "${keychain_password}" "the-keychain"
+          echo "${{ secrets.CODESIGN_CERT }}" | base64 --decode > cert.p12
+          md5 < cert.p12
+          keychain_db="${HOME}/Library/Keychains/the-keychain-db"
+          security import cert.p12 -k "${keychain_db}" -P "${{ secrets.CODESIGN_CERT_PASS }}" -T "$(command -v codesign)"
+          security set-key-partition-list -S "apple-tool:,apple:" -s -k "${keychain_password}" "${keychain_db}"
+          security default-keychain -d "user" -s "${keychain_db}"
+          security find-identity -v
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -234,9 +234,9 @@ jobs:
       - name: Sign .app
         run: |
           echo ":TODO:"
-          #ping -c 5 time.apple.com
-          #cd ${{ env.PACKAGE_FOLDER}}
-          #codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
+          ping -c 5 time.apple.com
+          cd ${{ env.PACKAGE_FOLDER}}
+          codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
 
         timeout-minutes: 10
 
