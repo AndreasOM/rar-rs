@@ -53,6 +53,11 @@ jobs:
           which jq
         shell: bash
 
+      - name: Check mkdir
+        run: |
+          which mkdir
+        shell: bash
+
       - name: Prepare Variables
         shell: bash
         run: |
