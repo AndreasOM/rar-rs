@@ -44,7 +44,7 @@ var_from_json TEMP "${RUNNER_JSON}" .temp
 # PARTS_FOLDER
 TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
 PARTS_FOLDER="${TEMP_FOLDER}/parts_folder/"
-$(mkdir -p ${PARTS_FOLDER})
+/usr/bin/mkdir -p ${PARTS_FOLDER}
 echo "PARTS_FOLDER=${PARTS_FOLDER}" >> $GITHUB_ENV
 
 # DATA_ARCHIVE
