@@ -1,0 +1,80 @@
+name: Debug Environment Setup
+
+on:
+  # :TODO: add push
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
+      # maybe we don't need this
+      version:
+        description: 'Version'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - latest
+          - auto
+          - ref
+      ref:
+        description: 'The branch, tag, or SHA of the commit to build'
+        required: false
+        default: ''
+        type: string
+        
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 1
+#          lfs: ''
+#          submodules: ''
+
+      - name: Generate VERSION
+        run: |
+          #VERSION=${{ github.event.inputs.ref }}
+          VERSION=$(git show -s --format=%H  HEAD)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          # DATE=$(git show -s --format=%ci ${{ github.sha }}|cut -b1-10)
+          DATE=$(git show -s --format=%ci HEAD|cut -b1-10)
+          echo "DATE=${DATE}" >> $GITHUB_ENV
+          echo "VERSION: ${VERSION}"
+          echo "DATE:    ${DATE}"
+
+      - name: Prepare Variables
+        run: |
+          workflow/helpers/env.sh
+
+      - name: List result
+        run: |
+          echo "sha:        ${{ github.sha }}"
+          echo "ref_name:   ${{ github.ref_name }}"
+          echo "ref:        ${{ github.ref }}"
+          echo "ref_type:   ${{ github.ref_type }}"
+          echo "event_name: ${{ github.event_name }}"
+          echo "actor:      ${{ github.actor }}"
+          
+      # from [https://docs.github.com/en/actions/learn-github-actions/contexts]    
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+      - name: Dump env context
+        id: env_context_step
+        run: echo '${{ toJSON(env) }}'
+      - name: Dump job context
+        run: echo '${{ toJSON(job) }}'
+      - name: Dump steps context
+        run: echo '${{ toJSON(steps) }}'
+      - name: Dump runner context
+        run: echo '${{ toJSON(runner) }}'
+      - name: Dump strategy context
+        run: echo '${{ toJSON(strategy) }}'
+      - name: Dump matrix context
+        run: echo '${{ toJSON(matrix) }}'
+
