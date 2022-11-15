@@ -90,8 +90,8 @@ jobs:
 
       - name: Create Summary
         run: |
-
           echo "| PROJECT           | ${{ env.PROJECT }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "|                   |                                  |" >> $GITHUB_STEP_SUMMARY
           echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
           echo "| S3_ARCHIVE_BUCKET | ${{ env.S3_ARCHIVE_BUCKET }}     |" >> $GITHUB_STEP_SUMMARY
           echo "| S3_ARCHIVE_FOLDER | ${{ env.S3_ARCHIVE_FOLDER }}     |" >> $GITHUB_STEP_SUMMARY
