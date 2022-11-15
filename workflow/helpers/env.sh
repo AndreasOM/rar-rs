@@ -1,6 +1,11 @@
 #!/bin/sh
 
-echo "${GITHUB_JSON}"
+#echo "${GITHUB_JSON}"
+
+PROJECT=$(echo "${GITHUB_JSON}" | jq .event.inputs.project)
+echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+
+
 #PROJECT=${{ github.event.inputs.project }}
 #echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 
@@ -27,3 +32,4 @@ exit 0
 #          build_number=$(cat build_number.txt)
 #          echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
 #          echo "ARCHIVE=${{ runner.temp }}/${data_tgz}" >> $GITHUB_ENV
+
