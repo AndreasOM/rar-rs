@@ -7,7 +7,7 @@ function var_from_json() {
 	JSON=$2
 	PATH=$3
 
-	TEMP=$(echo "${JSON}" | jq -r "${PATH}")
+	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
 
 	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
 
