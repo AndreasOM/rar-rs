@@ -2,6 +2,15 @@
 
 #echo "${GITHUB_JSON}"
 
+function from_json() {
+	JSON=$1
+	PATH=$2
+
+	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
+
+	echo "${TEMP}"
+}
+
 function var_from_json() {
 	VARNAME=$1
 	JSON=$2
@@ -11,27 +20,44 @@ function var_from_json() {
 	echo "JSON   : >${JSON}<"
 	echo "PATH   : >${PATH}<"
 
-	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
+#	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
+	TEMP=$(from_json "${JSON}" ${PATH})
 
 	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
 
 }
 
-jq --version
-/usr/bin/jq --version
+# PROJECT
+PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
+echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+#var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
 
-PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
-echo "PROJECT=${PROJECT}"
+# DATE
+DATE=$(from_json "${ENV_JSON}" .DATE)
 
-var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
+# VERSION
+VERSION=$(from_json "${ENV_JSON}" .VERSION)
+
 var_from_json TEMP "${RUNNER_JSON}" .temp
 
-#PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
-#echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+# PARTS_FOLDER
+TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
+PARTS_FOLDER="${TEMP_FOLDER}/parts_folder/"
+mkdir -p ${PARTS_FOLDER}
+echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
 
+# DATA_ARCHIVE
+DATA_ARCHIVE=${PROJECT}-data-${VERSION}
+echo "DATA_ARCHIVE=${DATA_ARCHIVE}" >> $GITHUB_ENV
 
-#PROJECT=${{ github.event.inputs.project }}
-#echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+# S3_ARCHIVE_BUCKET
+S3_ARCHIVE_BUCKET="artifacts.${PROJECT}.omnimad.net"
+echo "S3_ARCHIVE_BUCKET=${S3_ARCHIVE_BUCKET}" >> $GITHUB_ENV
+
+# S3_ARCHIVE_FOLDER
+S3_ARCHIVE_FOLDER=${ DATE }/${ VERSION }
+echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
+
 
 exit 0
 

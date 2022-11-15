@@ -57,6 +57,7 @@ jobs:
         shell: bash
         run: |
           export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
           export RUNNER_JSON='${{ toJSON(runner) }}'
           workflow/helpers/env.sh
 
@@ -86,4 +87,15 @@ jobs:
         run: echo '${{ toJSON(strategy) }}'
       - name: Dump matrix context
         run: echo '${{ toJSON(matrix) }}'
+
+      - name: Create Summary
+        run: |
+
+          echo "| PROJECT           | ${{ env.PROJECT }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_BUCKET | ${{ env.S3_ARCHIVE_BUCKET }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_FOLDER | ${{ env.S3_ARCHIVE_FOLDER }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| PARTS_FOLDER      | ${{ env.PARTS_FOLDER }}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| DATA_ARCHIVE      | ${{ env.DATA_ARCHIVE }}          |" >> $GITHUB_STEP_SUMMARY
 
