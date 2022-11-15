@@ -7,13 +7,21 @@ function var_from_json() {
 	JSON=$2
 	PATH=$3
 
+	echo "VARNAME: >${VARNAME}<"
+	echo "JSON   : >${JSON}<"
+	echo "PATH   : >${PATH}<"
+
 	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
 
 	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
 
 }
 
+jq --version
 /usr/bin/jq --version
+
+PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
+echo "PROJECT=${PROJECT}"
 
 var_from_json PROJECT ${GITHUB_JSON} .event.inputs.project
 var_from_json TEMP ${RUNNER_JSON} .runner.temp
