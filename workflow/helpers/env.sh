@@ -2,8 +2,22 @@
 
 #echo "${GITHUB_JSON}"
 
-PROJECT=$(echo "${GITHUB_JSON}" | jq .event.inputs.project)
-echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+function var_from_json() {
+	VARNAME=$1
+	JSON=$2
+	PATH=$3
+
+	TEMP=$(echo "${JSON}" | jq -r "${PATH}")
+
+	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
+
+}
+
+var_from_json PROJECT ${GITHUB_JSON} .event.inputs.project
+var_from_json TEMP ${RUNNER_JSON} .runner.temp
+
+#PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
+#echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 
 
 #PROJECT=${{ github.event.inputs.project }}

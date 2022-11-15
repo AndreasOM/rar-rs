@@ -51,6 +51,7 @@ jobs:
         shell: bash
         run: |
           export GITHUB_JSON='${{ toJSON(github) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
           bash workflow/helpers/env.sh
 
       - name: List result
