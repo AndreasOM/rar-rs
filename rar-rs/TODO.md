@@ -6,11 +6,17 @@
 - [ ] Automate packaging, and releasing
     - [ ] Pack data
     - [ ] Load data from pack
+        - [ ] Add .omar to layered file system
+        - [ ] Move filesystem setup boilerplate to oml-game
+        - [ ] Understand why macOS can load data from .app
     - [ ] Create github workflows
         - [x] Pack data
         - [x] Sign app
         - [ ] Upload to itch.io
-        - [ ] Cleanup variable/setting handling
+        - [ ] Cleanup variable/setting handling, and use them for ...
+            - [ ] Packing data
+            - [ ] Packaging the app
+            - [ ] Uploading to itch.io
 - [ ] Setup automated builds on github
 
 - [ ] Add world selection via menu
