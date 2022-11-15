@@ -143,15 +143,26 @@ jobs:
       - name: Create archive
         run: |
           cd ${{ env.PARTS_FOLDER }}
-          tar czf ${{ env.ARCHIVE }} .
+          tar czf ${{ env.DATA_ARCHIVE }} .
           
       - name: Copy archive to S3
         run: |
           aws s3 cp \
-            ${{ env.ARCHIVE }} \
+            ${{ env.DATA_ARCHIVE }} \
             s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-1"        
+
+      - name: Create Summary
+        run: |
+          echo "| PROJECT           | ${{ env.PROJECT }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| VERSION           | ${{ env.VERSION }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_BUCKET | ${{ env.S3_ARCHIVE_BUCKET }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_FOLDER | ${{ env.S3_ARCHIVE_FOLDER }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| ----------------- | -------------------------------- |" >> $GITHUB_STEP_SUMMARY
+          echo "| PARTS_FOLDER      | ${{ env.PARTS_FOLDER }}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| DATA_ARCHIVE      | ${{ env.DATA_ARCHIVE }}          |" >> $GITHUB_STEP_SUMMARY
 
