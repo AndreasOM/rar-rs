@@ -50,7 +50,7 @@ jobs:
       - name: Prepare Variables
         run: |
           export GITHUB_JSON=${{ toJSON(github) }}
-          workflow/helpers/env.sh
+          bash workflow/helpers/env.sh
 
       - name: List result
         run: |
