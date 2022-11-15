@@ -47,6 +47,11 @@ jobs:
           echo "VERSION: ${VERSION}"
           echo "DATE:    ${DATE}"
 
+      - name: Check jq
+        run: |
+          jq --version
+        shell: bash
+
       - name: Prepare Variables
         shell: bash
         run: |
