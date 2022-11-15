@@ -1,7 +1,8 @@
 #!/bin/sh
 
-PROJECT=${{ github.event.inputs.project }}
-echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+echo "${GITHUB_JSON}"
+#PROJECT=${{ github.event.inputs.project }}
+#echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 
 exit 0
 

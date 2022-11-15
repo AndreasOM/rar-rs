@@ -49,6 +49,7 @@ jobs:
 
       - name: Prepare Variables
         run: |
+          export GITHUB_JSON=${{ toJSON(github) }}
           workflow/helpers/env.sh
 
       - name: List result
@@ -59,7 +60,7 @@ jobs:
           echo "ref_type:   ${{ github.ref_type }}"
           echo "event_name: ${{ github.event_name }}"
           echo "actor:      ${{ github.actor }}"
-          
+
       # from [https://docs.github.com/en/actions/learn-github-actions/contexts]    
       - name: Dump GitHub context
         id: github_context_step
