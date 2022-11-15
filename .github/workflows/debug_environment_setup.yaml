@@ -48,8 +48,9 @@ jobs:
           echo "DATE:    ${DATE}"
 
       - name: Prepare Variables
+        shell: bash
         run: |
-          export GITHUB_JSON=${{ toJSON(github) }}
+          export GITHUB_JSON='${{ toJSON(github) }}'
           bash workflow/helpers/env.sh
 
       - name: List result
