@@ -23,8 +23,8 @@ jq --version
 PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
 echo "PROJECT=${PROJECT}"
 
-var_from_json PROJECT ${GITHUB_JSON} .event.inputs.project
-var_from_json TEMP ${RUNNER_JSON} .runner.temp
+var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
+var_from_json TEMP "${RUNNER_JSON}" .runner.temp
 
 #PROJECT=$(echo "${GITHUB_JSON}" | jq -r .event.inputs.project)
 #echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
