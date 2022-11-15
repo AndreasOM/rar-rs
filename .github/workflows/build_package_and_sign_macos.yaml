@@ -3,6 +3,11 @@ name: Build, Package, & Sign macOS
 on:
   workflow_dispatch:
     inputs:
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
       ref:
         description: 'The SHA of the commit to build'
         required: false
@@ -26,17 +31,17 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      #CODESIGN_CERT:
-        #required: true
-      #CODESIGN_CERT_PASS:
-        #required: true
-      #CODESIGN_CERT_IDENTITY:
-        #required: true
+      CODESIGN_CERT:
+        required: true
+      CODESIGN_CERT_PASS:
+        required: true
+      CODESIGN_CERT_IDENTITY:
+        required: true
 
 
 jobs:
   build_package_sign:
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
       - uses: actions/checkout@v3
@@ -80,19 +85,6 @@ jobs:
           app_tgz=${PROJECT}-apple-darwin-FAT-apple-darwin-.app.tgz
           echo "ARCHIVE=${temp}/${app_tgz}" >> $GITHUB_ENV
 
-      - name: Prepare keychain
-        run: |
-          echo ":TODO:"
-          #keychain_password="$(openssl rand -hex 32)"
-          #security create-keychain -p "${keychain_password}" "the-keychain"
-          #echo "${{ secrets.CODESIGN_CERT }}" | base64 --decode > cert.p12
-          #md5 < cert.p12
-          #keychain_db="${HOME}/Library/Keychains/the-keychain-db"
-          #security import cert.p12 -k "${keychain_db}" -P "${{ secrets.CODESIGN_CERT_PASS }}" -T "$(command -v codesign)"
-          #security set-key-partition-list -S "apple-tool:,apple:" -s -k "${keychain_password}" "${keychain_db}"
-          #security default-keychain -d "user" -s "${keychain_db}"
-          #security find-identity -v
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -118,19 +110,19 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('fiiish-rs/Cargo.lock')}}
+          key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('rar-rs/Cargo.lock')}}
 
       - name: Run cargo build --release for aarch64-apple-darwin
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --verbose --release --manifest-path fiiish-rs/Cargo.toml --target aarch64-apple-darwin --no-default-features --features "audio-apple"
+          args: --verbose --release --manifest-path rar-rs/Cargo.toml --target aarch64-apple-darwin --no-default-features --features "audio-apple"
 
       - name: Run cargo build --release for x86_64-apple-darwin
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --verbose --release --manifest-path fiiish-rs/Cargo.toml --target x86_64-apple-darwin --no-default-features --features "audio-apple"
+          args: --verbose --release --manifest-path rar-rs/Cargo.toml --target x86_64-apple-darwin --no-default-features --features "audio-apple"
 
       - name: Add Info.plist
         run: |
@@ -191,7 +183,7 @@ jobs:
           cd ${{ env.PARTS_FOLDER }}
           mkdir -p rar-data
           tar xzf \
-            ${{ env.PARTS_FOLDER }}/${{ env.FIIISH_DATA_TGZ }} \
+            ${{ env.PARTS_FOLDER }}/${{ env.DATA_TGZ }} \
             -C rar-data
 
       - name: List result
@@ -226,12 +218,24 @@ jobs:
           #
           cp ${{ env.PARTS_FOLDER }}/rar-data/rar-data.omar ${app_dir}/Contents/Resources/
 
+      - name: Prepare keychain
+        run: |
+          keychain_password="$(openssl rand -hex 32)"
+          security create-keychain -p "${keychain_password}" "the-keychain"
+          echo "${{ secrets.CODESIGN_CERT }}" | base64 --decode > cert.p12
+          md5 < cert.p12
+          keychain_db="${HOME}/Library/Keychains/the-keychain-db"
+          security import cert.p12 -k "${keychain_db}" -P "${{ secrets.CODESIGN_CERT_PASS }}" -T "$(command -v codesign)"
+          security set-key-partition-list -S "apple-tool:,apple:" -s -k "${keychain_password}" "${keychain_db}"
+          security default-keychain -d "user" -s "${keychain_db}"
+          security find-identity -v
+
       - name: Sign .app
         run: |
           echo ":TODO:"
-          #ping -c 5 time.apple.com
-          #cd ${{ env.PACKAGE_FOLDER}}
-          #codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
+          ping -c 5 time.apple.com
+          cd ${{ env.PACKAGE_FOLDER}}
+          codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
 
         timeout-minutes: 10
 

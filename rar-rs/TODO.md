@@ -7,6 +7,12 @@
     - [ ] Pack data
     - [ ] Load data from pack
     - [ ] Create github workflows
+        - [x] Pack data
+        - [x] Sign app
+        - [ ] Upload to itch.io
+        - [ ] Cleanup variable/setting handling
+- [ ] Setup automated builds on github
+
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
@@ -15,7 +21,6 @@
 
 ## TODO
 
-- [ ] Setup automated builds on github
 - [ ] Work on art style ("look")
 - [ ] Create a test world
 - [ ] Implement camera system (with freeze & thaw)
@@ -37,6 +42,9 @@
 - [ ] Understand how to organise tiled worlds
 
 ## Done
+
+### Episode 0018 - 3.0h + 1.0h  ->  38.5h   + 30.0h     -> 68.5h
+- [x] Start to automate releases via github actions
 
 ### Epsiode 0017 - 1.5h + 0.0h  ->  35.5h   + 27h       -> 62.5h
 - [#] Failed attempt at updating glutin to 0.30.0
