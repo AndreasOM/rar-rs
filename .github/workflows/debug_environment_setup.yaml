@@ -50,6 +50,7 @@ jobs:
       - name: Check jq
         run: |
           jq --version
+          which jq
         shell: bash
 
       - name: Prepare Variables
@@ -57,7 +58,7 @@ jobs:
         run: |
           export GITHUB_JSON='${{ toJSON(github) }}'
           export RUNNER_JSON='${{ toJSON(runner) }}'
-          bash workflow/helpers/env.sh
+          workflow/helpers/env.sh
 
       - name: List result
         run: |
