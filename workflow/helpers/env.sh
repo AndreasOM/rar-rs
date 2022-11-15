@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #echo "${GITHUB_JSON}"
 
@@ -12,6 +12,8 @@ function var_from_json() {
 	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
 
 }
+
+/usr/bin/jq --version
 
 var_from_json PROJECT ${GITHUB_JSON} .event.inputs.project
 var_from_json TEMP ${RUNNER_JSON} .runner.temp
