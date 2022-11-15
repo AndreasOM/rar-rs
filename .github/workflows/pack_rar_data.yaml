@@ -75,6 +75,8 @@ jobs:
           export ENV_JSON='${{ toJSON(env) }}'
           export RUNNER_JSON='${{ toJSON(runner) }}'
           workflow/helpers/env.sh
+          mkdir -p ${{ env.PARTS_FOLDER }}  
+
 
       - uses: actions-rs/toolchain@v1
         with:

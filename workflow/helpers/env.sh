@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #echo "${GITHUB_JSON}"
+echo "PATH (bash): ${PATH}"
 
 function from_json() {
 	JSON=$1
