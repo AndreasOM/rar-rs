@@ -179,8 +179,7 @@ jobs:
           echo ${{ env.DATE }} > ${{ env.LATEST_FOLDER }}/latest_data_date.txt
           echo ${{ env.VERSION }} > ${{ env.LATEST_FOLDER }}/latest_data_version.txt
           dest="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/latest/"
-          aws s3 sync ${{ env.TEMP_FOLDER }}/latest_data_date.txt ${dest}
-          aws s3 cp ${{ env.TEMP_FOLDER }}/latest_data_version.txt ${dest}
+          aws s3 sync ${{ env.LATEST_FOLDER }}/ ${dest}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
