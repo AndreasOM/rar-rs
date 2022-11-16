@@ -54,6 +54,11 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
           fetch-depth: 1
 
+      - name: Check JQ
+        run: |
+          jq --version
+          which jq
+
       - name: Generate VERSION
         run: |
           VERSION=$(git show -s --format=%H HEAD)
@@ -66,6 +71,7 @@ jobs:
       - name: Prepare Variables
         shell: bash
         run: |
+          echo ${PATH}
           export GITHUB_JSON='${{ toJSON(github) }}'
           export ENV_JSON='${{ toJSON(env) }}'
           export RUNNER_JSON='${{ toJSON(runner) }}'
