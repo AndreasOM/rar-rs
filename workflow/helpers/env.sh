@@ -17,9 +17,9 @@ function var_from_json() {
 	json=$2
 	varpath=$3
 
-	echo "varname: >${varname}<"
-	echo "json   : >${json}<"
-	echo "varpath   : >${varpath}<"
+	#echo "varname: >${varname}<"
+	#echo "json   : >${json}<"
+	#echo "varpath   : >${varpath}<"
 
 #	temp=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
 	temp=$(from_json "${json}" ${varpath})
@@ -61,10 +61,11 @@ USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
 
 if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
 then
-	echo "Syncing latest"
 	src="s3://${S3_ARCHIVE_BUCKET}/${S3_ARCHIVE_FOLDER}/latest/"
 	dest="${LATEST_FOLDER}"
+	echo "Syncing latest from ${src} to ${dest}"
 	aws s3 sync ${src} ${dest}
+	ls -lsa ${dest}
 else
 	echo "Not syncing latest"
 fi
@@ -82,6 +83,9 @@ else
 #	DATA_DATE=${DATE}
 #	DATA_VERSION=${VERSION}
 fi
+
+echo "DATA_DATE=${DATA_DATE}"
+echo "DATA_VERSION=${DATA_VERSION}"
 
 echo "DATA_DATE=${DATA_DATE}" >> $GITHUB_ENV
 echo "DATA_VERSION=${DATA_VERSION}" >> $GITHUB_ENV
