@@ -3,11 +3,25 @@
 #echo "${GITHUB_JSON}"
 echo "PATH (bash): ${PATH}"
 
+JQ='jq'
+
+if [ -f "/usr/local/bin/jq" ]
+then
+	echo "Found jq at /usr/local/bin/jq"
+	JQ="/usr/local/bin/jq"
+fi
+
+if [ -f "/usr//bin/jq" ]
+then
+	echo "Found jq at /usr/bin/jq"
+	JQ="/usr/bin/jq"
+fi
+
 function from_json() {
 	JSON=$1
 	PATH=$2
 
-	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
+	TEMP=$(echo "${JSON}" | ${JQ} -r "${PATH}")
 
 	echo "${TEMP}"
 }
