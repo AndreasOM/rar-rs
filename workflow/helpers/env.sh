@@ -5,7 +5,7 @@ echo "PATH (bash): ${PATH}"
 
 which mkdir
 mkdir FUU_BAR_MKDIR
-
+ls -lsa
 exit -1
 
 which jq
