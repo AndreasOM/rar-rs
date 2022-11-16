@@ -64,8 +64,16 @@ ls -lsa
 # DATE
 DATE=$(from_json "${ENV_JSON}" .DATE)
 
+which mkdir
+mkdir FUU_BAR_MKDIR_2_1
+ls -lsa
+
 # VERSION
 VERSION=$(from_json "${ENV_JSON}" .VERSION)
+
+which mkdir
+mkdir FUU_BAR_MKDIR_2_2
+ls -lsa
 
 var_from_json TEMP "${RUNNER_JSON}" .temp
 
