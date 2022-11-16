@@ -39,6 +39,20 @@ DATE=$(from_json "${ENV_JSON}" .DATE)
 # VERSION
 VERSION=$(from_json "${ENV_JSON}" .VERSION)
 
+
+#${{ github.event.inputs.use_latest_data }}
+
+# USE_LATEST_DATA
+
+USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
+
+if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
+then
+	echo "Using latest data"
+else
+	echo "Not using latest data"
+fi
+
 # TEMP
 var_from_json TEMP "${RUNNER_JSON}" .temp
 
