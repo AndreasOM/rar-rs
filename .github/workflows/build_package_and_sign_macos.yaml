@@ -59,6 +59,14 @@ jobs:
           echo "DATE:    ${DATE}"
 
       - name: Prepare Variables
+        shell: bash
+        run: |
+          export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
+          workflow/helpers/env.sh
+
+      - name: Prepare Variables
         run: |
           PROJECT=${{ github.event.inputs.project }}
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
