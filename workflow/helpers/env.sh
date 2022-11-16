@@ -3,6 +3,11 @@
 #echo "${GITHUB_JSON}"
 echo "PATH (bash): ${PATH}"
 
+which mkdir
+mkdir FUU_BAR_MKDIR
+
+exit -1
+
 which jq
 which mkdir
 which cat
