@@ -39,14 +39,14 @@ function from_json() {
 function var_from_json() {
 	VARNAME=$1
 	JSON=$2
-	PATH=$3
+	VARPATH=$3
 
 	echo "VARNAME: >${VARNAME}<"
 	echo "JSON   : >${JSON}<"
-	echo "PATH   : >${PATH}<"
+	echo "VARPATH   : >${VARPATH}<"
 
 #	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
-	TEMP=$(from_json "${JSON}" ${PATH})
+	TEMP=$(from_json "${JSON}" ${VARPATH})
 
 	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
 
