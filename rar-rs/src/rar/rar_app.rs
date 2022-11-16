@@ -176,14 +176,14 @@ impl App for RarApp {
 		let mut lfs = FilesystemLayered::new();
 
 		// :TODO: handle linked in data?
-		if self.add_pakfile_from_file(&mut lfs, "rar-data.omar") {
+		if self.add_pakfile_from_file(&mut lfs, "base.omar") {
 			debug!("Using external archive");
 		} else {
 			warn!("No archive used");
 		}
 
 		// check local files first for faster development (and easier modding)
-		self.add_filesystem_disk(&mut lfs, "../rar-data", false);
+		self.add_filesystem_disk(&mut lfs, "../data/base", false);
 
 		println!("lfs: {:?}", &lfs);
 

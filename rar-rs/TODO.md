@@ -49,6 +49,10 @@
 
 ## Done
 
+### Epsiode 0019 - 3.0h + ...
+- [x] Start to cleanup variable handling in github workflows
+- [x] Load data from .omar
+
 ### Episode 0018 - 3.0h + 1.0h  ->  38.5h   + 30.0h     -> 68.5h
 - [x] Start to automate releases via github actions
 
