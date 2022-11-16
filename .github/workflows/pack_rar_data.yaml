@@ -123,7 +123,7 @@ jobs:
           do
             # [basepath] [output.omar] [paklist] {music_ogg|music_mp3|music_mp3_ogg}
             basepath=${{ env.DATA_FOLDER }}/${d}
-            omar="${{ env.PARTS_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}.omar"
+            omar="${{ env.PARTS_FOLDER }}/${d}.omar"
             paklist="paklist.txt"
             music="music_mp3"
             ./workflow/helpers/pack_data.sh ${basepath} ${omar} ${paklist} ${music}
@@ -156,10 +156,11 @@ jobs:
           for d in $(find ${{ env.DATA_FOLDER }} -type d)
           do
             echo ${d}
-            cd ${d}
+            # cd ${d}
             archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
-            tar czf ${archive} .
-            cd -
+            tar czf ${archive} ${d}
+            # tar czf ${archive} .
+            # cd -
           done
           
       - name: Copy archives to S3
@@ -168,10 +169,7 @@ jobs:
           for d in $(find ${{ env.DATA_FOLDER }} -type d)
           do
             echo ${d}
-            cd ${d}
             archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
-            tar czf ${archive} .
-            cd -
             aws s3 cp \
               ${archive} \
               s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
