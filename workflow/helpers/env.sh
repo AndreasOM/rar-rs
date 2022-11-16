@@ -65,6 +65,9 @@ else
 	echo "Not syncing latest"
 fi
 
+DATA_DATE=${DATE}
+DATA_VERSION=${VERSION}
+
 if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
 then
 	echo "Using latest data"
@@ -72,15 +75,15 @@ then
 	DATA_VERSION=$(cat ${LATEST_FOLDER}/latest_data_version.txt)
 else
 	echo "Not syncing latest data"
-	DATA_DATE=${DATE}
-	DATA_VERSION=${VERSION}
+#	DATA_DATE=${DATE}
+#	DATA_VERSION=${VERSION}
 fi
 
 echo "DATA_DATE=${DATA_DATE}" >> $GITHUB_ENV
 echo "DATA_VERSION=${DATA_VERSION}" >> $GITHUB_ENV
 
 # S3_DATA_ARCHIVE_FOLDER
-S3_DATA_ARCHIVE_FOLDER=${DATA_DATE}/${DATA_VERSION}
+S3_DATA_ARCHIVE_FOLDER="${DATA_DATE}/${DATA_VERSION}"
 echo "S3_DATA_ARCHIVE_FOLDER=${S3_DATA_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # TEMP
