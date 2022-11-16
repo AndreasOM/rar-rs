@@ -87,8 +87,59 @@ LATEST_FOLDER="${TEMP_FOLDER}/latest/"
 /usr/bin/mkdir -p ${LATEST_FOLDER}
 echo "LATEST_FOLDER=${LATEST_FOLDER}" >> $GITHUB_ENV
 
+
+# APP_VERSION
+# :TODO: remove hardcoded rar-rs
+APP_VERSION=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
+echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+
+# BUILD_NUMBER
+BUILD_NUMBER=$(cat build_number.txt)
+echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
+
+# PACKAGE_FOLDER
+PACKAGE_FOLDER=${TEMP_FOLDER}/package_folder/
+/usr/bin/mkdir -p ${PACKAGE_FOLDER}
+echo "PACKAGE_FOLDER=${PACKAGE_FOLDER}" >> $GITHUB_ENV
+
+# APP_NAME
+APP_NAME="rar-rs"
+echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
+
+# MACOS_APP_ARCHIVE
+MACOS_APP_ARCHIVE="${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
+echo "MACOS_APP_ARCHIVE=${MACOS_APP_ARCHIVE}" >> $GITHUB_ENV
+
 exit 0
 
+### .app
+###          PROJECT=${{ github.event.inputs.project }}
+###          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+###          echo "Preparing variables"
+###          temp=${{ runner.temp }}
+###          echo "TEMP=${temp}" >> $GITHUB_ENV
+###          s3_archive_bucket="artifacts.${PROJECT}.omnimad.net"
+###          s3_archive_folder=${{ env.DATE }}/${{ env.VERSION }}
+###          echo "S3_ARCHIVE_FOLDER=${s3_archive_folder}" >> $GITHUB_ENV
+###          echo "S3_ARCHIVE_BUCKET=${s3_archive_bucket}" >> $GITHUB_ENV
+###          data_tgz=${PROJECT}-rar-data-${{ env.VERSION }}.tgz
+###          echo "DATA_TGZ=${data_tgz}" >> $GITHUB_ENV          
+###          parts_folder=${temp}/parts_folder
+###          mkdir -p ${parts_folder}
+###          echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
+###          package_folder=${temp}/package_folder/
+###          mkdir -p ${package_folder}
+###          echo "PACKAGE_FOLDER=${package_folder}" >> $GITHUB_ENV
+###          echo "APP_NAME=rar-rs" >> $GITHUB_ENV
+###          build_number=$(cat build_number.txt)
+###          echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
+###          app_version=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
+###          echo "APP_VERSION=${app_version}" >> $GITHUB_ENV
+###          app_tgz=${PROJECT}-apple-darwin-FAT-apple-darwin-.app.tgz
+###          echo "ARCHIVE=${temp}/${app_tgz}" >> $GITHUB_ENV
+
+
+### data
 #          PROJECT=${{ github.event.inputs.project }}
 #          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 #          temp=${{ runner.temp }}
