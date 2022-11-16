@@ -116,19 +116,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pack RAR data
+      - name: Pack data
         run: |
-          ./workflow/helpers/pack_data.sh rar-data rar-data.omar paklist.txt music_mp3
+          for d in ${{ env.DATA_ARCHIVES }}
+          do
+            # [basepath] [output.omar] [paklist] {music_ogg|music_mp3|music_mp3_ogg}
+            basepath=${{ env.DATA_FOLDER }}/${d}
+            omar="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}.omar"
+            paklist="paklist.txt"
+            music="music_mp3"
+            ./workflow/helpers/pack_data.sh ${basepath} ${omar} ${paklist} ${music}
+          done
 
       - name: Add build number
         run: |
           echo "Adding build number"
           cp build_number.txt ${{ env.PARTS_FOLDER }}/
 
-      - name: Add data
-        run: |
-          echo "Adding data"
-          cp rar-data.omar ${{ env.PARTS_FOLDER }}/
+#      - name: Add data
+#        run: |
+#          echo "Adding data"
+#          cp rar-data.omar ${{ env.PARTS_FOLDER }}/
 
       - name: List result
         run: |
@@ -140,16 +148,33 @@ jobs:
           echo "actor:      ${{ github.actor }}"
           ls -l ${{ env.PARTS_FOLDER }}/
           
-      - name: Create archive
+      - name: Create archives
+        run: |
+          # :TODO: do we really need to tar up the .omar?
+          cd ${{ env.PARTS_FOLDER }}
+          for d in $(find ${{ env.DATA_FOLDER }} -type d)
+          do
+            echo ${d}
+            cd ${d}
+            archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
+            tar czf ${archive} .
+            cd -
+          done
+          
+      - name: Copy archives to S3
         run: |
           cd ${{ env.PARTS_FOLDER }}
-          tar czf ${{ env.DATA_ARCHIVE }} .
-          
-      - name: Copy archive to S3
-        run: |
-          aws s3 cp \
-            ${{ env.DATA_ARCHIVE }} \
-            s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
+          for d in $(find ${{ env.DATA_FOLDER }} -type d)
+          do
+            echo ${d}
+            cd ${d}
+            archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
+            tar czf ${archive} .
+            cd -
+            aws s3 cp \
+              ${archive} \
+              s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
+          done
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
