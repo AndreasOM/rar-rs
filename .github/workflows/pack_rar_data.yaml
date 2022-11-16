@@ -118,11 +118,12 @@ jobs:
 
       - name: Pack data
         run: |
+          ## variant a of finding the data(s)
           for d in ${{ env.DATA_ARCHIVES }}
           do
             # [basepath] [output.omar] [paklist] {music_ogg|music_mp3|music_mp3_ogg}
             basepath=${{ env.DATA_FOLDER }}/${d}
-            omar="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}.omar"
+            omar="${{ env.PARTS_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}.omar"
             paklist="paklist.txt"
             music="music_mp3"
             ./workflow/helpers/pack_data.sh ${basepath} ${omar} ${paklist} ${music}
@@ -150,8 +151,8 @@ jobs:
           
       - name: Create archives
         run: |
-          # :TODO: do we really need to tar up the .omar?
           cd ${{ env.PARTS_FOLDER }}
+          ## variant b of finding the data(s)
           for d in $(find ${{ env.DATA_FOLDER }} -type d)
           do
             echo ${d}

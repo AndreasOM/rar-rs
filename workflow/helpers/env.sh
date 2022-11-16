@@ -65,7 +65,7 @@ DATA_ARCHIVE_SUFFIX="-${VERSION}.tgz"
 echo "DATA_ARCHIVE_PREFIX=${DATA_ARCHIVE_PREFIX}" >> $GITHUB_ENV
 
 # DATA_ARCHIVES
-DATA_ARCHIVES=("data") # ("data" "premium" "dlc1" "etc")
+DATA_ARCHIVES=("base") # ("data" "premium" "dlc1" "etc")
 echo "DATA_ARCHIVES=${DATA_ARCHIVES}" >> $GITHUB_ENV
 
 # S3_ARCHIVE_BUCKET
