@@ -4,27 +4,27 @@
 echo "PATH (bash): ${PATH}"
 
 function from_json() {
-	JSON=$1
-	VARPATH=$2
+	json=$1
+	varpath=$2
 
-	TEMP=$(echo "${JSON}" | jq -r "${VARPATH}")
+	temp=$(echo "${json}" | jq -r "${varpath}")
 
-	echo "${TEMP}"
+	echo "${temp}"
 }
 
 function var_from_json() {
-	VARNAME=$1
-	JSON=$2
-	VARPATH=$3
+	varname=$1
+	json=$2
+	varpath=$3
 
-	echo "VARNAME: >${VARNAME}<"
-	echo "JSON   : >${JSON}<"
-	echo "VARPATH   : >${VARPATH}<"
+	echo "varname: >${varname}<"
+	echo "json   : >${json}<"
+	echo "varpath   : >${varpath}<"
 
-#	TEMP=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
-	TEMP=$(from_json "${JSON}" ${VARPATH})
+#	temp=$(echo "${JSON}" | /usr/bin/jq -r "${PATH}")
+	temp=$(from_json "${json}" ${varpath})
 
-	echo "${VARNAME}=${TEMP}" >> $GITHUB_ENV
+	echo "${varname}=${temp}" >> $GITHUB_ENV
 
 }
 
@@ -38,6 +38,10 @@ DATE=$(from_json "${ENV_JSON}" .DATE)
 
 # VERSION
 VERSION=$(from_json "${ENV_JSON}" .VERSION)
+
+# TEMP_FOLDER
+TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
+echo "TEMP_FOLDER=${TEMP_FOLDER}" >> $GITHUB_ENV
 
 # LATEST_FOLDER
 LATEST_FOLDER="${TEMP_FOLDER}/latest/"
@@ -89,8 +93,8 @@ echo "S3_DATA_ARCHIVE_FOLDER=${S3_DATA_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 # TEMP
 var_from_json TEMP "${RUNNER_JSON}" .temp
 
+
 # PARTS_FOLDER
-TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
 PARTS_FOLDER="${TEMP_FOLDER}/parts_folder/"
 mkdir -p ${PARTS_FOLDER}
 echo "PARTS_FOLDER=${PARTS_FOLDER}" >> $GITHUB_ENV
