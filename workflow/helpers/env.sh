@@ -5,9 +5,9 @@ echo "PATH (bash): ${PATH}"
 
 function from_json() {
 	JSON=$1
-	PATH=$2
+	VARPATH=$2
 
-	TEMP=$(echo "${JSON}" | jq -r "${PATH}")
+	TEMP=$(echo "${JSON}" | jq -r "${VARPATH}")
 
 	echo "${TEMP}"
 }
