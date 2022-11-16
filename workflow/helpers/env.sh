@@ -3,7 +3,15 @@
 #echo "${GITHUB_JSON}"
 echo "PATH (bash): ${PATH}"
 
-JQ='jq'
+which jq
+which mkdir
+which cat
+which cut
+which grep
+
+JQ=$(which jq)
+
+exit 0
 
 if [ -f "/usr/local/bin/jq" ]
 then

@@ -78,7 +78,7 @@ jobs:
           workflow/helpers/env.sh
 
       - name: Use latest data?
-        if: ${{ github.event.inputs.ref == 'true' }}
+        if: ${{ github.event.inputs.use_latest_data == 'true' }}
         run: |
           echo ":TODO: patch variables for LATEST"
 
