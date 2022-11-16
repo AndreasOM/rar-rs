@@ -75,7 +75,10 @@ jobs:
           export ENV_JSON='${{ toJSON(env) }}'
           export RUNNER_JSON='${{ toJSON(runner) }}'
           workflow/helpers/env.sh
-          # mkdir -p ${{ env.PARTS_FOLDER }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
 
 
       - uses: actions-rs/toolchain@v1
