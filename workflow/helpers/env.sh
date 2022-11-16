@@ -61,7 +61,7 @@ USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
 
 if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
 then
-	src="s3://${S3_ARCHIVE_BUCKET}/${S3_ARCHIVE_FOLDER}/latest/"
+	src="s3://${S3_ARCHIVE_BUCKET}/latest/"
 	dest="${LATEST_FOLDER}"
 	echo "Syncing latest from ${src} to ${dest}"
 	aws s3 sync ${src} ${dest}
