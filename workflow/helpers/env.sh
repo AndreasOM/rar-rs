@@ -68,8 +68,8 @@ fi
 if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
 then
 	echo "Using latest data"
-	DATA_DATE=(cat ${LATEST_FOLDER}/latest_data_date.txt)
-	DATA_VERSION=(cat ${LATEST_FOLDER}/latest_data_version.txt)
+	DATA_DATE=$(cat ${LATEST_FOLDER}/latest_data_date.txt)
+	DATA_VERSION=$(cat ${LATEST_FOLDER}/latest_data_version.txt)
 else
 	echo "Not syncing latest data"
 	DATA_DATE=${DATE}
