@@ -11,8 +11,6 @@ which grep
 
 JQ=$(which jq)
 
-exit 0
-
 if [ -f "/usr/local/bin/jq" ]
 then
 	echo "Found jq at /usr/local/bin/jq"
@@ -66,7 +64,7 @@ var_from_json TEMP "${RUNNER_JSON}" .temp
 # PARTS_FOLDER
 TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
 PARTS_FOLDER="${TEMP_FOLDER}/parts_folder/"
-/usr/bin/mkdir -p ${PARTS_FOLDER}
+mkdir -p ${PARTS_FOLDER}
 echo "PARTS_FOLDER=${PARTS_FOLDER}" >> $GITHUB_ENV
 
 # DATA_FOLDER
@@ -75,12 +73,12 @@ echo "DATA_FOLDER=${DATA_FOLDER}" >> $GITHUB_ENV
 
 # OMAR_FOLDER
 OMAR_FOLDER="${PARTS_FOLDER}/omar/"
-/usr/bin/mkdir -p ${OMAR_FOLDER}
+mkdir -p ${OMAR_FOLDER}
 echo "OMAR_FOLDER=${OMAR_FOLDER}" >> $GITHUB_ENV
 
 # ARCHIVE_FOLDER
 ARCHIVE_FOLDER="${PARTS_FOLDER}"
-/usr/bin/mkdir -p ${ARCHIVE_FOLDER}
+mkdir -p ${ARCHIVE_FOLDER}
 echo "ARCHIVE_FOLDER=${ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # OMAR_ARCHIVE_PREFIX
@@ -106,7 +104,7 @@ echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # LATEST_FOLDER
 LATEST_FOLDER="${TEMP_FOLDER}/latest/"
-/usr/bin/mkdir -p ${LATEST_FOLDER}
+mkdir -p ${LATEST_FOLDER}
 echo "LATEST_FOLDER=${LATEST_FOLDER}" >> $GITHUB_ENV
 
 
@@ -121,7 +119,7 @@ echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
 
 # PACKAGE_FOLDER
 PACKAGE_FOLDER=${TEMP_FOLDER}/package_folder/
-/usr/bin/mkdir -p ${PACKAGE_FOLDER}
+mkdir -p ${PACKAGE_FOLDER}
 echo "PACKAGE_FOLDER=${PACKAGE_FOLDER}" >> $GITHUB_ENV
 
 # APP_NAME
