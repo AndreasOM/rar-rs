@@ -39,19 +39,49 @@ DATE=$(from_json "${ENV_JSON}" .DATE)
 # VERSION
 VERSION=$(from_json "${ENV_JSON}" .VERSION)
 
+# LATEST_FOLDER
+LATEST_FOLDER="${TEMP_FOLDER}/latest/"
+mkdir -p ${LATEST_FOLDER}
+echo "LATEST_FOLDER=${LATEST_FOLDER}" >> $GITHUB_ENV
 
-#${{ github.event.inputs.use_latest_data }}
+# S3_ARCHIVE_BUCKET
+S3_ARCHIVE_BUCKET="artifacts.${PROJECT}.omnimad.net"
+echo "S3_ARCHIVE_BUCKET=${S3_ARCHIVE_BUCKET}" >> $GITHUB_ENV
+
+# S3_ARCHIVE_FOLDER
+S3_ARCHIVE_FOLDER=${DATE}/${VERSION}
+echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # USE_LATEST_DATA
-
 USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
 
 if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
 then
-	echo "Using latest data"
+	echo "Syncing latest"
+	src="s3://${S3_ARCHIVE_BUCKET}/${S3_ARCHIVE_FOLDER}/latest/"
+	dest="${LATEST_FOLDER}"
+	aws s3 sync ${src} ${dest}
 else
-	echo "Not using latest data"
+	echo "Not syncing latest"
 fi
+
+if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
+then
+	echo "Using latest data"
+	DATA_DATE=(cat ${LATEST_FOLDER}/latest_data_date.txt)
+	DATA_VERSION=(cat ${LATEST_FOLDER}/latest_data_version.txt)
+else
+	echo "Not syncing latest data"
+	DATA_DATE=${DATE}
+	DATA_VERSION=${VERSION}
+fi
+
+echo "DATA_DATE=${DATA_DATE}" >> $GITHUB_ENV
+echo "DATA_VERSION=${DATA_VERSION}" >> $GITHUB_ENV
+
+# S3_DATA_ARCHIVE_FOLDER
+S3_DATA_ARCHIVE_FOLDER=${DATA_DATE}/${DATA_VERSION}
+echo "S3_DATA_ARCHIVE_FOLDER=${S3_DATA_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # TEMP
 var_from_json TEMP "${RUNNER_JSON}" .temp
@@ -88,20 +118,6 @@ echo "OMAR_ARCHIVE_SUFFIX=${OMAR_ARCHIVE_SUFFIX}" >> $GITHUB_ENV
 DATA_ARCHIVES=("base") # ("data" "premium" "dlc1" "etc")
 echo "DATA_ARCHIVES=${DATA_ARCHIVES}" >> $GITHUB_ENV
 
-# S3_ARCHIVE_BUCKET
-S3_ARCHIVE_BUCKET="artifacts.${PROJECT}.omnimad.net"
-echo "S3_ARCHIVE_BUCKET=${S3_ARCHIVE_BUCKET}" >> $GITHUB_ENV
-
-# S3_ARCHIVE_FOLDER
-S3_ARCHIVE_FOLDER=${DATE}/${VERSION}
-echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
-
-
-# LATEST_FOLDER
-LATEST_FOLDER="${TEMP_FOLDER}/latest/"
-mkdir -p ${LATEST_FOLDER}
-echo "LATEST_FOLDER=${LATEST_FOLDER}" >> $GITHUB_ENV
-
 
 # APP_VERSION
 # :TODO: remove hardcoded rar-rs
@@ -122,7 +138,7 @@ APP_NAME="rar-rs"
 echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
 
 # MACOS_APP_ARCHIVE
-MACOS_APP_ARCHIVE="${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
+MACOS_APP_ARCHIVE="${TEMP_FOLDER}/${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
 echo "MACOS_APP_ARCHIVE=${MACOS_APP_ARCHIVE}" >> $GITHUB_ENV
 
 exit 0

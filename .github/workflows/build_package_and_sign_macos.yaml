@@ -85,7 +85,7 @@ jobs:
       - name: Copy rar-data archive from S3
         run: |
           archive="${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
-          src="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/${archive}"
+          src="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_DATA_ARCHIVE_FOLDER }}/${archive}"
           dest=${{ env.PARTS_FOLDER }}
           aws s3 cp \
             ${src} \
