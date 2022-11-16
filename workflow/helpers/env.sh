@@ -6,7 +6,6 @@ echo "PATH (bash): ${PATH}"
 which mkdir
 mkdir FUU_BAR_MKDIR
 ls -lsa
-exit -1
 
 which jq
 which mkdir
@@ -58,6 +57,10 @@ PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
 echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 #var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
 
+which mkdir
+mkdir FUU_BAR_MKDIR_2
+ls -lsa
+
 # DATE
 DATE=$(from_json "${ENV_JSON}" .DATE)
 
@@ -66,11 +69,21 @@ VERSION=$(from_json "${ENV_JSON}" .VERSION)
 
 var_from_json TEMP "${RUNNER_JSON}" .temp
 
+which mkdir
+mkdir FUU_BAR_MKDIR_3
+ls -lsa
+
 # PARTS_FOLDER
 TEMP_FOLDER=$(from_json "${RUNNER_JSON}" .temp)
 PARTS_FOLDER="${TEMP_FOLDER}/parts_folder/"
 mkdir -p ${PARTS_FOLDER}
 echo "PARTS_FOLDER=${PARTS_FOLDER}" >> $GITHUB_ENV
+
+which mkdir
+mkdir FUU_BAR_MKDIR_4
+ls -lsa
+
+exit -1
 
 # DATA_FOLDER
 DATA_FOLDER="data"
