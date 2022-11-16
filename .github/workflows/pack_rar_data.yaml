@@ -118,26 +118,30 @@ jobs:
 
       - name: Pack data
         run: |
+          ## variant b of finding the data(s)
+          ## for d in $(find ${{ env.DATA_FOLDER }} -type d)
+          ##
           ## variant a of finding the data(s)
           for d in ${{ env.DATA_ARCHIVES }}
           do
             # [basepath] [output.omar] [paklist] {music_ogg|music_mp3|music_mp3_ogg}
             basepath=${{ env.DATA_FOLDER }}/${d}
-            omar="${{ env.PARTS_FOLDER }}/${d}.omar"
+            omar="${{ env.OMAR_FOLDER }}/${d}.omar"
             paklist="paklist.txt"
             music="music_mp3"
             ./workflow/helpers/pack_data.sh ${basepath} ${omar} ${paklist} ${music}
+            echo "Packed ${basepath} to ${omar}" >> $GITHUB_STEP_SUMMARY
           done
 
       - name: Add build number
         run: |
           echo "Adding build number"
-          cp build_number.txt ${{ env.PARTS_FOLDER }}/
+          cp build_number.txt ${{ env.OMAR_FOLDER }}/
 
-#      - name: Add data
+#      - name: Add omars
 #        run: |
-#          echo "Adding data"
-#          cp rar-data.omar ${{ env.PARTS_FOLDER }}/
+#          echo "Adding omars"
+#          cp ${{ env.OMAR_FOLDER }}/*.omar ${{ env.PARTS_FOLDER }}/
 
       - name: List result
         run: |
@@ -149,31 +153,22 @@ jobs:
           echo "actor:      ${{ github.actor }}"
           ls -l ${{ env.PARTS_FOLDER }}/
           
-      - name: Create archives
+      - name: Create archive
         run: |
           cd ${{ env.PARTS_FOLDER }}
-          ## variant b of finding the data(s)
-          for d in $(find ${{ env.DATA_FOLDER }} -type d)
-          do
-            echo ${d}
-            # cd ${d}
-            archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
-            tar czf ${archive} ${d}
-            # tar czf ${archive} .
-            # cd -
-          done
+          archive="${{ env.ARCHIVE_FOLDER }}/${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          tar czf ${archive} omar/
+          echo "Archived omar/ in ${{ env.PARTS_FOLDER }} to ${archive}" >> $GITHUB_STEP_SUMMARY
           
-      - name: Copy archives to S3
+      - name: Copy archive to S3
         run: |
           cd ${{ env.PARTS_FOLDER }}
-          for d in $(find ${{ env.DATA_FOLDER }} -type d)
-          do
-            echo ${d}
-            archive="${{ env.DATA_ARCHIVE_FOLDER }}/${{ env.DATA_ARCHIVE_PREFIX }}${d}${{ env.DATA_ARCHIVE_SUFFIX }}"
-            aws s3 cp \
-              ${archive} \
-              s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
-          done
+          archive="${{ env.ARCHIVE_FOLDER }}/${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          dest="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/""
+          aws s3 cp \
+            ${archive} \
+            ${dest}
+          echo "Uploaded ${archive} to ${dest}" >> $GITHUB_STEP_SUMMARY
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
