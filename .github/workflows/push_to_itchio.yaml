@@ -26,6 +26,11 @@ on:
 
   workflow_call:
     inputs:
+      use_latest_app:
+        description: 'Use the app that was flagged as latest'
+        required: false
+        default: 'false'
+        type: boolean
       # maybe we don't need this
       version:
         description: 'Version'

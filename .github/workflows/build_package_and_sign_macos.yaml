@@ -20,6 +20,11 @@ on:
         type: string
   workflow_call:
     inputs:
+      use_latest_data:
+        description: 'Use the data that was flagged as latest'
+        required: false
+        default: 'false'
+        type: boolean
       # maybe we don't need this
       version:
         description: 'Version'
@@ -292,7 +297,7 @@ jobs:
           aws s3 ls ${{ env.TARGET_FOLDER }}
           if [[ $? -eq 0 ]]
           then
-            aws s3 sync ${{ env.TARGET_FOLDER }} ${{ env.S3_CACHE_TARGET }}
+            aws s3 sync ${{ env.TARGET_FOLDER }} s3://${{ env.S3_CACHE_TARGET }}
           else
             echo "No target folder found"
           fi
