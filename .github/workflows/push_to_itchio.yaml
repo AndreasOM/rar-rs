@@ -3,6 +3,16 @@ name: Push to itchi.io
 on:
   workflow_dispatch:
     inputs:
+      use_latest_app:
+        description: 'Use the app that was flagged as latest'
+        required: false
+        default: 'false'
+        type: boolean
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
       # maybe we don't need this
       version:
         description: 'Version'
@@ -21,6 +31,11 @@ on:
 
   workflow_call:
     inputs:
+      use_latest_app:
+        description: 'Use the app that was flagged as latest'
+        required: false
+        default: 'false'
+        type: boolean
       # maybe we don't need this
       version:
         description: 'Version'
@@ -87,33 +102,21 @@ jobs:
           echo "DATE:    ${DATE}"
 
       - name: Prepare Variables
+        shell: bash
         run: |
-          temp=${{ runner.temp }}
-          echo "TEMP=${temp}" >> $GITHUB_ENV
-          parts_folder=${temp}/parts_folder/
-          mkdir -p ${parts_folder}
-          echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
-          package_folder=${temp}/package_folder/
-          mkdir -p ${package_folder}
-          echo "PACKAGE_FOLDER=${package_folder}" >> $GITHUB_ENV
-          runtime_tgz=fiiish-rs-runtime-${{ env.VERSION }}-${{ matrix.target }}.tgz
-          fiiish_data_tgz=fiiish-rs-fiiish-data-${{ env.VERSION }}.tgz
-          dummy_data_tgz=fiiish-rs-dummy-data-${{ env.VERSION }}.tgz
-          app_tgz=fiiish-rs-${{ matrix.platform }}-${{ matrix.target }}-${{ matrix.package_type }}.tgz
-          s3_archive_folder=${{ env.DATE }}/${{ env.VERSION }}
-          echo "RUNTIME_TGZ=${runtime_tgz}" >> $GITHUB_ENV
-          echo "FIIISH_DATA_TGZ=${fiiish_data_tgz}" >> $GITHUB_ENV
-          echo "DUMMY_DATA_TGZ=${dummy_data_tgz}" >> $GITHUB_ENV
-          echo "APP_TGZ=${app_tgz}" >> $GITHUB_ENV
-          echo "S3_ARCHIVE_FOLDER=${s3_archive_folder}" >> $GITHUB_ENV
-          # build number will be taken from the parts
-          # build_number=$(cat build_number.txt)
-          # echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
-          echo "ARCHIVE=${temp}/${app_tgz}" >> $GITHUB_ENV
+          echo ${PATH}
+          export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
+          workflow/helpers/env.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
               
       - name: Copy package archive from S3
         run: |
-          aws s3 cp s3://artifacts.rar-rs.omnimad.net/${{ env.S3_ARCHIVE_FOLDER }}/${{ env.APP_TGZ }} ${{ env.PACKAGE_FOLDER }}
+          aws s3 cp s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_APP_ARCHIVE_FOLDER }}/${{ env.MACOS_APP_ARCHIVE }} ${{ env.MACOS_APP_ARCHIVE_PATH }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -123,7 +126,7 @@ jobs:
         run: |
           cd ${{ env.PACKAGE_FOLDER }}
           tar xzf \
-            ${{ env.PACKAGE_FOLDER }}/${{ env.APP_TGZ }}
+            ${{ env.MACOS_APP_ARCHIVE_PATH }}
 
       - name: Display packages
         run: |
