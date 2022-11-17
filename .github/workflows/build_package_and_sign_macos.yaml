@@ -186,7 +186,7 @@ jobs:
       - name: Add Info.plist
         run: |
           echo "Adding Info.plist"
-          version=${{ env.APP_VERSION }}
+          version=${{ env.APP_SEMVERSION }}
           exp1="s/<key>CFBundleVersion<\\/key><string>.*<\\/string>/<key>CFBundleVersion<\\/key><string>${{ env.BUILD_NUMBER }}<\\/string>/g"
           exp2="s/<key>CFBundleShortVersionString<\\/key><string>.*<\\/string>/<key>CFBundleShortVersionString<\\/key><string>${version}<\\/string>/g"
           cat rar-rs/Info.plist|sed ${exp1} |sed ${exp2} > ${{ env.PARTS_FOLDER }}/Info.plist
@@ -199,7 +199,7 @@ jobs:
       - name: Add app version
         run: |
           echo "Adding app version"
-          echo "${{ env.APP_VERSION }}" > ${{ env.PARTS_FOLDER }}/version.txt
+          echo "${{ env.APP_SEMVERSION }}" > ${{ env.PARTS_FOLDER }}/version.txt
 
       - name: Add FAT binary
         run: |
@@ -313,7 +313,7 @@ jobs:
           echo "| VERSION           | ${{ env.VERSION }}          |" >> $GITHUB_STEP_SUMMARY
           echo "| :---------------- | --------------------------: |" >> $GITHUB_STEP_SUMMARY
           echo "| build_number      | ${build_number}             |" >> $GITHUB_STEP_SUMMARY
-          echo "| APP_VERSION       | ${{ env.APP_VERSION }}      |" >> $GITHUB_STEP_SUMMARY
+          echo "| APP_SEMVERSION       | ${{ env.APP_SEMVERSION }}      |" >> $GITHUB_STEP_SUMMARY
           echo "| S3 Archive        | \`s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_APP_ARCHIVE_FOLDER }}/${{ env.ARCHIVE }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MACOS_APP_ARCHIVE | ${{ env.MACOS_APP_ARCHIVE }}|" >> $GITHUB_STEP_SUMMARY
 
