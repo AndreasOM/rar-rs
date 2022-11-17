@@ -20,11 +20,11 @@ on:
         type: string
   workflow_call:
     inputs:
-#      use_latest_data:
-#        description: 'Use the data that was flagged as latest'
-#        required: false
-#        default: false
-#        type: boolean
+      use_latest_data:
+        description: 'Use the data that was flagged as latest'
+        required: false
+        default: false
+        type: boolean
       # maybe we don't need this
       version:
         description: 'Version'
