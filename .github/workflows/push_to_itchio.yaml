@@ -8,6 +8,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
       # maybe we don't need this
       version:
         description: 'Version'
@@ -111,7 +116,7 @@ jobs:
               
       - name: Copy package archive from S3
         run: |
-          aws s3 cp s3://artifacts.rar-rs.omnimad.net/${{ env.S3_APP_ARCHIVE_FOLDER }}/${{ env.MACOS_APP_ARCHIVE }} ${{ env.MACOS_APP_ARCHIVE_PATH }}
+          aws s3 cp s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_APP_ARCHIVE_FOLDER }}/${{ env.MACOS_APP_ARCHIVE }} ${{ env.MACOS_APP_ARCHIVE_PATH }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
