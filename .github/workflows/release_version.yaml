@@ -54,6 +54,7 @@ jobs:
       - pack_data
     uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@main
     with:
+      use_latest_data: false
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -67,6 +68,7 @@ jobs:
     needs: build_package_and_sign_macos
     uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@main
     with:
+      use_latest_app: false
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref }}
     secrets:

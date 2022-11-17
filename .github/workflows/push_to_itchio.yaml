@@ -6,7 +6,7 @@ on:
       use_latest_app:
         description: 'Use the app that was flagged as latest'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       project:
         description: 'Prefix for the project'
@@ -34,7 +34,7 @@ on:
       use_latest_app:
         description: 'Use the app that was flagged as latest'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       # maybe we don't need this
       version:
