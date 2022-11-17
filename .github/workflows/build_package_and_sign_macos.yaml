@@ -88,11 +88,11 @@ jobs:
 
       - name: Copy in target cache
         run: |
-          aws s3 ls ${{ env.S3_CACHE_TARGET }}
+          aws s3 ls s3://${{ env.S3_CACHE_TARGET }}
           if [[ $? -eq 0 ]]
           then
             echo "Download target cache"
-            aws s3 sync ${{ env.S3_CACHE_TARGET }} ${{ env.TARGET_FOLDER }}
+            aws s3 sync s3://${{ env.S3_CACHE_TARGET }} ${{ env.TARGET_FOLDER }}
           else
             echo "No target cache found"
           fi
