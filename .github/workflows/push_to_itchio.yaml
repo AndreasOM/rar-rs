@@ -73,7 +73,7 @@ jobs:
             package_type: .app
             target: FAT-apple-darwin
             app_package: "rar-rs.app"
-            channel: "omni-mad/rar:test"
+            channel: "omni-mad/rar-rs:test"
             version_file: "rar-rs.app/Contents/Resources/version.txt"
 
     steps:
