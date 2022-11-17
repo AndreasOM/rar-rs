@@ -42,6 +42,8 @@
 - [ ] Decide if entities should have components, e.g position
 - [ ] Load renderer setup from config file
 - [ ] Add basic UI
+- [ ] Experiment with speeding up package builds with sccache
+
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager

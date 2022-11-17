@@ -130,6 +130,15 @@ DATA_ARCHIVES=("base") # ("data" "premium" "dlc1" "etc")
 echo "DATA_ARCHIVES=${DATA_ARCHIVES}" >> $GITHUB_ENV
 
 
+# S3_CACHE_TARGET
+S3_CACHE_TARGET="${S3_ARCHIVE_BUCKET}/cache/target"
+echo "S3_CACHE_TARGET=${S3_CACHE_TARGET}" >> $GITHUB_ENV
+
+# TARGET_FOLDER
+TARGET_FOLDER="${$PROJECT}/target"
+echo "TARGET_FOLDER=${TARGET_FOLDER}" >> $GITHUB_ENV
+
+
 # APP_VERSION
 # :TODO: remove hardcoded rar-rs
 APP_VERSION=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
@@ -148,11 +157,43 @@ echo "PACKAGE_FOLDER=${PACKAGE_FOLDER}" >> $GITHUB_ENV
 APP_NAME="rar-rs"
 echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
 
+# MACOS_APP_ARCHIVE_FOLDER
+MACOS_APP_ARCHIVE_FOLDER="${TEMP_FOLDER}"
+echo "MACOS_APP_ARCHIVE_FOLDER=${MACOS_APP_ARCHIVE_FOLDER}" >> $GITHUB_ENV
+
 # MACOS_APP_ARCHIVE
-MACOS_APP_ARCHIVE="${TEMP_FOLDER}/${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
+MACOS_APP_ARCHIVE="${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
 echo "MACOS_APP_ARCHIVE=${MACOS_APP_ARCHIVE}" >> $GITHUB_ENV
 
+# MACOS_APP_ARCHIVE_PATH
+MACOS_APP_ARCHIVE_PATH="${MACOS_APP_ARCHIVE_FOLDER}/${MACOS_APP_ARCHIVE}"
+echo "MACOS_APP_ARCHIVE_PATH=${MACOS_APP_ARCHIVE_PATH}" >> $GITHUB_ENV
+
 exit 0
+
+### itch.io
+#          temp=${{ runner.temp }}
+#          echo "TEMP=${temp}" >> $GITHUB_ENV
+#          parts_folder=${temp}/parts_folder/
+#          mkdir -p ${parts_folder}
+#          echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
+#          package_folder=${temp}/package_folder/
+#          mkdir -p ${package_folder}
+#          echo "PACKAGE_FOLDER=${package_folder}" >> $GITHUB_ENV
+#          runtime_tgz=fiiish-rs-runtime-${{ env.VERSION }}-${{ matrix.target }}.tgz
+#          fiiish_data_tgz=fiiish-rs-fiiish-data-${{ env.VERSION }}.tgz
+#          dummy_data_tgz=fiiish-rs-dummy-data-${{ env.VERSION }}.tgz
+#          app_tgz=fiiish-rs-${{ matrix.platform }}-${{ matrix.target }}-${{ matrix.package_type }}.tgz
+#          s3_archive_folder=${{ env.DATE }}/${{ env.VERSION }}
+#          echo "RUNTIME_TGZ=${runtime_tgz}" >> $GITHUB_ENV
+#          echo "FIIISH_DATA_TGZ=${fiiish_data_tgz}" >> $GITHUB_ENV
+#          echo "DUMMY_DATA_TGZ=${dummy_data_tgz}" >> $GITHUB_ENV
+#          echo "APP_TGZ=${app_tgz}" >> $GITHUB_ENV
+#          echo "S3_ARCHIVE_FOLDER=${s3_archive_folder}" >> $GITHUB_ENV
+#          # build number will be taken from the parts
+#          # build_number=$(cat build_number.txt)
+#          # echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
+#          echo "ARCHIVE=${temp}/${app_tgz}" >> $GITHUB_ENV
 
 ### .app
 ###          PROJECT=${{ github.event.inputs.project }}
