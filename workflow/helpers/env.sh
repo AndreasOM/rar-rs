@@ -59,7 +59,10 @@ echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 # USE_LATEST_DATA
 USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
 
-if [[ "x${USE_LATEST_DATA}" == "xtrue" ]]
+# USE_LATEST_APP
+USE_LATEST_APP=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_app)
+
+if [[ "x${USE_LATEST_DATA}" == "xtrue" || "x${USE_LATEST_APP}" == "xtrue" ]]
 then
 	src="s3://${S3_ARCHIVE_BUCKET}/latest/"
 	dest="${LATEST_FOLDER}"
@@ -79,7 +82,7 @@ then
 	DATA_DATE=$(cat ${LATEST_FOLDER}/latest_data_date.txt)
 	DATA_VERSION=$(cat ${LATEST_FOLDER}/latest_data_version.txt)
 else
-	echo "Not syncing latest data"
+	echo "Not using latest data"
 #	DATA_DATE=${DATE}
 #	DATA_VERSION=${VERSION}
 fi
@@ -90,9 +93,34 @@ echo "DATA_VERSION=${DATA_VERSION}"
 echo "DATA_DATE=${DATA_DATE}" >> $GITHUB_ENV
 echo "DATA_VERSION=${DATA_VERSION}" >> $GITHUB_ENV
 
+
+APP_DATE=${DATE}
+APP_VERSION=${VERSION}
+
+if [[ "x${USE_LATEST_APP}" == "xtrue" ]]
+then
+	echo "Using latest app"
+	APP_DATE=$(cat ${LATEST_FOLDER}/latest_app_apple-darwin_date.txt)
+	APP_VERSION=$(cat ${LATEST_FOLDER}/latest_app_apple-darwin_version.txt)
+else
+	echo "Not using latest app"
+#	DATA_DATE=${DATE}
+#	DATA_VERSION=${VERSION}
+fi
+
+echo "APP_DATE=${DATA_DATE}"
+echo "APP_VERSION=${DATA_VERSION}"
+
+echo "APP_DATE=${APP_DATE}" >> $GITHUB_ENV
+echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+
 # S3_DATA_ARCHIVE_FOLDER
 S3_DATA_ARCHIVE_FOLDER="${DATA_DATE}/${DATA_VERSION}"
 echo "S3_DATA_ARCHIVE_FOLDER=${S3_DATA_ARCHIVE_FOLDER}" >> $GITHUB_ENV
+
+# S3_APP_ARCHIVE_FOLDER
+S3_APP_ARCHIVE_FOLDER="${APP_DATE}/${APP_VERSION}"
+echo "S3_APP_ARCHIVE_FOLDER=${S3_APP_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # TEMP
 var_from_json TEMP "${RUNNER_JSON}" .temp
@@ -135,7 +163,7 @@ S3_CACHE_TARGET="${S3_ARCHIVE_BUCKET}/cache/target"
 echo "S3_CACHE_TARGET=${S3_CACHE_TARGET}" >> $GITHUB_ENV
 
 # TARGET_FOLDER
-TARGET_FOLDER="${$PROJECT}/target"
+TARGET_FOLDER="${PROJECT}/target"
 echo "TARGET_FOLDER=${TARGET_FOLDER}" >> $GITHUB_ENV
 
 

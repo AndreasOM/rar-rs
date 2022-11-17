@@ -86,10 +86,13 @@ jobs:
           aws s3 ls ${{ env.S3_CACHE_TARGET }}
           if [[ $? -eq 0 ]]
           then
+            echo "Download target cache"
             aws s3 sync ${{ env.S3_CACHE_TARGET }} ${{ env.TARGET_FOLDER }}
           else
             echo "No target cache found"
           fi
+          exit 0
+
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -98,7 +101,7 @@ jobs:
       - name: Use latest data?
         if: ${{ github.event.inputs.use_latest_data == 'true' }}
         run: |
-          echo ":TODO: patch variables for LATEST"
+          echo "Using latest data!"
 
       - name: Copy rar-data archive from S3
         run: |
@@ -267,7 +270,7 @@ jobs:
 
       - name: Copy archive to S3
         run: |
-          aws s3 cp ${{ env.MACOS_APP_ARCHIVE }} s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
+          aws s3 cp ${{ env.MACOS_APP_ARCHIVE }} s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_APP_ARCHIVE_FOLDER }}/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -305,7 +308,7 @@ jobs:
           echo "| :---------------- | --------------------------: |" >> $GITHUB_STEP_SUMMARY
           echo "| build_number      | ${build_number}             |" >> $GITHUB_STEP_SUMMARY
           echo "| APP_VERSION       | ${{ env.APP_VERSION }}      |" >> $GITHUB_STEP_SUMMARY
-          echo "| S3 Archive        | \`s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/${{ env.ARCHIVE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3 Archive        | \`s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_APP_ARCHIVE_FOLDER }}/${{ env.ARCHIVE }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MACOS_APP_ARCHIVE | ${{ env.MACOS_APP_ARCHIVE }}|" >> $GITHUB_STEP_SUMMARY
 
 
