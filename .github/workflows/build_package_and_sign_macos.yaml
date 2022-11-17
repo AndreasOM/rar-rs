@@ -88,15 +88,14 @@ jobs:
 
       - name: Copy in target cache
         run: |
-          aws s3 ls s3://${{ env.S3_CACHE_TARGET }}
-          if [[ $? -eq 0 ]]
+          
+          if r=$(aws s3 ls s3://${{ env.S3_CACHE_TARGET }})
           then
             echo "Download target cache"
             aws s3 sync s3://${{ env.S3_CACHE_TARGET }} ${{ env.TARGET_FOLDER }}
           else
             echo "No target cache found"
           fi
-          exit 0
 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -294,9 +293,9 @@ jobs:
 
       - name: Copy out target cache
         run: |
-          aws s3 ls ${{ env.TARGET_FOLDER }}
-          if [[ $? -eq 0 ]]
+          if r=$(aws s3 ls ${{ env.TARGET_FOLDER }})
           then
+            echo "Copying out target folder"
             aws s3 sync ${{ env.TARGET_FOLDER }} s3://${{ env.S3_CACHE_TARGET }}
           else
             echo "No target folder found"
