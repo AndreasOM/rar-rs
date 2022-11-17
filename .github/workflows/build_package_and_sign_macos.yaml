@@ -170,7 +170,8 @@ jobs:
 
       - name: Copy out target cache
         run: |
-          if r=$(aws s3 ls ${{ env.TARGET_FOLDER }})
+          # if r=$(aws s3 ls ${{ env.TARGET_FOLDER }})
+          if true
           then
             echo "Copying out target folder"
             aws s3 sync ${{ env.TARGET_FOLDER }} s3://${{ env.S3_CACHE_TARGET }}
@@ -284,8 +285,8 @@ jobs:
       - name: Create archive
         run: |
           cd ${{ env.PACKAGE_FOLDER }}
-          tar czf ${{ env.MACOS_APP_ARCHIVE }} .
-          ls -l ${{ env.MACOS_APP_ARCHIVE }}
+          tar czf ${{ env.MACOS_APP_ARCHIVE_PATH }} .
+          ls -l ${{ env.MACOS_APP_ARCHIVE_PATH }}
 
       - name: Copy archive to S3
         run: |
