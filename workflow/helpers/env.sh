@@ -29,7 +29,8 @@ function var_from_json() {
 }
 
 # PROJECT
-PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
+## PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
+PROJECT=$(from_json "${INPUTS_JSON}" .project)
 echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 #var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
 
@@ -57,10 +58,12 @@ S3_ARCHIVE_FOLDER=${DATE}/${VERSION}
 echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # USE_LATEST_DATA
-USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
+## USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
+USE_LATEST_DATA=$(from_json "${INPUTS_JSON}" .use_latest_data)
 
 # USE_LATEST_APP
-USE_LATEST_APP=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_app)
+## USE_LATEST_APP=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_app)
+USE_LATEST_APP=$(from_json "${INPUTS_JSON}" .use_latest_app)
 
 if [[ "x${USE_LATEST_DATA}" == "xtrue" || "x${USE_LATEST_APP}" == "xtrue" ]]
 then
