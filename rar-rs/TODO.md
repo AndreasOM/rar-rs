@@ -6,7 +6,7 @@
 - [ ] Automate packaging, and releasing
     - [ ] Pack data
     - [ ] Load data from pack
-        - [ ] Add .omar to layered file system
+        - [x] Add .omar to layered file system
         - [ ] Move filesystem setup boilerplate to oml-game
         - [ ] Understand why macOS can load data from .app
     - [ ] Create github workflows
@@ -14,8 +14,8 @@
         - [x] Sign app
         - [ ] Upload to itch.io
         - [ ] Cleanup variable/setting handling, and use them for ...
-            - [ ] Packing data
-            - [ ] Packaging the app
+            - [x] Packing data
+            - [x] Packaging the app
             - [ ] Uploading to itch.io
 - [ ] Setup automated builds on github
 
@@ -49,8 +49,9 @@
 
 ## Done
 
-### Epsiode 0019 - 3.0h + ...
+### Epsiode 0019 - 3.0h + 3.0h  ->  41.5h   + 33.0h     -> 75.5h
 - [x] Start to cleanup variable handling in github workflows
+- [x] Allow using latest data for package
 - [x] Load data from .omar
 
 ### Episode 0018 - 3.0h + 1.0h  ->  38.5h   + 30.0h     -> 68.5h
