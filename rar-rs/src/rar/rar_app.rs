@@ -10,6 +10,8 @@ use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
 use oml_game::renderer::Renderer;
 //use oml_game::renderer::TextureAtlas;
+use oml_game::system::filesystem::Filesystem;
+use oml_game::system::filesystem_archive::FilesystemArchive;
 use oml_game::system::filesystem_disk::FilesystemDisk;
 use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
@@ -122,6 +124,33 @@ impl RarApp {
 
 		lfs.add_filesystem(Box::new(dfs));
 	}
+	// :TODO: Consider moving this into game package
+	fn add_pakfile_from_file(&mut self, lfs: &mut FilesystemLayered, name: &str) -> bool {
+		if let Some(p) = System::get_resource_path(name) {
+			let base_dir = if p.starts_with("/") {
+				// println!("Absolute");
+				""
+			} else {
+				// println!("Relative");
+				"."
+			};
+			let mut mfs = FilesystemDisk::new(base_dir);
+			let mut omar_file = mfs.open(&p);
+
+			if omar_file.is_valid() {
+				let afs = FilesystemArchive::new_from_file(name, &mut omar_file);
+				lfs.add_filesystem(Box::new(afs));
+
+				true
+			} else {
+				println!("Broken pakfile {} from {:?}", &p, &mfs);
+				false
+			}
+		} else {
+			false
+		}
+	}
+
 	fn game_state(&mut self) -> &mut Box<dyn GameState> {
 		match self.game_states.get_mut(&self.active_game_state) {
 			Some(gs) => return gs,
@@ -145,7 +174,16 @@ impl App for RarApp {
 		window.set_title("RAR - RS");
 
 		let mut lfs = FilesystemLayered::new();
-		self.add_filesystem_disk(&mut lfs, "../rar-data", false);
+
+		// :TODO: handle linked in data?
+		if self.add_pakfile_from_file(&mut lfs, "base.omar") {
+			debug!("Using external archive");
+		} else {
+			warn!("No archive used");
+		}
+
+		// check local files first for faster development (and easier modding)
+		self.add_filesystem_disk(&mut lfs, "../data/base", false);
 
 		println!("lfs: {:?}", &lfs);
 

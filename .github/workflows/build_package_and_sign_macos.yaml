@@ -3,6 +3,11 @@ name: Build, Package, & Sign macOS
 on:
   workflow_dispatch:
     inputs:
+      use_latest_data:
+        description: 'Use the data that was flagged as latest'
+        required: false
+        default: 'false'
+        type: boolean
       project:
         description: 'Prefix for the project'
         required: true
@@ -49,6 +54,11 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
           fetch-depth: 1
 
+      - name: Check JQ
+        run: |
+          jq --version
+          which jq
+
       - name: Generate VERSION
         run: |
           VERSION=$(git show -s --format=%H HEAD)
@@ -59,31 +69,43 @@ jobs:
           echo "DATE:    ${DATE}"
 
       - name: Prepare Variables
+        shell: bash
         run: |
-          PROJECT=${{ github.event.inputs.project }}
-          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
-          echo "Preparing variables"
-          temp=${{ runner.temp }}
-          echo "TEMP=${temp}" >> $GITHUB_ENV
-          s3_archive_bucket="artifacts.${PROJECT}.omnimad.net"
-          s3_archive_folder=${{ env.DATE }}/${{ env.VERSION }}
-          echo "S3_ARCHIVE_FOLDER=${s3_archive_folder}" >> $GITHUB_ENV
-          echo "S3_ARCHIVE_BUCKET=${s3_archive_bucket}" >> $GITHUB_ENV
-          data_tgz=${PROJECT}-rar-data-${{ env.VERSION }}.tgz
-          echo "DATA_TGZ=${data_tgz}" >> $GITHUB_ENV          
-          parts_folder=${temp}/parts_folder
-          mkdir -p ${parts_folder}
-          echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
-          package_folder=${temp}/package_folder/
-          mkdir -p ${package_folder}
-          echo "PACKAGE_FOLDER=${package_folder}" >> $GITHUB_ENV
-          echo "APP_NAME=rar-rs" >> $GITHUB_ENV
-          build_number=$(cat build_number.txt)
-          echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
-          app_version=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
-          echo "APP_VERSION=${app_version}" >> $GITHUB_ENV
-          app_tgz=${PROJECT}-apple-darwin-FAT-apple-darwin-.app.tgz
-          echo "ARCHIVE=${temp}/${app_tgz}" >> $GITHUB_ENV
+          echo ${PATH}
+          export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
+          workflow/helpers/env.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
+
+      - name: Use latest data?
+        if: ${{ github.event.inputs.use_latest_data == 'true' }}
+        run: |
+          echo ":TODO: patch variables for LATEST"
+
+      - name: Copy rar-data archive from S3
+        run: |
+          archive="${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          src="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_DATA_ARCHIVE_FOLDER }}/${archive}"
+          dest=${{ env.PARTS_FOLDER }}
+          aws s3 cp \
+            ${src} \
+            ${dest}
+          echo "Downloaded ${archive} to ${dest}" >> $GITHUB_STEP_SUMMARY
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
+
+      - name: Unpack archives
+        run: |
+          cd ${{ env.PARTS_FOLDER }}
+          archive="${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          tar xzf \
+            ${{ env.PARTS_FOLDER }}/${archive}
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -170,22 +192,6 @@ jobs:
               --output-partial-info-plist ${{ env.PARTS_FOLDER }}/partial-Info.plist \
               rar-rs/Assets.xcassets
 
-      - name: Copy rar-data archive from S3
-        run: |
-          aws s3 cp s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/${{ env.DATA_TGZ }} ${{ env.PARTS_FOLDER }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-west-1"
-
-      - name: Unpack archives
-        run: |
-          cd ${{ env.PARTS_FOLDER }}
-          mkdir -p rar-data
-          tar xzf \
-            ${{ env.PARTS_FOLDER }}/${{ env.DATA_TGZ }} \
-            -C rar-data
-
       - name: List result
         run: |
           echo "sha:           ${{ github.sha }}"
@@ -216,7 +222,7 @@ jobs:
           cp ${{ env.PARTS_FOLDER }}/build_number.txt ${app_dir}/Contents/Resources/
           cp ${{ env.PARTS_FOLDER }}/version.txt ${app_dir}/Contents/Resources/
           #
-          cp ${{ env.PARTS_FOLDER }}/rar-data/rar-data.omar ${app_dir}/Contents/Resources/
+          cp ${{ env.OMAR_FOLDER }}/*.omar ${app_dir}/Contents/Resources/
 
       - name: Prepare keychain
         run: |
@@ -242,12 +248,12 @@ jobs:
       - name: Create archive
         run: |
           cd ${{ env.PACKAGE_FOLDER }}
-          tar czf ${{ env.ARCHIVE }} .
-          ls -l ${{ env.ARCHIVE }}
+          tar czf ${{ env.MACOS_APP_ARCHIVE }} .
+          ls -l ${{ env.MACOS_APP_ARCHIVE }}
 
       - name: Copy archive to S3
         run: |
-          aws s3 cp ${{ env.ARCHIVE }} s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
+          aws s3 cp ${{ env.MACOS_APP_ARCHIVE }} s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -256,11 +262,12 @@ jobs:
       - name: Create Summary
         run: |
           build_number=$(cat build_number.txt)
-          echo "| VERSION      | ${{ env.VERSION }}     |" >> $GITHUB_STEP_SUMMARY
-          echo "| :----------- | ---------------------: |" >> $GITHUB_STEP_SUMMARY
-          echo "| build_number | ${build_number}        |" >> $GITHUB_STEP_SUMMARY
-          echo "| APP_VERSION  | ${{ env.APP_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| S3 Archive   | \`s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/${{ env.ARCHIVE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| VERSION           | ${{ env.VERSION }}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | --------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| build_number      | ${build_number}             |" >> $GITHUB_STEP_SUMMARY
+          echo "| APP_VERSION       | ${{ env.APP_VERSION }}      |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3 Archive        | \`s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/${{ env.ARCHIVE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| MACOS_APP_ARCHIVE | ${{ env.MACOS_APP_ARCHIVE }}|" >> $GITHUB_STEP_SUMMARY
 
 
 

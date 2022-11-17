@@ -69,28 +69,17 @@ jobs:
           echo "DATE:    ${DATE}"
 
       - name: Prepare Variables
+        shell: bash
         run: |
-          PROJECT=${{ github.event.inputs.project }}
-          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
-          temp=${{ runner.temp }}
-          echo "TEMP=${temp}" >> $GITHUB_ENV
-          parts_folder=${{ runner.temp }}/parts_folder/
-          mkdir -p ${parts_folder}
-          echo "PARTS_FOLDER=${parts_folder}" >> $GITHUB_ENV
-          package_folder=${{ runner.temp }}/package_folder/
-          mkdir -p ${package_folder}
-          echo "PACKAGE_FOLDER=${package_folder}" >> $GITHUB_ENV
-          #runtime_tgz=rar-rs-runtime-${{ env.VERSION }}-${{ matrix.target }}.tgz
-          data_tgz=${PROJECT}-rar-data-${{ env.VERSION }}.tgz
-          s3_archive_bucket="artifacts.${PROJECT}.omnimad.net"
-          s3_archive_folder=${{ env.DATE }}/${{ env.VERSION }}
-          echo "RUNTIME_TGZ=${runtime_tgz}" >> $GITHUB_ENV
-          echo "DATA_TGZ=${data_tgz}" >> $GITHUB_ENV
-          echo "S3_ARCHIVE_FOLDER=${s3_archive_folder}" >> $GITHUB_ENV
-          echo "S3_ARCHIVE_BUCKET=${s3_archive_bucket}" >> $GITHUB_ENV
-          build_number=$(cat build_number.txt)
-          echo "BUILD_NUMBER=${build_number}" >> $GITHUB_ENV
-          echo "ARCHIVE=${{ runner.temp }}/${data_tgz}" >> $GITHUB_ENV
+          export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
+          workflow/helpers/env.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
+
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -109,7 +98,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('fiiish-rs/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('${{ env.PROJECT }}/Cargo.lock') }}
 
           # :TODO: technically the above key is wrong
 
@@ -130,19 +119,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pack RAR data
+      - name: Pack data
         run: |
-          ./workflow/helpers/pack_data.sh rar-data rar-data.omar paklist.txt music_mp3
+          ## variant b of finding the data(s)
+          ## for d in $(find ${{ env.DATA_FOLDER }} -type d)
+          ##
+          ## variant a of finding the data(s)
+          for d in ${{ env.DATA_ARCHIVES }}
+          do
+            # [basepath] [output.omar] [paklist] {music_ogg|music_mp3|music_mp3_ogg}
+            basepath=${{ env.DATA_FOLDER }}/${d}
+            omar="${{ env.OMAR_FOLDER }}/${d}.omar"
+            paklist="paklist.txt"
+            music="music_mp3"
+            ./workflow/helpers/pack_data.sh ${basepath} ${omar} ${paklist} ${music}
+            echo "Packed ${basepath} to ${omar}" >> $GITHUB_STEP_SUMMARY
+          done
 
       - name: Add build number
         run: |
           echo "Adding build number"
-          cp build_number.txt ${{ env.PARTS_FOLDER }}/
+          cp build_number.txt ${{ env.OMAR_FOLDER }}/
 
-      - name: Add data
-        run: |
-          echo "Adding data"
-          cp rar-data.omar ${{ env.PARTS_FOLDER }}/
+#      - name: Add omars
+#        run: |
+#          echo "Adding omars"
+#          cp ${{ env.OMAR_FOLDER }}/*.omar ${{ env.PARTS_FOLDER }}/
 
       - name: List result
         run: |
@@ -157,15 +159,43 @@ jobs:
       - name: Create archive
         run: |
           cd ${{ env.PARTS_FOLDER }}
-          tar czf ${{ env.ARCHIVE }} .
+          archive="${{ env.ARCHIVE_FOLDER }}/${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          tar czf ${archive} omar/
+          echo "Archived omar/ in ${{ env.PARTS_FOLDER }} to ${archive}" >> $GITHUB_STEP_SUMMARY
           
       - name: Copy archive to S3
         run: |
+          cd ${{ env.PARTS_FOLDER }}
+          archive="${{ env.ARCHIVE_FOLDER }}/${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
+          dest="s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/"
           aws s3 cp \
-            ${{ env.ARCHIVE }} \
-            s3://${{ env.S3_ARCHIVE_BUCKET }}/${{ env.S3_ARCHIVE_FOLDER }}/
+            ${archive} \
+            ${dest}
+          echo "Uploaded ${archive} to ${dest}" >> $GITHUB_STEP_SUMMARY
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-1"        
+
+      - name: Update LATEST info
+        run: |
+          echo ${{ env.DATE }} > ${{ env.LATEST_FOLDER }}/latest_data_date.txt
+          echo ${{ env.VERSION }} > ${{ env.LATEST_FOLDER }}/latest_data_version.txt
+          dest="s3://${{ env.S3_ARCHIVE_BUCKET }}/latest/"
+          aws s3 sync ${{ env.LATEST_FOLDER }}/ ${dest}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"        
+
+      - name: Create Summary
+        run: |
+          echo "| PROJECT           | ${{ env.PROJECT }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| VERSION           | ${{ env.VERSION }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_BUCKET | ${{ env.S3_ARCHIVE_BUCKET }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_FOLDER | ${{ env.S3_ARCHIVE_FOLDER }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| ----------------- | -------------------------------- |" >> $GITHUB_STEP_SUMMARY
+          echo "| PARTS_FOLDER      | ${{ env.PARTS_FOLDER }}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| DATA_ARCHIVE      | ${{ env.DATA_ARCHIVE }}          |" >> $GITHUB_STEP_SUMMARY
 

@@ -16,5 +16,8 @@ fmt:
 cook:
 	cd .. && ./cook.sh; cd -
 
+pack:
+	cd .. && ./workflow/helpers/pack_data.sh data/base base.omar paklist.txt music_mp3 && cp base.omar rar-rs/; cd -
+
 test-noisy:
 	cargo test -- --nocapture

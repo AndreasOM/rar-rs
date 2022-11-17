@@ -1,4 +1,4 @@
 #!/bin/sh
 
-omt-asset build --content-directory rar-content --data-directory rar-data --temp-directory temp --paklist rar-data/paklist.txt --archive rar.omar
+omt-asset build --content-directory content/base --data-directory data/base --temp-directory temp --paklist data/base/paklist.txt --archive base.omar
 

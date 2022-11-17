@@ -47,8 +47,24 @@ jobs:
           echo "VERSION: ${VERSION}"
           echo "DATE:    ${DATE}"
 
-      - name: Prepare Variables
+      - name: Check jq
         run: |
+          jq --version
+          which jq
+        shell: bash
+
+      - name: Check mkdir
+        run: |
+          which mkdir
+        shell: bash
+
+      - name: Prepare Variables
+        shell: bash
+        run: |
+          export GITHUB_JSON='${{ toJSON(github) }}'
+          export ENV_JSON='${{ toJSON(env) }}'
+          export RUNNER_JSON='${{ toJSON(runner) }}'
+          echo "PATH (step): ${PATH}"
           workflow/helpers/env.sh
 
       - name: List result
@@ -59,7 +75,7 @@ jobs:
           echo "ref_type:   ${{ github.ref_type }}"
           echo "event_name: ${{ github.event_name }}"
           echo "actor:      ${{ github.actor }}"
-          
+
       # from [https://docs.github.com/en/actions/learn-github-actions/contexts]    
       - name: Dump GitHub context
         id: github_context_step
@@ -77,4 +93,15 @@ jobs:
         run: echo '${{ toJSON(strategy) }}'
       - name: Dump matrix context
         run: echo '${{ toJSON(matrix) }}'
+
+      - name: Create Summary
+        run: |
+          echo "| PROJECT           | ${{ env.PROJECT }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| VERSION           | ${{ env.VERSION }}               |" >> $GITHUB_STEP_SUMMARY
+          echo "| :---------------- | -------------------------------: |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_BUCKET | ${{ env.S3_ARCHIVE_BUCKET }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3_ARCHIVE_FOLDER | ${{ env.S3_ARCHIVE_FOLDER }}     |" >> $GITHUB_STEP_SUMMARY
+          echo "| ----------------- | -------------------------------- |" >> $GITHUB_STEP_SUMMARY
+          echo "| PARTS_FOLDER      | ${{ env.PARTS_FOLDER }}          |" >> $GITHUB_STEP_SUMMARY
+          echo "| DATA_ARCHIVE      | ${{ env.DATA_ARCHIVE }}          |" >> $GITHUB_STEP_SUMMARY
 
