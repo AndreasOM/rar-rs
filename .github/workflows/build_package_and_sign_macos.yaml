@@ -168,6 +168,20 @@ jobs:
           command: build
           args: --verbose --release --manifest-path rar-rs/Cargo.toml --target x86_64-apple-darwin --no-default-features --features "audio-apple"
 
+      - name: Copy out target cache
+        run: |
+          if r=$(aws s3 ls ${{ env.TARGET_FOLDER }})
+          then
+            echo "Copying out target folder"
+            aws s3 sync ${{ env.TARGET_FOLDER }} s3://${{ env.S3_CACHE_TARGET }}
+          else
+            echo "No target folder found"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
+  
       - name: Add Info.plist
         run: |
           echo "Adding Info.plist"
@@ -292,20 +306,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-1"        
 
-      - name: Copy out target cache
-        run: |
-          if r=$(aws s3 ls ${{ env.TARGET_FOLDER }})
-          then
-            echo "Copying out target folder"
-            aws s3 sync ${{ env.TARGET_FOLDER }} s3://${{ env.S3_CACHE_TARGET }}
-          else
-            echo "No target folder found"
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-west-1"
-  
       - name: Create Summary
         run: |
           build_number=$(cat build_number.txt)
