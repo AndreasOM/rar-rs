@@ -49,6 +49,7 @@ jobs:
   pack_data:
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0020
     with:
+      project: ${{ inputs.project }}
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -61,6 +62,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0020
     with:
       use_latest_data: false
+      project: ${{ inputs.project }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref || github.sha }}
     secrets:
@@ -75,6 +77,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0020
     with:
       use_latest_app: false
+      project: ${{ inputs.project }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref }}
     secrets:

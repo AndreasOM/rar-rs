@@ -25,6 +25,11 @@ on:
         required: false
         default: false
         type: boolean
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
       # maybe we don't need this
       version:
         description: 'Version'
