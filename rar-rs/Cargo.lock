@@ -1431,7 +1431,7 @@ dependencies = [
 
 [[package]]
 name = "rar-rs"
-version = "0.21.15-dev"
+version = "0.21.15-test"
 dependencies = [
  "anyhow",
  "atty",
