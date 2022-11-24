@@ -33,6 +33,9 @@ pub fn get_game_state_as_specific_mut<'a, T: 'a + 'static>(
 }
 
 pub trait GameState {
+	fn name(&self) -> &str {
+		"[trait] GameState"
+	}
 	fn as_any(&self) -> &dyn std::any::Any;
 	fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
 	fn setup(&mut self, _system: &mut System) -> anyhow::Result<()> {
@@ -40,15 +43,12 @@ pub trait GameState {
 	}
 	fn teardown(&mut self) {}
 	fn set_size(&mut self, _size: &Vector2) {}
-	fn update(&mut self, _wuc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
+	fn update(&mut self, _auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()
 	}
 	fn fixed_update(&mut self, _time_step: f64) {}
 	fn render(&mut self, _renderer: &mut Renderer) {}
 	fn render_debug(&mut self, _debug_renderer: &mut DebugRenderer) {}
-	fn name(&self) -> &str {
-		"[trait] GameState"
-	}
 }
 
 impl std::fmt::Debug for dyn GameState {

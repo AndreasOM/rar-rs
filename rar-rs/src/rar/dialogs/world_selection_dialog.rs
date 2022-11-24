@@ -12,7 +12,7 @@ impl WorldSelectionDialog {
 		}
 	}
 	fn create_world_button(name: &str, size: &Vector2) -> UiElementContainer {
-		let mut container = UiGravityBox::new()
+		let container = UiGravityBox::new()
 			.containerize()
 			.with_size(size)
 			.with_child_element_containers(
@@ -58,6 +58,7 @@ impl UiElement for WorldSelectionDialog {
 						Self::create_world_button("dev", &button_size),
 						Self::create_world_button("debug", &button_size),
 						Self::create_world_button("DebugCollisions", &button_size),
+						Self::create_world_button("Settings", &button_size),
 					]
 					.into(),
 				),

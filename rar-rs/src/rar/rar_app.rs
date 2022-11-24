@@ -29,6 +29,7 @@ use crate::rar::game_state_debug_collisions::GameStateDebugCollisions;
 //use crate::rar::entities::{EntityConfigurationManager, Player};
 use crate::rar::game_state_game::GameStateGame;
 use crate::rar::game_state_menu::GameStateMenu;
+use crate::rar::game_state_settings::GameStateSettings;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 //use crate::rar::EntityUpdateContext;
@@ -40,6 +41,7 @@ enum GameStates {
 	Menu,
 	Game,
 	DebugCollisions,
+	Settings,
 }
 
 #[derive(Debug)]
@@ -75,6 +77,7 @@ impl Default for RarApp {
 			GameStates::DebugCollisions,
 			Box::new(GameStateDebugCollisions::new()),
 		);
+		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
 
 		Self {
 			renderer: None,
@@ -397,6 +400,10 @@ impl App for RarApp {
 				"GotoMainMenu" => {
 					debug!("GotoMainMenu");
 					self.next_game_states.push_back(GameStates::Menu);
+				},
+				"GotoSettings" => {
+					debug!("GotoSettings");
+					self.next_game_states.push_back(GameStates::Settings);
 				},
 				"StartGame" => {
 					debug!("StartGame");

@@ -1,38 +1,31 @@
-use std::any::Any;
+use core::any::Any;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 use oml_game::math::Matrix32;
-//use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
-//use tracing::*;
-use crate::rar::dialogs::WorldSelectionDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 use crate::rar::GameState;
-use crate::rar::GameStateResponseDataSelectWorld;
-//use crate::rar::GameStateResponseDataSelectWorld;
-use crate::ui::UiElement;
-//use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
-use crate::ui::UiEventResponseButtonClicked;
-//use crate::ui::UiRenderer;
+use crate::ui::UiGravityBox;
 use crate::ui::UiSystem;
+use crate::ui::*;
 
 #[derive(Debug)]
-pub struct GameStateMenu {
+pub struct GameStateSettings {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
 }
 
-impl Default for GameStateMenu {
+impl Default for GameStateSettings {
 	fn default() -> Self {
 		let (tx, rx) = channel();
 		Self {
@@ -43,23 +36,86 @@ impl Default for GameStateMenu {
 	}
 }
 
-impl GameStateMenu {
+impl GameStateSettings {
 	pub fn new() -> Self {
-		Default::default()
+		Self {
+			..Default::default()
+		}
 	}
 }
 
-impl GameState for GameStateMenu {
+impl GameState for GameStateSettings {
+	fn name(&self) -> &str {
+		"[GameState] Settings"
+	}
+	fn as_any(&self) -> &(dyn Any + 'static) {
+		self
+	}
+	fn as_any_mut(&mut self) -> &mut (dyn Any + 'static) {
+		self
+	}
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		self.ui_system.set_root(
-			WorldSelectionDialog::new()
-				.containerize()
-				.with_name("World Selection Dialog"),
-		);
+		let label_size = Vector2::new(256.0,32.0);
+		const VERSION: &str = env!("CARGO_PKG_VERSION");
+		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 
+		self.ui_system.set_root(
+			UiGravityBox::new()
+				.with_padding(16.0)
+				.with_gravity(&Vector2::new(-1.0, 1.0))
+				.containerize()
+				.with_name("Game State Settings")
+				.with_child_element_containers(
+					[{
+						UiHbox::new()
+							.with_padding(16.0)
+							.containerize()
+							.with_name("Settings hBox")
+							.with_child_element_containers(
+								[
+									{
+										UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
+											.containerize()
+											.with_name("back")
+											.with_fade_out(0.0)
+											.with_fade_in(1.0)
+									},
+									{
+										UiVbox::new()
+											.with_padding(16.0)
+											.containerize()
+											.with_name("Settings hBox")
+											.with_child_element_containers(
+												[
+													{
+														UiLabel::new(&label_size, &format!("Version : {}", VERSION))
+															.containerize()
+													},
+													{
+														UiLabel::new(&label_size, &format!("Build at: {}", BUILD_DATETIME))
+															.containerize()
+													},
+													{
+														UiLabel::new(&label_size, "Label 3")
+															.containerize()
+													},
+													{
+														UiLabel::new(&label_size, "Label 4")
+															.containerize()
+													},
+												].into()
+											)
+									},
+								]
+								.into(),
+							)
+					}]
+					.into(),
+				),
+		);
 		self.ui_system.layout();
 		Ok(())
 	}
@@ -68,34 +124,32 @@ impl GameState for GameStateMenu {
 	}
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
+		self.ui_system.layout();
+		if let Some(root) = self.ui_system.get_root_mut() {
+			root.set_size(size);
+			/* :TODO: maybe
+			if let Some(mut gbox) = root.find_child_mut(&["Debug Navigation Dialog - Gravity Box"])
+			{
+				let mut gbox = gbox.borrow_mut();
+				gbox.set_size(size);
+			}
+			*/
+		}
 	}
-
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut responses = Vec::new();
 
 		self.ui_system.update(auc);
 
-		// :TODO: not sure if we actually want to pass events this far up
+		// :TODO:
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
 			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
 				Some(e) => {
 					println!("Button {} clicked", &e.button_name);
 					match e.button_name.as_str() {
-						"dev" => {
-							let world = "dev";
-							let sw = GameStateResponseDataSelectWorld::new(world);
-							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
-							responses.push(r);
-							let r = GameStateResponse::new("StartGame");
-							responses.push(r);
-						},
-						"DebugCollisions" => {
-							let r = GameStateResponse::new("DebugCollisions");
-							responses.push(r);
-						},
-						"Settings" => {
-							let r = GameStateResponse::new("GotoSettings");
+						"back" => {
+							let r = GameStateResponse::new("GotoMainMenu");
 							responses.push(r);
 						},
 						_ => {
@@ -131,12 +185,5 @@ impl GameState for GameStateMenu {
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		self.ui_system.render_debug(debug_renderer);
-	}
-
-	fn as_any(&self) -> &(dyn Any + 'static) {
-		self
-	}
-	fn as_any_mut(&mut self) -> &mut (dyn Any + 'static) {
-		self
 	}
 }
