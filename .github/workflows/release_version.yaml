@@ -54,7 +54,6 @@ jobs:
           echo "${PROJECT}"
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
-          exit -1
 
   pack_data:
     needs:
