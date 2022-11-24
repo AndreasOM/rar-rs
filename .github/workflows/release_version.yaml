@@ -35,13 +35,14 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     outputs:
-      PROJECT: ${{ steps.Prepare.outputs.PROJECT }}
+      PROJECT: ${{ steps.prepare.outputs.PROJECT }}
     defaults:
       run:
         shell: bash
 
     steps:
       - name: Prepare
+        id: prepare
         run: |
           echo "Prepare"
           echo "${{ toJSON(inputs) }}"
@@ -56,7 +57,7 @@ jobs:
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
       - name: Dump
         run: |
-          echo "PROJECT (output): ${{steps.release.outputs.PROJECT}}"
+          echo "PROJECT (output): ${{steps.prepare.outputs.PROJECT}}"
           echo "PROJECT (env): ${{env.PROJECT}}"
           exit -1
 
