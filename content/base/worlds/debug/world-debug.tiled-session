@@ -1,0 +1,43 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "debug.tmj",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "/Users/anti/data/work/anti666tv/rar-rs/rar-content/tilesets/default/rar-default.tsj": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "debug.tmj": {
+            "scale": 5.225,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 65.35885167464114,
+                "y": 38.18181818181819
+            }
+        }
+    },
+    "last.worldFilePath": "/Users/anti/data/work/anti666tv/rar-rs/rar-content/worlds/debug",
+    "loadedWorlds": [
+        "/Users/anti/data/work/anti666tv/rar-rs/rar-content/worlds/debug/debug.world"
+    ],
+    "map.fixedSize": false,
+    "map.lastUsedFormat": "json",
+    "map.layerDataFormat": null,
+    "map.tileHeight": 64,
+    "map.tileWidth": 64,
+    "openFiles": [
+        "debug.tmj",
+        "/Users/anti/data/work/anti666tv/rar-rs/rar-content/tilesets/default/rar-default.tsj"
+    ],
+    "project": "world-debug.tiled-project",
+    "recentFiles": [
+        "/Users/anti/data/work/anti666tv/rar-rs/rar-content/tilesets/default/rar-default.tsj",
+        "debug.tmj"
+    ]
+}

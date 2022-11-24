@@ -23,3 +23,7 @@ Cargo.lock
 /rar-workfiles/entities/player/combined/
 *.blend1
 
+rar-rs/rar-rs_layout.yaml
+s3-artifacts/
+
+
