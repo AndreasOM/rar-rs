@@ -46,13 +46,15 @@ jobs:
           echo "Prepare"
           echo "${{ toJSON(inputs) }}"
           # :HACK: to work around inconsistent github input behavior
-          PROJECT="rar-rs"
+          PROJECT="${{ env.PROJECT }}"
           if [[ ! -z "${{ inputs.project }}" ]]
           then
             PROJECT="${{ inputs.project }}"
           fi
+          echo "${PROJECT}"
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
+          exit -1
 
   pack_data:
     needs:
