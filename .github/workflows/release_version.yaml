@@ -2,6 +2,7 @@ name: Release version
 
 env:
   PROJECT: rar-rs
+  
 on:
   push:
     tags:
@@ -38,7 +39,7 @@ jobs:
         shell: bash
 
     steps:
-      - name: Prepare & Info
+      - name: Prepare
         run: |
           echo "Prepare"
           echo "${{ toJSON(inputs) }}"
@@ -49,11 +50,12 @@ jobs:
             PROJECT="${{ inputs.project }}"
           fi
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+          echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
 
   pack_data:
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
-      project: ${{env.PROJECT}}
+      project: ${{ steps.Prepare.outputs.PROJECT }}
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -66,7 +68,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
     with:
       use_latest_data: false
-      project: ${{env.PROJECT}}
+      project: ${{ steps.Prepare.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref || github.sha }}
     secrets:
@@ -81,7 +83,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
     with:
       use_latest_app: false
-      project: ${{env.PROJECT}}
+      project: ${{ steps.Prepare.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref }}
     secrets:
