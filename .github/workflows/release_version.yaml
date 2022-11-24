@@ -60,27 +60,26 @@ jobs:
           echo "PROJECT (output): ${{steps.prepare.outputs.PROJECT}}"
           echo "PROJECT (env): ${{env.PROJECT}}"
 
-  dump:
-    name: Dump
-    needs:
-      - release
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Dump
-        env:
-          THE_PROJECT: ${{ needs.release.outputs.PROJECT }}
-        run: |
-          echo "THE_PROJECT ${{ env.THE_PROJECT }}"
-          exit -1
+#  dump:
+#    name: Dump
+#    needs:
+#      - release
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        shell: bash
+#
+#    steps:
+#      - name: Dump
+#        env:
+#          THE_PROJECT: ${{ needs.release.outputs.PROJECT }}
+#        run: |
+#          echo "THE_PROJECT ${{ env.THE_PROJECT }}"
 
   pack_data:
     needs:
       - release
-      - dump
+#      - dump
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
       project: ${{ needs.release.outputs.PROJECT }}
