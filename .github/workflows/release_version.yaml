@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "*-test"  
+    inputs:
+      project:
+        description: 'Prefix for the project'
+        required: true
+        default: 'rar-rs'
+        type: string
   workflow_dispatch:
     inputs:
       project:
