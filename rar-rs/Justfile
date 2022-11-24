@@ -21,3 +21,6 @@ pack:
 
 test-noisy:
 	cargo test -- --nocapture
+
+update-build-number:
+	../workflow/helpers/update_build_number.sh
