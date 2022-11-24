@@ -32,6 +32,7 @@ function var_from_json() {
 ## PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
 PROJECT=$(from_json "${INPUTS_JSON}" .project)
 if [[ ! -z "${PROJECT}" ]]
+then
 	echo "Missing PROJECT name"
 	exit -1
 fi

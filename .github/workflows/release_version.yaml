@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - "*-test"  
-    inputs:
-      project:
-        description: 'Prefix for the project'
-        required: false
-        default: 'rar-rs'
-        type: string
   workflow_dispatch:
     inputs:
       project:
@@ -46,11 +40,18 @@ jobs:
         run: |
           echo "Prepare"
           echo "${{ toJSON(inputs) }}"
+          # :HACK: to work around inconsistent github input behavior
+          PROJECT="rar-rs"
+          if [[ ! -z "${{ inputs.project }}" ]]
+          then
+            PROJECT="${{ inputs.project }}"
+          fi
+          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 
   pack_data:
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
-      project: ${{ inputs.project }}
+      project: ${{ env.PROJECT }}
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -63,7 +64,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
     with:
       use_latest_data: false
-      project: ${{ inputs.project }}
+      project: ${{ env.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref || github.sha }}
     secrets:
@@ -78,7 +79,7 @@ jobs:
     uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
     with:
       use_latest_app: false
-      project: ${{ inputs.project }}
+      project: ${{ env.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref }}
     secrets:
