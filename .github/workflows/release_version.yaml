@@ -47,7 +47,7 @@ jobs:
           echo "Prepare"
 
   pack_data:
-    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0020
+    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
       project: ${{ inputs.project }}
       version: ${{ github.event.inputs.version }}
@@ -59,7 +59,7 @@ jobs:
   build_package_and_sign_macos:
     needs:
       - pack_data
-    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0020
+    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
     with:
       use_latest_data: false
       project: ${{ inputs.project }}
@@ -74,7 +74,7 @@ jobs:
 
   push_to_itchio:
     needs: build_package_and_sign_macos
-    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0020
+    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
     with:
       use_latest_app: false
       project: ${{ inputs.project }}
