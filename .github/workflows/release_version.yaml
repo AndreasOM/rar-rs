@@ -41,7 +41,7 @@ jobs:
           echo "Prepare"
 
   pack_data:
-    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@main
+    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0020
     with:
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
@@ -52,10 +52,11 @@ jobs:
   build_package_and_sign_macos:
     needs:
       - pack_data
-    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@main
+    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0020
     with:
-      version: ${{ github.event.inputs.version }}
-      ref: ${{ github.event.inputs.ref || github.sha }}
+      use_latest_data: false
+      version: ${{ inputs.version }}
+      ref: ${{ inputs.ref || github.sha }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -65,10 +66,11 @@ jobs:
 
   push_to_itchio:
     needs: build_package_and_sign_macos
-    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@main
+    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0020
     with:
-      version: ${{ github.event.inputs.version }}
-      ref: ${{ github.event.inputs.ref }}
+      use_latest_app: false
+      version: ${{ inputs.version }}
+      ref: ${{ inputs.ref }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

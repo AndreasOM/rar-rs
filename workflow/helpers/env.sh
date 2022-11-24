@@ -29,7 +29,8 @@ function var_from_json() {
 }
 
 # PROJECT
-PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
+## PROJECT=$(from_json "${GITHUB_JSON}" .event.inputs.project)
+PROJECT=$(from_json "${INPUTS_JSON}" .project)
 echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
 #var_from_json PROJECT "${GITHUB_JSON}" .event.inputs.project
 
@@ -57,10 +58,12 @@ S3_ARCHIVE_FOLDER=${DATE}/${VERSION}
 echo "S3_ARCHIVE_FOLDER=${S3_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # USE_LATEST_DATA
-USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
+## USE_LATEST_DATA=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_data)
+USE_LATEST_DATA=$(from_json "${INPUTS_JSON}" .use_latest_data)
 
 # USE_LATEST_APP
-USE_LATEST_APP=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_app)
+## USE_LATEST_APP=$(from_json "${GITHUB_JSON}" .event.inputs.use_latest_app)
+USE_LATEST_APP=$(from_json "${INPUTS_JSON}" .use_latest_app)
 
 if [[ "x${USE_LATEST_DATA}" == "xtrue" || "x${USE_LATEST_APP}" == "xtrue" ]]
 then
@@ -108,8 +111,8 @@ else
 #	DATA_VERSION=${VERSION}
 fi
 
-echo "APP_DATE=${DATA_DATE}"
-echo "APP_VERSION=${DATA_VERSION}"
+echo "APP_DATE=${APP_DATE}"
+echo "APP_VERSION=${APP_VERSION}"
 
 echo "APP_DATE=${APP_DATE}" >> $GITHUB_ENV
 echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
@@ -169,15 +172,15 @@ echo "TARGET_FOLDER=${TARGET_FOLDER}" >> $GITHUB_ENV
 
 # APP_VERSION
 # :TODO: remove hardcoded rar-rs
-APP_VERSION=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
-echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+APP_SEMVERSION=$(grep version rar-rs/Cargo.toml|cut -d"\"" -f2|head -n 1)
+echo "APP_SEMVERSION=${APP_SEMVERSION}" >> $GITHUB_ENV
 
 # BUILD_NUMBER
 BUILD_NUMBER=$(cat build_number.txt)
 echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
 
 # PACKAGE_FOLDER
-PACKAGE_FOLDER=${TEMP_FOLDER}/package_folder/
+PACKAGE_FOLDER=${TEMP_FOLDER}/package_folder
 mkdir -p ${PACKAGE_FOLDER}
 echo "PACKAGE_FOLDER=${PACKAGE_FOLDER}" >> $GITHUB_ENV
 
@@ -190,7 +193,7 @@ MACOS_APP_ARCHIVE_FOLDER="${TEMP_FOLDER}"
 echo "MACOS_APP_ARCHIVE_FOLDER=${MACOS_APP_ARCHIVE_FOLDER}" >> $GITHUB_ENV
 
 # MACOS_APP_ARCHIVE
-MACOS_APP_ARCHIVE="${PROJECT}-apple-darwin-FAT-apple-darwin-${VERSION}.app.tgz"
+MACOS_APP_ARCHIVE="${PROJECT}-apple-darwin-FAT-apple-darwin-${APP_VERSION}.app.tgz"
 echo "MACOS_APP_ARCHIVE=${MACOS_APP_ARCHIVE}" >> $GITHUB_ENV
 
 # MACOS_APP_ARCHIVE_PATH
