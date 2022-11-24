@@ -55,6 +55,23 @@ jobs:
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
 
+  dump:
+    name: Dump
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Dump
+        env:
+          THE_PROJECT: ${{ needs.release.outputs.PROJECT }}
+        run: |
+          echo "THE_PROJECT ${{ env.THE_PROJECT }}"
+          exit -1
+
   pack_data:
     needs:
       - release
