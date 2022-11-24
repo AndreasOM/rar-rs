@@ -55,9 +55,11 @@ jobs:
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
 
   pack_data:
+    needs:
+      - release
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
-      project: ${{ jobs.release.outputs.PROJECT }}
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -66,11 +68,12 @@ jobs:
 
   build_package_and_sign_macos:
     needs:
+      - release
       - pack_data
     uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
     with:
       use_latest_data: false
-      project: ${{ jobs.release.outputs.PROJECT }}
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref || github.sha }}
     secrets:
@@ -81,11 +84,13 @@ jobs:
       CODESIGN_CERT_IDENTITY: ${{ secrets.CODESIGN_CERT_IDENTITY }}
 
   push_to_itchio:
-    needs: build_package_and_sign_macos
+    needs:
+      - release
+      - build_package_and_sign_macos
     uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
     with:
       use_latest_app: false
-      project: ${{ jobs.release.outputs.PROJECT }}
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref }}
     secrets:
