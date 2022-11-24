@@ -26,14 +26,15 @@
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
 
-## TODO
-
 - [ ] Display build information in game
-    - [ ] Build Number
+    - [x] Build Number
     - [ ] Commit Hash
     - [ ] Version
-    - [ ] Date
+    - [x] Date & Time
     - [ ] "Variant"
+
+## TODO
+
 
 - [ ] Work on art style ("look")
 - [ ] Create a test world
@@ -58,6 +59,11 @@
 - [ ] Understand how to organise tiled worlds
 
 ## Done
+
+### Epsiode 0021 - 3.0h +
+- [x] Package & Upload on tag `-test`
+- [x] Add setting state
+- [x] Add some build info to settings
 
 ### Epsiode 0020 - 3.0h + 0.5h  ->  44.5h   + 33.5h     -> 78.0h
 - [x] Package & Upload to Itch
