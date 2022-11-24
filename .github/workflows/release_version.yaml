@@ -54,6 +54,11 @@ jobs:
           echo "${PROJECT}"
           echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
           echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
+      - name: Dump
+        run: |
+          echo "PROJECT (output): ${{steps.release.outputs.PROJECT}}"
+          echo "PROJECT (env): ${{env.PROJECT}}"
+          exit -1
 
   dump:
     name: Dump
@@ -75,6 +80,7 @@ jobs:
   pack_data:
     needs:
       - release
+      - dump
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
       project: ${{ needs.release.outputs.PROJECT }}
