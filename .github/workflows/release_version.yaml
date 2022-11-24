@@ -7,7 +7,7 @@ on:
     inputs:
       project:
         description: 'Prefix for the project'
-        required: true
+        required: false
         default: 'rar-rs'
         type: string
   workflow_dispatch:
@@ -42,9 +42,10 @@ jobs:
         shell: bash
 
     steps:
-      - name: Prepare
+      - name: Prepare & Info
         run: |
           echo "Prepare"
+          echo "${{ toJSON(inputs) }}"
 
   pack_data:
     uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
