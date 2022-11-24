@@ -51,6 +51,9 @@
 
 ## Done
 
+### Epsiode 0020 - 3.0h + 0.5h  ->  44.5h   + 33.5h     -> 78.0h
+- [x] Package & Upload to Itch
+
 ### Epsiode 0019 - 3.0h + 3.0h  ->  41.5h   + 33.0h     -> 75.5h
 - [x] Start to cleanup variable handling in github workflows
 - [x] Allow using latest data for package
