@@ -17,7 +17,8 @@ shift 1
 
 music=""
 
-data_prefix=${output%.omar}
+#data_prefix=${output%.omar}
+data_prefix=$(basename ${output} .omar)
 
 while [ "$1" != "" ]
 do
@@ -44,12 +45,11 @@ do
 	shift 1
 done
 
-echo "basepath: ${basepath}"
-echo "output:   ${output}"
-echo "paklist:  ${paklist}"
-echo "music:    ${music}"
-
-
+echo "basepath:      ${basepath}"
+echo "output:        ${output}"
+echo "data_prefix:   ${data_prefix}"
+echo "paklist:       ${paklist}"
+echo "music:         ${music}"
 
 case ${music} in
 	"ogg")
