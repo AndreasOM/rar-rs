@@ -3,6 +3,9 @@
 
 ## In Progress
 
+- [ ] Add explicit `cargo fetch` to build
+    - [ ] Maybe try bonus ;)
+
 - [ ] Display build information in game
     - [ ] Build Number
     - [ ] Commit Hash
@@ -14,8 +17,6 @@
 ## TODO
 
 - [ ] Change the font
-- [ ] Add explicit `cargo fetch` to build
-    - [ ] Maybe try bonus ;)
 
 - [ ] Add Pause menu
     - [ ] With settings?

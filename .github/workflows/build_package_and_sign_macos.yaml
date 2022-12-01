@@ -161,6 +161,12 @@ jobs:
             target/
           key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('rar-rs/Cargo.lock')}}
 
+      - name: Run cargo build fetch
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+          args: --verbose
+
       - name: Run cargo build --release for aarch64-apple-darwin
         uses: actions-rs/cargo@v1
         with:
