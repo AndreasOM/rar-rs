@@ -58,7 +58,7 @@ impl GameState for GameStateSettings {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		let label_size = Vector2::new(256.0, 32.0);
+		let label_size = Vector2::new(256.0, 96.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		let code_build_number = env!("CODE_BUILD_NUMBER");
