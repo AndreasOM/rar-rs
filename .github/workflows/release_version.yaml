@@ -80,7 +80,7 @@ jobs:
     needs:
       - release
 #      - dump
-    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
+    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0022
     with:
       project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ github.event.inputs.version }}
@@ -93,7 +93,7 @@ jobs:
     needs:
       - release
       - pack_data
-    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
+    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0022
     with:
       use_latest_data: false
       project: ${{ needs.release.outputs.PROJECT }}
@@ -110,7 +110,7 @@ jobs:
     needs:
       - release
       - build_package_and_sign_macos
-    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
+    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0022
     with:
       use_latest_app: false
       project: ${{ needs.release.outputs.PROJECT }}
