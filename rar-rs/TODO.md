@@ -4,20 +4,21 @@
 ## In Progress
 
 - [ ] Automate packaging, and releasing
-    - [ ] Pack data
+    - [x] Pack data
     - [ ] Load data from pack
         - [x] Add .omar to layered file system
         - [ ] Move filesystem setup boilerplate to oml-game
         - [ ] Understand why macOS can load data from .app
-    - [ ] Create github workflows
+    - [x] Create github workflows
+        - [x] Trigger workflow on push to `-test`
         - [x] Pack data
         - [x] Sign app
-        - [ ] Upload to itch.io
-        - [ ] Cleanup variable/setting handling, and use them for ...
+        - [x] Upload to itch.io
+        - [x] Cleanup variable/setting handling, and use them for ...
             - [x] Packing data
             - [x] Packaging the app
-            - [ ] Uploading to itch.io
-- [ ] Setup automated builds on github
+            - [x] Uploading to itch.io
+- [x] Setup automated builds on github
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
@@ -25,7 +26,15 @@
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
 
+- [ ] Display build information in game
+    - [x] Build Number
+    - [ ] Commit Hash
+    - [ ] Version
+    - [x] Date & Time
+    - [ ] "Variant"
+
 ## TODO
+
 
 - [ ] Work on art style ("look")
 - [ ] Create a test world
@@ -50,6 +59,11 @@
 - [ ] Understand how to organise tiled worlds
 
 ## Done
+
+### Epsiode 0021 - 3.0h +
+- [x] Package & Upload on tag `-test`
+- [x] Add setting state
+- [x] Add some build info to settings
 
 ### Epsiode 0020 - 3.0h + 0.5h  ->  44.5h   + 33.5h     -> 78.0h
 - [x] Package & Upload to Itch

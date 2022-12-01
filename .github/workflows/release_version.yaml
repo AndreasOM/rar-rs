@@ -1,5 +1,8 @@
 name: Release version
 
+env:
+  PROJECT: rar-rs
+
 on:
   push:
     tags:
@@ -31,18 +34,55 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    outputs:
+      PROJECT: ${{ steps.prepare.outputs.PROJECT }}
     defaults:
       run:
         shell: bash
 
     steps:
       - name: Prepare
+        id: prepare
         run: |
           echo "Prepare"
+          echo "${{ toJSON(inputs) }}"
+          # :HACK: to work around inconsistent github input behavior
+          PROJECT="${{ env.PROJECT }}"
+          if [[ ! -z "${{ inputs.project }}" ]]
+          then
+            PROJECT="${{ inputs.project }}"
+          fi
+          echo "${PROJECT}"
+          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
+          echo "PROJECT=${PROJECT}" >> $GITHUB_OUTPUT
+      - name: Dump
+        run: |
+          echo "PROJECT (output): ${{steps.prepare.outputs.PROJECT}}"
+          echo "PROJECT (env): ${{env.PROJECT}}"
+
+#  dump:
+#    name: Dump
+#    needs:
+#      - release
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        shell: bash
+#
+#    steps:
+#      - name: Dump
+#        env:
+#          THE_PROJECT: ${{ needs.release.outputs.PROJECT }}
+#        run: |
+#          echo "THE_PROJECT ${{ env.THE_PROJECT }}"
 
   pack_data:
-    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0020
+    needs:
+      - release
+#      - dump
+    uses:  AndreasOM/rar-rs/.github/workflows/pack_rar_data.yaml@episode-0021
     with:
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ github.event.inputs.version }}
       ref: ${{ github.event.inputs.ref || github.sha }}
     secrets:
@@ -51,10 +91,12 @@ jobs:
 
   build_package_and_sign_macos:
     needs:
+      - release
       - pack_data
-    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0020
+    uses:  AndreasOM/rar-rs/.github/workflows/build_package_and_sign_macos.yaml@episode-0021
     with:
       use_latest_data: false
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref || github.sha }}
     secrets:
@@ -65,10 +107,13 @@ jobs:
       CODESIGN_CERT_IDENTITY: ${{ secrets.CODESIGN_CERT_IDENTITY }}
 
   push_to_itchio:
-    needs: build_package_and_sign_macos
-    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0020
+    needs:
+      - release
+      - build_package_and_sign_macos
+    uses:  AndreasOM/rar-rs/.github/workflows/push_to_itchio.yaml@episode-0021
     with:
       use_latest_app: false
+      project: ${{ needs.release.outputs.PROJECT }}
       version: ${{ inputs.version }}
       ref: ${{ inputs.ref }}
     secrets:

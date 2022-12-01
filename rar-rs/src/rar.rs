@@ -8,6 +8,7 @@ pub use game_state_response_data::*;
 mod game_state_debug_collisions;
 mod game_state_game;
 mod game_state_menu;
+mod game_state_settings;
 pub mod rar_app;
 pub use rar_app::RarApp;
 pub mod effect_ids;

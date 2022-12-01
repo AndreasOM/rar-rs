@@ -15,11 +15,15 @@ Cargo.lock
 # Added by cargo
 
 /target
-/Cargo.lock
+### /Cargo.lock
 
 .DS_Store
 
 
 /rar-workfiles/entities/player/combined/
 *.blend1
+
+rar-rs/rar-rs_layout.yaml
+s3-artifacts/
+
 

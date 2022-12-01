@@ -21,3 +21,10 @@ pack:
 
 test-noisy:
 	cargo test -- --nocapture
+
+update-build-number:
+	../workflow/helpers/update_build_number.sh
+
+release-test:
+	# :TODO: ../workflow/helpers/update_build_number.sh
+	omr-bumper -b patch -r test
