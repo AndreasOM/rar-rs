@@ -3,38 +3,30 @@
 
 ## In Progress
 
-- [ ] Automate packaging, and releasing
-    - [x] Pack data
-    - [ ] Load data from pack
-        - [x] Add .omar to layered file system
-        - [ ] Move filesystem setup boilerplate to oml-game
-        - [ ] Understand why macOS can load data from .app
-    - [x] Create github workflows
-        - [x] Trigger workflow on push to `-test`
-        - [x] Pack data
-        - [x] Sign app
-        - [x] Upload to itch.io
-        - [x] Cleanup variable/setting handling, and use them for ...
-            - [x] Packing data
-            - [x] Packaging the app
-            - [x] Uploading to itch.io
-- [x] Setup automated builds on github
+- [ ] Display build information in game
+    - [ ] Build Number
+    - [ ] Commit Hash
+    - [x] Version
+    - [x] Date & Time
+        - [ ] Shorten time display to stop at seconds
+    - [ ] "Variant"
+
+## TODO
+
+- [ ] Change the font
+- [ ] Add explicit `cargo fetch` to build
+    - [ ] Maybe try bonus ;)
+
+- [ ] Add Pause menu
+    - [ ] With settings?
+
+- [ ] Trigger `cargo check` on pull request
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
-
-- [ ] Display build information in game
-    - [x] Build Number
-    - [ ] Commit Hash
-    - [ ] Version
-    - [x] Date & Time
-    - [ ] "Variant"
-
-## TODO
-
 
 - [ ] Work on art style ("look")
 - [ ] Create a test world
@@ -53,6 +45,9 @@
 - [ ] Add basic UI
 - [ ] Experiment with speeding up package builds with sccache
 
+- [ ] Move filesystem setup boilerplate to oml-game
+- [ ] Understand why macOS can load data from .app
+
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
@@ -60,7 +55,11 @@
 
 ## Done
 
-### Epsiode 0021 - 3.0h +
+### Episode 0022
+
+- [x] Automate packaging, and releasing
+
+### Epsiode 0021 - 3.0h + 0.0h  ->  47.5h   + 33.5h     -> 81.0h
 - [x] Package & Upload on tag `-test`
 - [x] Add setting state
 - [x] Add some build info to settings
