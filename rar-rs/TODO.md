@@ -3,15 +3,15 @@
 
 ## In Progress
 
-- [ ] Add explicit `cargo fetch` to build
-    - [ ] Maybe try bonus ;)
 
 - [ ] Display build information in game
-    - [ ] Build Number
+    - [x] Build Number
+        - [x] Code
+        - [x] Data
     - [ ] Commit Hash
     - [x] Version
     - [x] Date & Time
-        - [ ] Shorten time display to stop at seconds
+        - [x] Shorten time display to stop at seconds
     - [ ] "Variant"
 
 ## TODO
@@ -57,10 +57,10 @@
 ## Done
 
 ### Episode 0022
-
-- [x] Automate packaging, and releasing
+- [x] Add explicit `cargo fetch` to build
 
 ### Epsiode 0021 - 3.0h + 0.0h  ->  47.5h   + 33.5h     -> 81.0h
+- [x] Automate packaging, and releasing
 - [x] Package & Upload on tag `-test`
 - [x] Add setting state
 - [x] Add some build info to settings

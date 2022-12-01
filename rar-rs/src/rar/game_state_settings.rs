@@ -58,9 +58,19 @@ impl GameState for GameStateSettings {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		let label_size = Vector2::new(256.0,32.0);
+		let label_size = Vector2::new(256.0, 32.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+		let code_build_number = env!("CODE_BUILD_NUMBER");
+		let base_data_build_number_path = "base_build_number.txt";
+		let mut f = system
+			.default_filesystem_mut()
+			.open(base_data_build_number_path);
+		let base_data_build_number = if f.is_valid() {
+			f.read_as_string()
+		} else {
+			"[file not found]".to_string()
+		};
 
 		self.ui_system.set_root(
 			UiGravityBox::new()
@@ -91,22 +101,44 @@ impl GameState for GameStateSettings {
 											.with_child_element_containers(
 												[
 													{
-														UiLabel::new(&label_size, &format!("Version : {}", VERSION))
-															.containerize()
+														UiLabel::new(
+															&label_size,
+															&format!("Version : {}", VERSION),
+														)
+														.containerize()
 													},
 													{
-														UiLabel::new(&label_size, &format!("Build at: {}", BUILD_DATETIME))
-															.containerize()
+														UiLabel::new(
+															&label_size,
+															&format!(
+																"Build at: {}",
+																BUILD_DATETIME
+															),
+														)
+														.containerize()
 													},
 													{
-														UiLabel::new(&label_size, "Label 3")
-															.containerize()
+														UiLabel::new(
+															&label_size,
+															&format!(
+																"Code Build#: {}",
+																code_build_number
+															),
+														)
+														.containerize()
 													},
 													{
-														UiLabel::new(&label_size, "Label 4")
-															.containerize()
+														UiLabel::new(
+															&label_size,
+															&format!(
+																"'base' data Build#: {}",
+																base_data_build_number
+															),
+														)
+														.containerize()
 													},
-												].into()
+												]
+												.into(),
 											)
 									},
 								]

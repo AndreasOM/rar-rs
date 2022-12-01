@@ -26,4 +26,5 @@ Cargo.lock
 rar-rs/rar-rs_layout.yaml
 s3-artifacts/
 
+data/base/base_build_number.txt
 

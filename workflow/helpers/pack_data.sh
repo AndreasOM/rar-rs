@@ -17,6 +17,8 @@ shift 1
 
 music=""
 
+data_prefix=${output%.omar}
+
 while [ "$1" != "" ]
 do
 	echo $1
@@ -67,6 +69,9 @@ esac
 
 echo "music to exclude: ${exclude_music}"
 
+bn_file=$(dirname "$0")/../../build_number.txt
+
+cp ${bn_file} ${basepath}/${data_prefix}_build_number.txt
 # :TODO: have variant specific paklist and keep it
 
 cd ${basepath}
