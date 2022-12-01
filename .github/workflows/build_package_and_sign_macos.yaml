@@ -109,7 +109,7 @@ jobs:
 ###          AWS_DEFAULT_REGION: "eu-west-1"
 
       - name: Use latest data?
-        if: ${{ inputs.use_latest_data == 'true' }}
+        if: ${{ inputs.use_latest_data == true }}
         run: |
           echo "Using latest data!"
 
