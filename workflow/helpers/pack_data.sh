@@ -12,6 +12,8 @@ shift 1
 output=$1
 shift 1
 
+output_omna="${output}.omna"
+
 paklist=$1
 shift 1
 
@@ -77,6 +79,10 @@ cp ${bn_file} ${basepath}/${data_prefix}_build_number.txt
 cd ${basepath}
 ls -1 |grep -v ${paklist} |grep -v "${exclude_music}" >${paklist}
 cd -
-omt-packer pack --basepath ${basepath} --output ${output} --paklist ${basepath}/${paklist}
+omt-packer pack \
+	--basepath ${basepath} \
+	--output ${output} \
+	--paklist ${basepath}/${paklist} \
+	--name-map ${output_omna}
 
 
