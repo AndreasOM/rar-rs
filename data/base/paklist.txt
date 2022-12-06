@@ -1,5 +1,6 @@
 background_fs.glsl
 background_vs.glsl
+base_build_number.txt
 bg-menu-atlas.atlas
 bg-menu-atlas.map
 bg-menu-atlas.png
@@ -145,6 +146,7 @@ player.entity_config.yaml
 rar-default.tsj
 rar.renderer_config.yaml
 something.txt
+test_build_number.txt
 textured_desaturated_fs.glsl
 textured_desaturated_vs.glsl
 textured_fs.glsl
@@ -161,5 +163,7 @@ ui-atlas.map
 ui-atlas.png
 ui-button.omtr
 ui-button_back.omtr
+vegur.omfont
+vegur.png
 white_fs.glsl
 world-dev.tmj

@@ -162,12 +162,13 @@ jobs:
           echo "event_name: ${{ github.event_name }}"
           echo "actor:      ${{ github.actor }}"
           ls -l ${{ env.PARTS_FOLDER }}/
+          ls -l ${{ env.PARTS_FOLDER }}/omar
           
       - name: Create archive
         run: |
           cd ${{ env.PARTS_FOLDER }}
           archive="${{ env.ARCHIVE_FOLDER }}/${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
-          tar czf ${archive} omar/
+          tar cvzf ${archive} omar/
           echo "Archived omar/ in ${{ env.PARTS_FOLDER }} to ${archive}" >> $GITHUB_STEP_SUMMARY
           
       - name: Copy archive to S3

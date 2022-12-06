@@ -79,10 +79,15 @@ cp ${bn_file} ${basepath}/${data_prefix}_build_number.txt
 cd ${basepath}
 ls -1 |grep -v ${paklist} |grep -v "${exclude_music}" >${paklist}
 cd -
-omt-packer pack \
+echo omt-packer pack \
 	--basepath ${basepath} \
 	--output ${output} \
 	--paklist ${basepath}/${paklist} \
 	--name-map ${output_omna}
 
+omt-packer pack \
+	--basepath ${basepath} \
+	--output ${output} \
+	--paklist ${basepath}/${paklist} \
+	--name-map ${output_omna}
 
