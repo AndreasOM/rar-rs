@@ -251,7 +251,7 @@ impl App for RarApp {
 		//TextureAtlas::load_all(&mut self.system, &mut renderer, "bg-title-atlas");
 		//TextureAtlas::load_all(&mut self.system, &mut renderer, "tileset-default-%d");
 
-//		renderer.load_font(&mut self.system, FontId::Default as u8, "c64");
+		//		renderer.load_font(&mut self.system, FontId::Default as u8, "c64");
 		renderer.load_font(&mut self.system, FontId::Default as u8, "vegur");
 
 		self.renderer = Some(renderer);

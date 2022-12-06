@@ -61,6 +61,8 @@ impl GameState for GameStateSettings {
 		let label_size = Vector2::new(256.0, 96.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
+
 		let code_build_number = env!("CODE_BUILD_NUMBER");
 		let base_data_build_number_path = "base_build_number.txt";
 		let mut f = system
@@ -133,6 +135,16 @@ impl GameState for GameStateSettings {
 															&format!(
 																"'base' data Build#: {}",
 																base_data_build_number
+															),
+														)
+														.containerize()
+													},
+													{
+														UiLabel::new(
+															&label_size,
+															&format!(
+																"Commit : {}",
+																GIT_COMMIT_HASH
 															),
 														)
 														.containerize()

@@ -4,19 +4,19 @@
 ## In Progress
 
 
-- [ ] Display build information in game
+- [x] Display build information in game
     - [x] Build Number
         - [x] Code
         - [x] Data
-    - [ ] Commit Hash
+    - [x] Commit Hash
     - [x] Version
     - [x] Date & Time
         - [x] Shorten time display to stop at seconds
-    - [ ] "Variant"
+    - [+] "Variant"
 
 ## TODO
 
-- [ ] Change the font
+- [ ] Fix font rendering
 
 - [ ] Add Pause menu
     - [ ] With settings?
@@ -37,6 +37,7 @@
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
+    - [x] Implement game state `settings`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -56,8 +57,9 @@
 
 ## Done
 
-### Episode 0022
+### Episode 0022 - 2.5h + 2.5h  ->  50.0h   + 36.0h     -> 86.0h
 - [x] Add explicit `cargo fetch` to build
+- [x] Change the font
 
 ### Epsiode 0021 - 3.0h + 0.0h  ->  47.5h   + 33.5h     -> 81.0h
 - [x] Automate packaging, and releasing
