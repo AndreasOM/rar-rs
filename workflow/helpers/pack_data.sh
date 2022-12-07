@@ -12,10 +12,15 @@ shift 1
 output=$1
 shift 1
 
+output_omna="${output}.omna"
+
 paklist=$1
 shift 1
 
 music=""
+
+#data_prefix=${output%.omar}
+data_prefix=$(basename ${output} .omar)
 
 while [ "$1" != "" ]
 do
@@ -42,12 +47,11 @@ do
 	shift 1
 done
 
-echo "basepath: ${basepath}"
-echo "output:   ${output}"
-echo "paklist:  ${paklist}"
-echo "music:    ${music}"
-
-
+echo "basepath:      ${basepath}"
+echo "output:        ${output}"
+echo "data_prefix:   ${data_prefix}"
+echo "paklist:       ${paklist}"
+echo "music:         ${music}"
 
 case ${music} in
 	"ogg")
@@ -67,11 +71,23 @@ esac
 
 echo "music to exclude: ${exclude_music}"
 
+bn_file=$(dirname "$0")/../../build_number.txt
+
+cp ${bn_file} ${basepath}/${data_prefix}_build_number.txt
 # :TODO: have variant specific paklist and keep it
 
 cd ${basepath}
 ls -1 |grep -v ${paklist} |grep -v "${exclude_music}" >${paklist}
 cd -
-omt-packer pack --basepath ${basepath} --output ${output} --paklist ${basepath}/${paklist}
+echo omt-packer pack \
+	--basepath ${basepath} \
+	--output ${output} \
+	--paklist ${basepath}/${paklist} \
+	--name-map ${output_omna}
 
+omt-packer pack \
+	--basepath ${basepath} \
+	--output ${output} \
+	--paklist ${basepath}/${paklist} \
+	--name-map ${output_omna}
 

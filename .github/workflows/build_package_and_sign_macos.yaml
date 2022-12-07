@@ -109,7 +109,7 @@ jobs:
 ###          AWS_DEFAULT_REGION: "eu-west-1"
 
       - name: Use latest data?
-        if: ${{ inputs.use_latest_data == 'true' }}
+        if: ${{ inputs.use_latest_data == true }}
         run: |
           echo "Using latest data!"
 
@@ -131,7 +131,7 @@ jobs:
         run: |
           cd ${{ env.PARTS_FOLDER }}
           archive="${{ env.OMAR_ARCHIVE_PREFIX }}omar${{ env.OMAR_ARCHIVE_SUFFIX }}"
-          tar xzf \
+          tar xvzf \
             ${{ env.PARTS_FOLDER }}/${archive}
 
       - uses: actions-rs/toolchain@v1
@@ -160,6 +160,12 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: macos-11-cargo-aarch64_and_x86_64-apple-darwin-${{ hashFiles('rar-rs/Cargo.lock')}}
+
+      - name: Run cargo fetch
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+          args: --verbose --manifest-path rar-rs/Cargo.toml
 
       - name: Run cargo build --release for aarch64-apple-darwin
         uses: actions-rs/cargo@v1
@@ -279,13 +285,36 @@ jobs:
           security find-identity -v
 
       - name: Sign .app
+        id: sign0
+        continue-on-error: true
         run: |
-          echo ":TODO:"
           ping -c 5 time.apple.com
           cd ${{ env.PACKAGE_FOLDER}}
           codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
 
         timeout-minutes: 10
+
+      - name: Sign .app (2nd try)
+        id: sign1
+        continue-on-error: true
+        if: steps.sign0.outcome=='failure'
+        run: |
+          sleep 60
+          ping -c 5 time.apple.com
+          cd ${{ env.PACKAGE_FOLDER}}
+          codesign -s ${{ secrets.CODESIGN_CERT_IDENTITY }} -f -v --timestamp --options runtime rar-rs.app
+
+        timeout-minutes: 10
+
+      - name: Set Sign status
+        if: always()
+        run: |
+          if ${{ steps.sign0.outcome=='success' || steps.sign1.outcome=='success' }}; then
+             echo "Successfully signed!"
+          else
+            echo "Failed signing even after retry"
+             exit 1
+          fi
 
       - name: Create archive
         run: |

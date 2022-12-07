@@ -3,38 +3,31 @@
 
 ## In Progress
 
-- [ ] Automate packaging, and releasing
-    - [x] Pack data
-    - [ ] Load data from pack
-        - [x] Add .omar to layered file system
-        - [ ] Move filesystem setup boilerplate to oml-game
-        - [ ] Understand why macOS can load data from .app
-    - [x] Create github workflows
-        - [x] Trigger workflow on push to `-test`
-        - [x] Pack data
-        - [x] Sign app
-        - [x] Upload to itch.io
-        - [x] Cleanup variable/setting handling, and use them for ...
-            - [x] Packing data
-            - [x] Packaging the app
-            - [x] Uploading to itch.io
-- [x] Setup automated builds on github
+
+- [x] Display build information in game
+    - [x] Build Number
+        - [x] Code
+        - [x] Data
+    - [x] Commit Hash
+    - [x] Version
+    - [x] Date & Time
+        - [x] Shorten time display to stop at seconds
+    - [+] "Variant"
+
+## TODO
+
+- [ ] Fix font rendering
+
+- [ ] Add Pause menu
+    - [ ] With settings?
+
+- [ ] Trigger `cargo check` on pull request
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
-
-- [ ] Display build information in game
-    - [x] Build Number
-    - [ ] Commit Hash
-    - [ ] Version
-    - [x] Date & Time
-    - [ ] "Variant"
-
-## TODO
-
 
 - [ ] Work on art style ("look")
 - [ ] Create a test world
@@ -44,6 +37,7 @@
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
+    - [x] Implement game state `settings`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -53,6 +47,9 @@
 - [ ] Add basic UI
 - [ ] Experiment with speeding up package builds with sccache
 
+- [ ] Move filesystem setup boilerplate to oml-game
+- [ ] Understand why macOS can load data from .app
+
 
 ## TODO - off stream
 - [ ] Remove dead from entity manager
@@ -60,7 +57,12 @@
 
 ## Done
 
-### Epsiode 0021 - 3.0h +
+### Episode 0022 - 2.5h + 2.5h  ->  50.0h   + 36.0h     -> 86.0h
+- [x] Add explicit `cargo fetch` to build
+- [x] Change the font
+
+### Epsiode 0021 - 3.0h + 0.0h  ->  47.5h   + 33.5h     -> 81.0h
+- [x] Automate packaging, and releasing
 - [x] Package & Upload on tag `-test`
 - [x] Add setting state
 - [x] Add some build info to settings

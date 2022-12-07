@@ -10,6 +10,19 @@ parameters: {
 }
 cmd_line: "${tool} ${command} --texsize 512 --size 32 --output ${data_directory}/${output} --distancefield-max-distance 4 --distancefield-scale 4 --input ${input}"
 
+---
+
+version: 0.5.0
+tool:    "omt-font"
+command: "create"
+## output:  "background-atlas-0"
+output:  "${input:basename .otf}"
+combine-inputs: false
+input:
+  - "*.otf"
+parameters: {
+}
+cmd_line: "${tool} ${command} --texsize 1024 --size 96 --output ${data_directory}/${output} --distancefield-max-distance 4 --distancefield-scale 4 --input ${input}"
 
 #omt-font create --border 2                  \
 #  --texsize 1024 --size 104                 \
