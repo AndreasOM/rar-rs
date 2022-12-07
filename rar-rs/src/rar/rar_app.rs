@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::rc::Rc;
 
+use oml_audio::Audio;
+use oml_game::system::audio_fileloader_system::*;
 use oml_game::math::{Matrix44, Vector2};
 use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
@@ -47,6 +49,7 @@ enum GameStates {
 #[derive(Debug)]
 pub struct RarApp {
 	renderer:       Option<Renderer>,
+	audio:			Audio,
 	size:           Vector2,
 	viewport_size:  Vector2,
 	scaling:        f32,
@@ -81,6 +84,7 @@ impl Default for RarApp {
 
 		Self {
 			renderer: None,
+			audio: Audio::new(),
 			size: Vector2::zero(),
 			viewport_size: Vector2::zero(),
 			scaling: 1.0,
@@ -200,6 +204,9 @@ impl App for RarApp {
 
 		println!("Something: {}", &something);
 
+		self.audio.load_sound_bank( &mut self.system, "base.omsb" );
+
+		self.audio.play_sound( "BUTTON" );
 		let mut renderer = Renderer::new();
 		renderer.setup(window, &mut self.system)?;
 
@@ -272,6 +279,8 @@ impl App for RarApp {
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
 		debug!("App update time step: {}", wuc.time_step());
+
+		let _timestep = self.audio.update();
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {
