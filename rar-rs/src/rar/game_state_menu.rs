@@ -81,6 +81,9 @@ impl GameState for GameStateMenu {
 			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
 				Some(e) => {
 					println!("Button {} clicked", &e.button_name);
+					if let Some(sound_tx) = auc.sound_tx() {
+						let _ = sound_tx.send("BUTTON".to_string());
+					}
 					match e.button_name.as_str() {
 						"dev" => {
 							let world = "dev";

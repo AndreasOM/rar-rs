@@ -2,9 +2,11 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::rc::Rc;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
 
 use oml_audio::Audio;
-use oml_game::system::audio_fileloader_system::*;
+//use oml_game::system::audio_fileloader_system::*;
 use oml_game::math::{Matrix44, Vector2};
 use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
@@ -48,8 +50,11 @@ enum GameStates {
 
 #[derive(Debug)]
 pub struct RarApp {
-	renderer:       Option<Renderer>,
-	audio:			Audio,
+	renderer: Option<Renderer>,
+	audio:    Audio,
+	sound_rx: Receiver<String>,
+	sound_tx: Sender<String>,
+
 	size:           Vector2,
 	viewport_size:  Vector2,
 	scaling:        f32,
@@ -82,9 +87,12 @@ impl Default for RarApp {
 		);
 		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
 
+		let (sound_tx, sound_rx) = std::sync::mpsc::channel();
 		Self {
 			renderer: None,
 			audio: Audio::new(),
+			sound_rx,
+			sound_tx,
 			size: Vector2::zero(),
 			viewport_size: Vector2::zero(),
 			scaling: 1.0,
@@ -204,9 +212,8 @@ impl App for RarApp {
 
 		println!("Something: {}", &something);
 
-		self.audio.load_sound_bank( &mut self.system, "base.omsb" );
+		self.audio.load_sound_bank(&mut self.system, "base.omsb");
 
-		self.audio.play_sound( "BUTTON" );
 		let mut renderer = Renderer::new();
 		renderer.setup(window, &mut self.system)?;
 
@@ -397,7 +404,8 @@ impl App for RarApp {
 		let mut auc = AppUpdateContext::new()
 			.set_time_step(wuc.time_step)
 			.set_cursor_pos(&self.cursor_pos)
-			.set_wuc(&wuc);
+			.set_wuc(&wuc)
+			.set_sound_tx(self.sound_tx.clone());
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.set_size(&self.size); // :TODO: only call on change;
@@ -470,6 +478,13 @@ impl App for RarApp {
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.end_frame();
+		}
+
+		// handle sound channel/queue
+
+		while let Some(sound) = self.sound_rx.try_recv().ok() {
+			println!("sound: {}", sound);
+			self.audio.play_sound(&sound);
 		}
 		Ok(())
 	}
