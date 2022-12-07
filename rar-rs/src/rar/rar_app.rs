@@ -214,6 +214,9 @@ impl App for RarApp {
 
 		self.audio.load_sound_bank(&mut self.system, "base.omsb");
 
+		self.audio.load_music_native(&mut self.system, "title");
+		self.audio.start();
+		self.audio.play_music();
 		let mut renderer = Renderer::new();
 		renderer.setup(window, &mut self.system)?;
 
