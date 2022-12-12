@@ -3,18 +3,15 @@
 
 ## In Progress
 
+- [ ] Add sound/music support (via oml-audio)
+    - [x] Add sound
+    - [ ] Add music
 
-- [x] Display build information in game
-    - [x] Build Number
-        - [x] Code
-        - [x] Data
-    - [x] Commit Hash
-    - [x] Version
-    - [x] Date & Time
-        - [x] Shorten time display to stop at seconds
-    - [+] "Variant"
 
 ## TODO
+
+- [ ] Trigger sound effects from ui button
+- [ ] Use typed message for sound channel instead of raw strings
 
 - [ ] Fix font rendering
 
@@ -32,7 +29,6 @@
 - [ ] Work on art style ("look")
 - [ ] Create a test world
 - [ ] Implement camera system (with freeze & thaw)
-- [ ] Add audio/music support (via oml-audio)
 - [ ] Add collectables (-> coins, power ups, etc)
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
@@ -57,9 +53,22 @@
 
 ## Done
 
+### Epsiode 0023 - 2.0h +
+- [x] Add basic sound playback
+- [x] Add button sounds :WIP:
+
 ### Episode 0022 - 2.5h + 2.5h  ->  50.0h   + 36.0h     -> 86.0h
 - [x] Add explicit `cargo fetch` to build
 - [x] Change the font
+- [x] Display build information in game
+    - [x] Build Number
+        - [x] Code
+        - [x] Data
+    - [x] Commit Hash
+    - [x] Version
+    - [x] Date & Time
+        - [x] Shorten time display to stop at seconds
+    - [+] "Variant"
 
 ### Epsiode 0021 - 3.0h + 0.0h  ->  47.5h   + 33.5h     -> 81.0h
 - [x] Automate packaging, and releasing

@@ -1,11 +1,12 @@
 use oml_game::math::Vector2;
 use oml_game::window::window_update_context::WindowUpdateContext;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct AppUpdateContext {
 	time_step:  f64,
 	cursor_pos: Vector2,
 	wuc:        Option<WindowUpdateContext>,
+	sound_tx:   Option<std::sync::mpsc::Sender<String>>,
 }
 
 impl AppUpdateContext {
@@ -14,6 +15,7 @@ impl AppUpdateContext {
 			time_step:  0.0,
 			cursor_pos: Vector2::zero(),
 			wuc:        None,
+			sound_tx:   None,
 		}
 	}
 
@@ -41,6 +43,15 @@ impl AppUpdateContext {
 
 	pub fn set_wuc(mut self, wuc: &WindowUpdateContext) -> Self {
 		self.wuc = Some(*wuc);
+		self
+	}
+
+	pub fn sound_tx(&mut self) -> &mut Option<std::sync::mpsc::Sender<String>> {
+		&mut self.sound_tx
+	}
+
+	pub fn set_sound_tx(mut self, sound_tx: std::sync::mpsc::Sender<String>) -> Self {
+		self.sound_tx = Some(sound_tx);
 		self
 	}
 }
