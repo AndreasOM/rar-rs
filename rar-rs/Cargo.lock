@@ -1369,7 +1369,9 @@ dependencies = [
 
 [[package]]
 name = "oml-game"
-version = "0.24.0-dev"
+version = "0.24.0-alpha"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9028d0f54373600753d6434c64e5a140d28a3a66838e8a9fc01495f7439ee778"
 dependencies = [
  "anyhow",
  "backtrace",
