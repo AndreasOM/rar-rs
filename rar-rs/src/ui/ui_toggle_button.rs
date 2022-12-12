@@ -68,6 +68,7 @@ impl UiElement for UiToggleButton {
 		{
 			let mut img_a = image_a.borrow_mut();
 			img_a.set_name("A");
+			img_a.fade_out(0.0); // :TODO: decide if we want this
 		}
 		self.image_a = Some(image_a);
 		let mut image_b =

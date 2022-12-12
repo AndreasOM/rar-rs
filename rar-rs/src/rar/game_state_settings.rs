@@ -102,18 +102,30 @@ impl GameState for GameStateSettings {
 											.containerize()
 											.with_name("Settings hBox")
 											.with_child_element_containers(
-												[{
-													//UiButton::new("ui-togglebutton_music_on", &Vector2::new(64.0, 64.0))
-													UiToggleButton::new(
-														"ui-togglebutton_music_on",
-														"ui-togglebutton_music_off",
-														&Vector2::new(64.0, 64.0),
-													)
-													.containerize()
-													.with_name("music/toggle")
-													.with_fade_out(0.0)
-													.with_fade_in(1.0)
-												}]
+												[
+													{
+														UiToggleButton::new(
+															"ui-togglebutton_music_on",
+															"ui-togglebutton_music_off",
+															&Vector2::new(64.0, 64.0),
+														)
+														.containerize()
+														.with_name("music/toggle")
+														.with_fade_out(0.0)
+														.with_fade_in(1.0)
+													},
+													{
+														UiToggleButton::new(
+															"ui-togglebutton_sound_on",
+															"ui-togglebutton_sound_off",
+															&Vector2::new(64.0, 64.0),
+														)
+														.containerize()
+														.with_name("sound/toggle")
+														.with_fade_out(0.0)
+														.with_fade_in(1.0)
+													},
+												]
 												.into(),
 											)
 									},
@@ -233,6 +245,32 @@ impl GameState for GameStateSettings {
 			}
 		}
 
+		if let Some(root) = self.ui_system.get_root_mut() {
+			if let Some(mut stb) = root.find_child_mut(&[
+				"Game State Settings",
+				"Settings hBox",
+				"Settings hBox",
+				"sound/toggle",
+			]) {
+				// debug!("Found sound/toggle");
+				let mut stb = stb.borrow_mut();
+				let stb = stb.borrow_element_mut();
+				match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
+					Some(stb) => {
+						if auc.is_sound_enabled() {
+							stb.goto_a();
+						} else {
+							stb.goto_b();
+						}
+					},
+					None => panic!("{:?} isn't a UiToggleButton!", &stb),
+				};
+			} else {
+				root.dump_info();
+				todo!("Fix path to sound toggle button");
+			}
+		}
+
 		// :TODO:
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
@@ -250,6 +288,11 @@ impl GameState for GameStateSettings {
 						"music/toggle" => {
 							if let Some(sound_tx) = auc.sound_tx() {
 								let _ = sound_tx.send(AudioMessage::ToggleMusic);
+							}
+						},
+						"sound/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleSound);
 							}
 						},
 						_ => {

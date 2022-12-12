@@ -2,4 +2,5 @@
 pub enum AudioMessage {
 	PlaySound(String),
 	ToggleMusic,
+	ToggleSound,
 }

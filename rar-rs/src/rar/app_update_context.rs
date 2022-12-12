@@ -10,6 +10,7 @@ pub struct AppUpdateContext {
 	wuc:              Option<WindowUpdateContext>,
 	sound_tx:         Option<std::sync::mpsc::Sender<AudioMessage>>,
 	is_music_playing: bool,
+	is_sound_enabled: bool,
 }
 
 impl AppUpdateContext {
@@ -20,6 +21,7 @@ impl AppUpdateContext {
 			wuc:              None,
 			sound_tx:         None,
 			is_music_playing: false,
+			is_sound_enabled: true,
 		}
 	}
 
@@ -66,5 +68,13 @@ impl AppUpdateContext {
 
 	pub fn is_music_playing(&self) -> bool {
 		self.is_music_playing
+	}
+	pub fn with_is_sound_enabled(mut self, is_sound_enabled: bool) -> Self {
+		self.is_sound_enabled = is_sound_enabled;
+		self
+	}
+
+	pub fn is_sound_enabled(&self) -> bool {
+		self.is_sound_enabled
 	}
 }

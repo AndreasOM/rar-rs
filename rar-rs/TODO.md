@@ -3,14 +3,12 @@
 
 ## In Progress
 
-- [ ] Add music & sound toggle to settings
 - [ ] Extract settings state into dialog
 
 ## TODO
 
 - [ ] Add Pause menu
     - [ ] With settings?
-- [ ] Use typed message for sound channel instead of raw strings
 
 - [ ] Trigger sound effects from ui button
 
@@ -46,10 +44,15 @@
 
 
 ## TODO - off stream
+- [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
 
 ## Done
+
+### Epsiode 0024 - 2.0h + 
+- [x] Add music & sound toggle to settings
+- [x] Use typed message for sound channel instead of raw strings
 
 ### Epsiode 0023 - 2.0h + 0.0h  ->  52.0h   + 36.0h     -> 88.0h
 - [x] Add basic sound playback

@@ -2,3 +2,5 @@ ui-button.png:0,0-256,64
 ui-button_back.png:0,64-64,128
 ui-togglebutton_music_off.png:64,64-128,128
 ui-togglebutton_music_on.png:128,64-192,128
+ui-togglebutton_sound_off.png:192,64-256,128
+ui-togglebutton_sound_on.png:0,128-64,192

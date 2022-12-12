@@ -51,10 +51,11 @@ enum GameStates {
 
 #[derive(Debug)]
 pub struct RarApp {
-	renderer: Option<Renderer>,
-	audio:    Audio,
-	sound_rx: Receiver<AudioMessage>,
-	sound_tx: Sender<AudioMessage>,
+	renderer:         Option<Renderer>,
+	audio:            Audio,
+	is_sound_enabled: bool,
+	sound_rx:         Receiver<AudioMessage>,
+	sound_tx:         Sender<AudioMessage>,
 
 	size:           Vector2,
 	viewport_size:  Vector2,
@@ -92,6 +93,7 @@ impl Default for RarApp {
 		Self {
 			renderer: None,
 			audio: Audio::new(),
+			is_sound_enabled: true,
 			sound_rx,
 			sound_tx,
 			size: Vector2::zero(),
@@ -410,7 +412,8 @@ impl App for RarApp {
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc)
 			.set_sound_tx(self.sound_tx.clone())
-			.with_is_music_playing(self.audio.is_music_playing());
+			.with_is_music_playing(self.audio.is_music_playing())
+			.with_is_sound_enabled(self.is_sound_enabled);
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.set_size(&self.size); // :TODO: only call on change;
@@ -491,7 +494,9 @@ impl App for RarApp {
 			match msg {
 				AudioMessage::PlaySound(sound) => {
 					println!("sound: {}", sound);
-					self.audio.play_sound(&sound);
+					if self.is_sound_enabled {
+						self.audio.play_sound(&sound);
+					}
 				},
 				AudioMessage::ToggleMusic => {
 					debug!("Toggle music");
@@ -499,6 +504,15 @@ impl App for RarApp {
 						self.audio.pause_music();
 					} else {
 						self.audio.play_music();
+					}
+				},
+				AudioMessage::ToggleSound => {
+					debug!("Toggle sound");
+					if self.is_sound_enabled {
+						self.is_sound_enabled = false;
+					// :TODO: stop running sounds
+					} else {
+						self.is_sound_enabled = true;
 					}
 				},
 				// _ => {},
