@@ -1,6 +1,7 @@
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
+use tracing::*;
 
 use crate::ui::{
 	UiElement, UiElementContainerData, UiElementContainerHandle, UiEvent, UiEventResponse,
@@ -82,9 +83,9 @@ impl UiElement for UiToggleButton {
 		&mut self,
 		container: &mut UiElementContainerData,
 		_event: &UiEvent,
-		event_sender: &Sender<Box<dyn UiEventResponse>>,
+		_event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
-		println!("Button toggled");
+		debug!("Button toggled");
 		//let ev = Box::new( UiEventResponseButtonClicked{ button_name: container.name.clone() } );
 		//event_sender.send( ev ).unwrap();
 		Some(Box::new(UiEventResponseButtonClicked::new(&container.name)))

@@ -1,21 +1,25 @@
 use oml_game::math::Vector2;
 use oml_game::window::window_update_context::WindowUpdateContext;
 
+use crate::rar::AudioMessage;
+
 #[derive(Debug, Clone)]
 pub struct AppUpdateContext {
-	time_step:  f64,
-	cursor_pos: Vector2,
-	wuc:        Option<WindowUpdateContext>,
-	sound_tx:   Option<std::sync::mpsc::Sender<String>>,
+	time_step:        f64,
+	cursor_pos:       Vector2,
+	wuc:              Option<WindowUpdateContext>,
+	sound_tx:         Option<std::sync::mpsc::Sender<AudioMessage>>,
+	is_music_playing: bool,
 }
 
 impl AppUpdateContext {
 	pub fn new() -> Self {
 		Self {
-			time_step:  0.0,
-			cursor_pos: Vector2::zero(),
-			wuc:        None,
-			sound_tx:   None,
+			time_step:        0.0,
+			cursor_pos:       Vector2::zero(),
+			wuc:              None,
+			sound_tx:         None,
+			is_music_playing: false,
 		}
 	}
 
@@ -46,12 +50,21 @@ impl AppUpdateContext {
 		self
 	}
 
-	pub fn sound_tx(&mut self) -> &mut Option<std::sync::mpsc::Sender<String>> {
+	pub fn sound_tx(&mut self) -> &mut Option<std::sync::mpsc::Sender<AudioMessage>> {
 		&mut self.sound_tx
 	}
 
-	pub fn set_sound_tx(mut self, sound_tx: std::sync::mpsc::Sender<String>) -> Self {
+	pub fn set_sound_tx(mut self, sound_tx: std::sync::mpsc::Sender<AudioMessage>) -> Self {
 		self.sound_tx = Some(sound_tx);
 		self
+	}
+
+	pub fn with_is_music_playing(mut self, is_music_playing: bool) -> Self {
+		self.is_music_playing = is_music_playing;
+		self
+	}
+
+	pub fn is_music_playing(&self) -> bool {
+		self.is_music_playing
 	}
 }

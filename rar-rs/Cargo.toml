@@ -29,14 +29,14 @@ derive-getters = "0.2.0"
 tracing = "0.1.36"
 tracing-subscriber = "0.3.15"
 atty = "0.2.14"
-oml-audio = "0.6.7-alpha"
+oml-audio = "0.6.9-alpha"
 
 [build-dependencies]
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-# path = "../../oml-game"
-version = "0.23.0-dev"
+path = "../../oml-game"
+version = "0.24.0-dev"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }

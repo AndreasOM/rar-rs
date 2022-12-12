@@ -12,6 +12,7 @@ use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
+use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::ui::UiEventResponse;
 use crate::ui::UiGravityBox;
@@ -94,6 +95,27 @@ impl GameState for GameStateSettings {
 											.with_name("back")
 											.with_fade_out(0.0)
 											.with_fade_in(1.0)
+									},
+									{
+										UiVbox::new()
+											.with_padding(16.0)
+											.containerize()
+											.with_name("Settings hBox")
+											.with_child_element_containers(
+												[{
+													//UiButton::new("ui-togglebutton_music_on", &Vector2::new(64.0, 64.0))
+													UiToggleButton::new(
+														"ui-togglebutton_music_on",
+														"ui-togglebutton_music_off",
+														&Vector2::new(64.0, 64.0),
+													)
+													.containerize()
+													.with_name("music/toggle")
+													.with_fade_out(0.0)
+													.with_fade_in(1.0)
+												}]
+												.into(),
+											)
 									},
 									{
 										UiVbox::new()
@@ -185,6 +207,32 @@ impl GameState for GameStateSettings {
 
 		self.ui_system.update(auc);
 
+		if let Some(root) = self.ui_system.get_root_mut() {
+			if let Some(mut mtb) = root.find_child_mut(&[
+				"Game State Settings",
+				"Settings hBox",
+				"Settings hBox",
+				"music/toggle",
+			]) {
+				// debug!("Found music/toggle");
+				let mut mtb = mtb.borrow_mut();
+				let mtb = mtb.borrow_element_mut();
+				match mtb.as_any_mut().downcast_mut::<UiToggleButton>() {
+					Some(mtb) => {
+						if auc.is_music_playing() {
+							mtb.goto_a();
+						} else {
+							mtb.goto_b();
+						}
+					},
+					None => panic!("{:?} isn't a UiToggleButton!", &mtb),
+				};
+			} else {
+				root.dump_info();
+				todo!("Fix path to music toggle button");
+			}
+		}
+
 		// :TODO:
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
@@ -192,12 +240,17 @@ impl GameState for GameStateSettings {
 				Some(e) => {
 					println!("Button {} clicked", &e.button_name);
 					if let Some(sound_tx) = auc.sound_tx() {
-						let _ = sound_tx.send("BUTTON".to_string());
+						let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
 					}
 					match e.button_name.as_str() {
 						"back" => {
 							let r = GameStateResponse::new("GotoMainMenu");
 							responses.push(r);
+						},
+						"music/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleMusic);
+							}
 						},
 						_ => {
 							println!("Unhandled button click from {}", &e.button_name);

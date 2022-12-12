@@ -36,6 +36,7 @@ use crate::rar::game_state_menu::GameStateMenu;
 use crate::rar::game_state_settings::GameStateSettings;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
+use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
@@ -52,8 +53,8 @@ enum GameStates {
 pub struct RarApp {
 	renderer: Option<Renderer>,
 	audio:    Audio,
-	sound_rx: Receiver<String>,
-	sound_tx: Sender<String>,
+	sound_rx: Receiver<AudioMessage>,
+	sound_tx: Sender<AudioMessage>,
 
 	size:           Vector2,
 	viewport_size:  Vector2,
@@ -288,7 +289,7 @@ impl App for RarApp {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
-		debug!("App update time step: {}", wuc.time_step());
+		// debug!("App update time step: {}", wuc.time_step());
 
 		let _timestep = self.audio.update();
 
@@ -408,7 +409,8 @@ impl App for RarApp {
 			.set_time_step(wuc.time_step)
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc)
-			.set_sound_tx(self.sound_tx.clone());
+			.set_sound_tx(self.sound_tx.clone())
+			.with_is_music_playing(self.audio.is_music_playing());
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.set_size(&self.size); // :TODO: only call on change;
@@ -485,14 +487,27 @@ impl App for RarApp {
 
 		// handle sound channel/queue
 
-		while let Some(sound) = self.sound_rx.try_recv().ok() {
-			println!("sound: {}", sound);
-			self.audio.play_sound(&sound);
+		while let Some(msg) = self.sound_rx.try_recv().ok() {
+			match msg {
+				AudioMessage::PlaySound(sound) => {
+					println!("sound: {}", sound);
+					self.audio.play_sound(&sound);
+				},
+				AudioMessage::ToggleMusic => {
+					debug!("Toggle music");
+					if self.audio.is_music_playing() {
+						self.audio.pause_music();
+					} else {
+						self.audio.play_music();
+					}
+				},
+				// _ => {},
+			}
 		}
 		Ok(())
 	}
 	fn fixed_update(&mut self, time_step: f64) {
-		debug!("Fixed Update: {}", time_step);
+		//debug!("Fixed Update: {}", time_step);
 		self.game_state().fixed_update(time_step);
 	}
 	fn render(&mut self) {
