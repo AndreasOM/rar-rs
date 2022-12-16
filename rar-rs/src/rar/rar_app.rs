@@ -301,7 +301,10 @@ impl App for RarApp {
 			}
 
 			if let Some(new_game_state) = self.game_states.get_mut(&next_game_state) {
-				new_game_state.setup(&mut self.system)?;
+				new_game_state.setup(&mut self.system).map_err(|err| {
+					debug!("Error during GameState::setup -> {:?}", &err);
+					todo!();
+				});
 			}
 
 			self.active_game_state = next_game_state;

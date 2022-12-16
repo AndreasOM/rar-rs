@@ -242,6 +242,7 @@ impl Map {
 	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
 		for ts in self.tilesets.iter_mut() {
 			let mut tileset = Tileset::new();
+			tileset.enable_remove_path();
 			tileset.load(system, &ts.source)?;
 
 			ts.tileset = Some(tileset);
