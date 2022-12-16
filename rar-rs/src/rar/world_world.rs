@@ -8,17 +8,17 @@ use serde_json::Value;
 pub struct Map {
 	#[serde(rename = "fileName")]
 	filename: String,
-	x:        u32,
-	y:        u32,
+	x:        i32,
+	y:        i32,
 	height:   u32,
 	width:    u32,
 }
 
 impl Map {
-	pub fn x(&self) -> u32 {
+	pub fn x(&self) -> i32 {
 		self.x
 	}
-	pub fn y(&self) -> u32 {
+	pub fn y(&self) -> i32 {
 		self.y
 	}
 	pub fn height(&self) -> u32 {

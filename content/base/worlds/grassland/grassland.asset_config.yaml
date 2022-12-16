@@ -1,0 +1,7 @@
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "grassland.tmj"
+  - "grassland.world"
+

@@ -3,6 +3,7 @@ use oml_game::system::System;
 //use serde_json::Result;
 use serde::{Deserialize, Serialize};
 //use serde_json::{Result, Value};
+use tracing::*;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -39,6 +40,19 @@ pub struct TilesetTsj {
 	tiles:        Vec<Tile>,
 }
 
+impl Tile {
+	pub fn remove_path(&mut self) {
+		let s = if let Some(idx) = self.image.rfind("/") {
+			idx + 1
+		} else {
+			0
+		};
+
+		let image = self.image[s..].to_string();
+		debug!("Tile: {}", &image);
+		self.image = image;
+	}
+}
 impl TilesetTsj {
 	pub fn new() -> Self {
 		Self {
@@ -60,5 +74,11 @@ impl TilesetTsj {
 		// decode here if needed
 
 		Ok(())
+	}
+
+	pub fn remove_paths(&mut self) {
+		for t in self.tiles.iter_mut() {
+			t.remove_path();
+		}
 	}
 }

@@ -1,0 +1,13 @@
+{
+    "maps": [
+        {
+            "fileName": "grassland.tmj",
+            "height": 2048,
+            "width": 2048,
+            "x": -1024,
+            "y": -1024
+        }
+    ],
+    "onlyShowAdjacentMaps": false,
+    "type": "world"
+}
