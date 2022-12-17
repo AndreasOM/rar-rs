@@ -94,7 +94,13 @@
          "id":13,
          "image":"tiles\/grassland_d_0.png",
          "imageheight":64,
-         "imagewidth":64
+         "imagewidth":64,
+         "properties":[
+                {
+                 "name":"MatchType",
+                 "type":"string",
+                 "value":"Empty"
+                }]
         }, 
         {
          "id":14,
