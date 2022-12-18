@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use derive_getters::Getters;
 use oml_game::system::System;
 //use serde_json::Result;
@@ -130,6 +131,18 @@ impl Layer {
 }
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct Chunksize {
+	width: u32,
+	height: u32,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EditorSettings {
+	chunksize: Option<Chunksize>,
+}
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MapTmj {
 	layers:           Vec<Layer>,
 	tileheight:       u32,
@@ -147,6 +160,8 @@ pub struct MapTmj {
 	#[serde(rename = "type")]
 	maptype:          String,
 	version:          String,
+	// #[serde(skip)] 
+	editorsettings: Option<EditorSettings>,
 }
 
 impl MapTmj {
