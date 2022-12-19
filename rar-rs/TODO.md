@@ -14,6 +14,8 @@
 
 - [ ] Fix font rendering
 
+- [ ] Add support for parallax in map layers
+- [ ] Add debug camera with zoom
 - [ ] Trigger `cargo check` on pull request
 
 - [ ] Add world selection via menu
@@ -50,7 +52,7 @@
 
 ## Done
 
-### Epsiode 0024 - 2.0h + 
+### Epsiode 0024 - 2.0h + 4.0
 - [x] Add music & sound toggle to settings
 - [x] Use typed message for sound channel instead of raw strings
 

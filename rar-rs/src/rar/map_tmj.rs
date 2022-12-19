@@ -68,6 +68,8 @@ pub struct Chunk {
 	tiles:  TileMap, //Vec< u32 >,
 }
 
+fn fixed_f32_1() -> Option<f32> { Some(1.0) }
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Layer {
@@ -95,6 +97,8 @@ pub struct Layer {
 	visible:     bool,
 	#[serde(default)]
 	draworder:   String,
+	#[serde(default = "fixed_f32_1")]
+	parallaxx: Option<f32>
 }
 
 impl Layer {
