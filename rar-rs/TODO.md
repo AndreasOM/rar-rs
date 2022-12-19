@@ -52,9 +52,10 @@
 
 ## Done
 
-### Epsiode 0024 - 2.0h + 4.0
+### Epsiode 0024 - 2.0h + 4.0   ->  54.0h   + 40.0h     -> 94.0h
 - [x] Add music & sound toggle to settings
 - [x] Use typed message for sound channel instead of raw strings
+- [x] Add grassland tiles, tileset, and test map/world.
 
 ### Epsiode 0023 - 2.0h + 0.0h  ->  52.0h   + 36.0h     -> 88.0h
 - [x] Add basic sound playback
