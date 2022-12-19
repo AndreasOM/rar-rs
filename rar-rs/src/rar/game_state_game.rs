@@ -90,12 +90,20 @@ impl GameState for GameStateGame {
 		self.entity_manager.add(Box::new(background));
 
 		// load world
+		debug!("Loading world {}", &self.world_name);
 		self.world.load(system, &self.world_name)?;
+		debug!("Loading all maps...");
 		self.world.load_all_maps(system)?;
+		debug!("Loading all tilesets...");
 		self.world.load_all_tilesets(system)?;
 
+		debug!("Generating colliders...");
 		self.world
-			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
+			.generate_collider_layers("Collider", &["Tile Layer 1", "terrain"].to_vec())?;
+//			.generate_collider_layers("Collider", &["Tile Layer", "terrain"].to_vec())?;
+//			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
+//		self.world
+//			.generate_collider_layers("Collider", &["terrain"].to_vec())?;
 		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
 
 		/*
@@ -165,6 +173,11 @@ impl GameState for GameStateGame {
 		self.world_renderer.setup()?;
 		self.world_renderer.enable_layer(
 			"Tile Layer 1",
+			LayerId::TileMap1 as u8,
+			EffectId::Textured as u16,
+		);
+		self.world_renderer.enable_layer(
+			"terrain",
 			LayerId::TileMap1 as u8,
 			EffectId::Textured as u16,
 		);

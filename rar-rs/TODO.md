@@ -3,21 +3,19 @@
 
 ## In Progress
 
-- [ ] Add sound/music support (via oml-audio)
-    - [x] Add sound
-    - [ ] Add music
-
+- [ ] Extract settings state into dialog
 
 ## TODO
-
-- [ ] Trigger sound effects from ui button
-- [ ] Use typed message for sound channel instead of raw strings
-
-- [ ] Fix font rendering
 
 - [ ] Add Pause menu
     - [ ] With settings?
 
+- [ ] Trigger sound effects from ui button
+
+- [ ] Fix font rendering
+
+- [ ] Add support for parallax in map layers
+- [ ] Add debug camera with zoom
 - [ ] Trigger `cargo check` on pull request
 
 - [ ] Add world selection via menu
@@ -48,14 +46,20 @@
 
 
 ## TODO - off stream
+- [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
 
 ## Done
 
-### Epsiode 0023 - 2.0h +
+### Epsiode 0024 - 2.0h + 4.0
+- [x] Add music & sound toggle to settings
+- [x] Use typed message for sound channel instead of raw strings
+
+### Epsiode 0023 - 2.0h + 0.0h  ->  52.0h   + 36.0h     -> 88.0h
 - [x] Add basic sound playback
 - [x] Add button sounds :WIP:
+- [x] Add sound/music support (via oml-audio)
 
 ### Episode 0022 - 2.5h + 2.5h  ->  50.0h   + 36.0h     -> 86.0h
 - [x] Add explicit `cargo fetch` to build

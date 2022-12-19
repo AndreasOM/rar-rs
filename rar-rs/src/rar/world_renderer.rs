@@ -107,7 +107,7 @@ impl WorldRenderer {
 									// :HACK: apply chunk offset
 									pos = pos.add(&Vector2::new(
 										(ox as f32) * (tw as f32),
-										(oy as f32) * (th as f32),
+										-1.0 * (oy as f32) * (th as f32),
 									));
 									let inc_x = Vector2::new(tw as f32, 0.0);
 									// including undo row aka carriage return ;)

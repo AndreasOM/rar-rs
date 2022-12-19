@@ -57,6 +57,7 @@ impl UiElement for WorldSelectionDialog {
 					[
 						Self::create_world_button("dev", &button_size),
 						Self::create_world_button("debug", &button_size),
+						Self::create_world_button("grassland", &button_size),
 						Self::create_world_button("DebugCollisions", &button_size),
 						Self::create_world_button("Settings", &button_size),
 					]

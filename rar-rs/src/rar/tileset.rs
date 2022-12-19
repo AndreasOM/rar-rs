@@ -1,5 +1,6 @@
 use derive_getters::Getters;
 use oml_game::system::System;
+use tracing::*;
 
 #[derive(Debug, Default, Getters)]
 pub struct Tile {
@@ -11,12 +12,29 @@ pub struct Tile {
 
 #[derive(Debug, Default, Getters)]
 pub struct Tileset {
-	columns:    u32,
-	name:       String,
-	tilecount:  u32,
-	tilewidth:  u32,
-	tileheight: u32,
-	tiles:      Vec<Tile>, // :TODO: make hashmap based on id?
+	columns:     u32,
+	name:        String,
+	tilecount:   u32,
+	tilewidth:   u32,
+	tileheight:  u32,
+	tiles:       Vec<Tile>, // :TODO: make hashmap based on id?
+	remove_path: bool,
+}
+
+impl Tile {
+	pub fn without_path(mut self) -> Self {
+		let s = if let Some(idx) = self.image.rfind("/") {
+			idx + 1
+		} else {
+			0
+		};
+
+		let image = self.image[s..].to_string();
+		debug!("Tile: {}", &image);
+		self.image = image;
+		todo!();
+		self
+	}
 }
 
 impl Tileset {
@@ -26,7 +44,19 @@ impl Tileset {
 		}
 	}
 
+	pub fn enable_remove_path(&mut self) {
+		self.remove_path = true;
+		debug!("Tileset::enable_remove_path: {:?}", &self);
+	}
+
 	pub fn add_tile(&mut self, tile: Tile) {
+		// debug!("Tileset::add_tile: {:?}", &self);
+		let tile = if self.remove_path {
+			tile.without_path()
+		} else {
+			tile
+		};
+
 		self.tiles.push(tile);
 	}
 
@@ -41,6 +71,9 @@ impl Tileset {
 			tileset_tsj.load(system, &tsj_name)?;
 
 			dbg!(&tileset_tsj);
+			if self.remove_path {
+				tileset_tsj.remove_paths();
+			}
 
 			*self = tileset_tsj.into();
 			Ok(())

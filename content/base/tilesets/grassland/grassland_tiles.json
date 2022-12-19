@@ -1,0 +1,26 @@
+{ "frames": {
+   "grassland_tiles.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 1024, "h": 1024 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 1024, "h": 1024 },
+    "sourceSize": { "w": 1024, "h": 1024 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.2.40-x64",
+  "image": "grassland_tiles.png",
+  "format": "I8",
+  "size": { "w": 1024, "h": 1024 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

@@ -323,7 +323,10 @@ impl UiElementContainer {
 		debug_renderer.add_line(&tr, &tl, 3.0, &color);
 	}
 
-	pub fn dump_info(&self, indent: &str, offset: &Vector2) {
+	pub fn dump_info(&self) {
+		self.dump_info_internal(&"", &Vector2::zero());
+	}
+	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2) {
 		println!(
 			"{} {}: {},{} {},{}",
 			indent,
@@ -336,7 +339,7 @@ impl UiElementContainer {
 		let new_indent = format!("{}  ", indent);
 		for c in self.data.borrow_children().iter() {
 			let co = offset; //.add( c.pos() );
-			c.borrow().dump_info(&new_indent, &co);
+			c.borrow().dump_info_internal(&new_indent, &co);
 		}
 	}
 
@@ -438,7 +441,7 @@ impl UiElementContainer {
 					//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
 					//debug!("Hit {:?}", &self);
 					debug!("Hit {:?}", &pos);
-					self.dump_info("", &Vector2::zero());
+					self.dump_info_internal("", &Vector2::zero());
 					for c in self.data.borrow_children_mut().iter_mut() {
 						let mut c = c.borrow_mut();
 						let cpos = pos.sub(c.pos());

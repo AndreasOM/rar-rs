@@ -9,12 +9,13 @@ use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
-//use tracing::*;
 use crate::rar::dialogs::WorldSelectionDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
+//use tracing::*;
+use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
 //use crate::rar::GameStateResponseDataSelectWorld;
@@ -82,11 +83,19 @@ impl GameState for GameStateMenu {
 				Some(e) => {
 					println!("Button {} clicked", &e.button_name);
 					if let Some(sound_tx) = auc.sound_tx() {
-						let _ = sound_tx.send("BUTTON".to_string());
+						let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
 					}
 					match e.button_name.as_str() {
 						"dev" => {
 							let world = "dev";
+							let sw = GameStateResponseDataSelectWorld::new(world);
+							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
+							responses.push(r);
+							let r = GameStateResponse::new("StartGame");
+							responses.push(r);
+						},
+						"grassland" => {
+							let world = "grassland";
 							let sw = GameStateResponseDataSelectWorld::new(world);
 							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
 							responses.push(r);

@@ -9,8 +9,8 @@ pub const UPSIDEUP: bool = true;
 #[derive(Debug, Default, Getters)]
 pub struct WorldMap {
 	filename: String, // prefix!
-	x:        u32,
-	y:        u32,
+	x:        i32,
+	y:        i32,
 	height:   u32,
 	width:    u32,
 	map:      Option<Map>,

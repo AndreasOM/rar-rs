@@ -242,6 +242,7 @@ impl Map {
 	pub fn load_all_tilesets(&mut self, system: &mut System) -> anyhow::Result<()> {
 		for ts in self.tilesets.iter_mut() {
 			let mut tileset = Tileset::new();
+			tileset.enable_remove_path();
 			tileset.load(system, &ts.source)?;
 
 			ts.tileset = Some(tileset);
@@ -285,7 +286,7 @@ impl Map {
 			for c in l.chunks().iter() {
 				let x = *c.x() as f32;
 				let y = *c.y() as f32;
-				let y = y + 7.0; // :HACK: what the fudge?
+				let y = -y + 7.0; // :HACK: what the fudge?
 				let start = tile_size.scaled_vector2(&Vector2::new(x, y));
 				let tm = c.tile_map();
 				// no visibility checks here, it's pre-processed anyway
