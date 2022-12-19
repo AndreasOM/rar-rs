@@ -102,6 +102,14 @@ impl GameState for GameStateMenu {
 							let r = GameStateResponse::new("StartGame");
 							responses.push(r);
 						},
+						"mystic_mountain" => {
+							let world = "mystic_mountain";
+							let sw = GameStateResponseDataSelectWorld::new(world);
+							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
+							responses.push(r);
+							let r = GameStateResponse::new("StartGame");
+							responses.push(r);
+						},
 						"DebugCollisions" => {
 							let r = GameStateResponse::new("DebugCollisions");
 							responses.push(r);

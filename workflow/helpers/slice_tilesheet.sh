@@ -1,10 +1,15 @@
 #!/bin/bash
 
-base=content/base/tilesets/grassland
-tileset=grassland_tiles.png
-prefix=tiles/grassland_
+base=$1
+tileset=$2
+prefix=$3
+tile_size=$4
+
+#base=content/base/tilesets/grassland
+#tileset=
+#prefix=tiles/grassland_
 suffix=.png
-tile_size=64
+#tile_size=64
 
 function cut_tile() {
 	x=$1

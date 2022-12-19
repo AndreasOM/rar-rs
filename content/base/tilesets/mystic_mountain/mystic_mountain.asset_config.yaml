@@ -1,0 +1,18 @@
+tool:    "omt-atlas"
+command: "combine"
+output:  "tileset-mystic_mountain-%d"
+combine-inputs: true
+input:
+  - "tiles/*.png"
+parameters: {
+}
+cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input} --reference-path ${data_directory}"
+
+
+--- 
+
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "*.tsj"
