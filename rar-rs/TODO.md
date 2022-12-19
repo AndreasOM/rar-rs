@@ -52,7 +52,13 @@
 
 ## Done
 
-### Epsiode 0024 - 2.0h + 4.0   ->  54.0h   + 40.0h     -> 94.0h
+### Epsiode 0026 - 2.0h + ?.?h  ->  57.0h   + ??.?h     -> ??.0h
+- [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
+
+### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
+- [x] Fix git messup
+
+### Epsiode 0024 - 2.0h + 4.0h  ->  54.0h   + 40.0h     -> 94.0h
 - [x] Add music & sound toggle to settings
 - [x] Use typed message for sound channel instead of raw strings
 - [x] Add grassland tiles, tileset, and test map/world.
