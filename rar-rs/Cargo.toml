@@ -36,7 +36,7 @@ chrono = "0.4.23"
 
 [dependencies.oml-game]
 # path = "../../oml-game"
-version = "0.24.0-alpha"
+version = "0.26.0-alpha"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }
