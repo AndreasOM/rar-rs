@@ -5,8 +5,8 @@ pub struct UiRenderer<'a> {
 	renderer:                    &'a mut Renderer,
 	transform_stack:             Vec<Matrix32>,
 	transform_mtx:               Matrix32,
-	texture_matrix_stack:		 Vec<Matrix32>,
-	texture_matrix:					Matrix32,
+	texture_matrix_stack:        Vec<Matrix32>,
+	texture_matrix:              Matrix32,
 	opacity_stack:               Vec<f32>,
 	opacity:                     f32,
 	color_stack:                 StateStack<Color>,
@@ -53,12 +53,12 @@ impl<'a> UiRenderer<'a> {
 		self.transform_mtx = self.transform_stack.pop().unwrap();
 	}
 
-	pub fn push_texture_matrix(&mut self, m: &Matrix32 ) {
-		self.texture_matrix_stack.push( self.texture_matrix );
-		self.texture_matrix = *m;	// :TODO: probably should multiply
+	pub fn push_texture_matrix(&mut self, m: &Matrix32) {
+		self.texture_matrix_stack.push(self.texture_matrix);
+		self.texture_matrix = *m; // :TODO: probably should multiply
 	}
 
-	pub fn pop_texture_matrix(&mut self){
+	pub fn pop_texture_matrix(&mut self) {
 		// :TODO: protect against mismatched push/pop
 		self.texture_matrix = self.texture_matrix_stack.pop().unwrap();
 	}
