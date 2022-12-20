@@ -8,6 +8,7 @@ use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
+use crate::rar::dialogs::SettingsDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
@@ -59,140 +60,10 @@ impl GameState for GameStateSettings {
 		self.ui_system
 			.setup(system, self.event_response_sender.clone())?;
 
-		let label_size = Vector2::new(256.0, 96.0);
-		const VERSION: &str = env!("CARGO_PKG_VERSION");
-		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
-		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
-
-		let code_build_number = env!("CODE_BUILD_NUMBER");
-		let base_data_build_number_path = "base_build_number.txt";
-		let mut f = system
-			.default_filesystem_mut()
-			.open(base_data_build_number_path);
-		let base_data_build_number = if f.is_valid() {
-			f.read_as_string()
-		} else {
-			"[file not found]".to_string()
-		};
-
 		self.ui_system.set_root(
-			UiGravityBox::new()
-				.with_padding(16.0)
-				.with_gravity(&Vector2::new(-1.0, 1.0))
+			SettingsDialog::new(system)
 				.containerize()
-				.with_name("Game State Settings")
-				.with_child_element_containers(
-					[{
-						UiHbox::new()
-							.with_padding(16.0)
-							.containerize()
-							.with_name("Settings hBox")
-							.with_child_element_containers(
-								[
-									{
-										UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-											.containerize()
-											.with_name("back")
-											.with_fade_out(0.0)
-											.with_fade_in(1.0)
-									},
-									{
-										UiVbox::new()
-											.with_padding(16.0)
-											.containerize()
-											.with_name("Settings hBox")
-											.with_child_element_containers(
-												[
-													{
-														UiToggleButton::new(
-															"ui-togglebutton_music_on",
-															"ui-togglebutton_music_off",
-															&Vector2::new(64.0, 64.0),
-														)
-														.containerize()
-														.with_name("music/toggle")
-														.with_fade_out(0.0)
-														.with_fade_in(1.0)
-													},
-													{
-														UiToggleButton::new(
-															"ui-togglebutton_sound_on",
-															"ui-togglebutton_sound_off",
-															&Vector2::new(64.0, 64.0),
-														)
-														.containerize()
-														.with_name("sound/toggle")
-														.with_fade_out(0.0)
-														.with_fade_in(1.0)
-													},
-												]
-												.into(),
-											)
-									},
-									{
-										UiVbox::new()
-											.with_padding(16.0)
-											.containerize()
-											.with_name("Settings hBox")
-											.with_child_element_containers(
-												[
-													{
-														UiLabel::new(
-															&label_size,
-															&format!("Version : {}", VERSION),
-														)
-														.containerize()
-													},
-													{
-														UiLabel::new(
-															&label_size,
-															&format!(
-																"Build at: {}",
-																BUILD_DATETIME
-															),
-														)
-														.containerize()
-													},
-													{
-														UiLabel::new(
-															&label_size,
-															&format!(
-																"Code Build#: {}",
-																code_build_number
-															),
-														)
-														.containerize()
-													},
-													{
-														UiLabel::new(
-															&label_size,
-															&format!(
-																"'base' data Build#: {}",
-																base_data_build_number
-															),
-														)
-														.containerize()
-													},
-													{
-														UiLabel::new(
-															&label_size,
-															&format!(
-																"Commit : {}",
-																GIT_COMMIT_HASH
-															),
-														)
-														.containerize()
-													},
-												]
-												.into(),
-											)
-									},
-								]
-								.into(),
-							)
-					}]
-					.into(),
-				),
+				.with_name("Settings Dialog"),
 		);
 		self.ui_system.layout();
 		Ok(())
@@ -221,7 +92,7 @@ impl GameState for GameStateSettings {
 
 		if let Some(root) = self.ui_system.get_root_mut() {
 			if let Some(mut mtb) = root.find_child_mut(&[
-				"Game State Settings",
+				"Settings Dialog - vbox",
 				"Settings hBox",
 				"Settings hBox",
 				"music/toggle",
@@ -247,7 +118,7 @@ impl GameState for GameStateSettings {
 
 		if let Some(root) = self.ui_system.get_root_mut() {
 			if let Some(mut stb) = root.find_child_mut(&[
-				"Game State Settings",
+				"Settings Dialog - vbox",
 				"Settings hBox",
 				"Settings hBox",
 				"sound/toggle",

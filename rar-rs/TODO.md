@@ -3,10 +3,11 @@
 
 ## In Progress
 
-- [ ] Extract settings state into dialog
+
 
 ## TODO
 
+- [ ] Move sound & music button update into settings dialog
 - [ ] Add Pause menu
     - [ ] With settings?
 
@@ -52,8 +53,10 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + ?.?h  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 0.5h  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
+
+- [x] Extract settings state into dialog
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
