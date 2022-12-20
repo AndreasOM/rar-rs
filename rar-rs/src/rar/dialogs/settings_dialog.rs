@@ -32,7 +32,8 @@ impl SettingsDialog {
 		}
 	}
 	fn create_info_labels(&self) -> Vec<UiElementContainer> {
-		let label_size = Vector2::new(768.0, 96.0);
+		let label_size = Vector2::new(256.0 + 64.0 + 32.0, 96.0);
+		let value_size = Vector2::new(512.0, 96.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
@@ -50,9 +51,26 @@ impl SettingsDialog {
 		];
 		let mut vl = Vec::new();
 		for l in labels {
-			vl.push(UiLabel::new(&label_size, &format!("{}{}", l.0, l.1)).containerize());
+			vl.push(UiLabel::new(&label_size, l.0).containerize());
 		}
-		vl
+		let mut vv = Vec::new();
+		for l in labels {
+			vv.push(UiLabel::new(&value_size, l.1).containerize());
+		}
+		// Note: We could have done hbox in vbox instead. Should really have a gridbox ;)
+		[
+			UiVbox::new()
+				.with_padding(16.0)
+				.containerize()
+				.with_name("Labels")
+				.with_child_element_containers(vl),
+			UiVbox::new()
+				.with_padding(16.0)
+				.containerize()
+				.with_name("Values")
+				.with_child_element_containers(vv),
+		]
+		.into()
 	}
 	fn create_audio_buttons(&self) -> Vec<UiElementContainer> {
 		[
@@ -99,14 +117,14 @@ impl SettingsDialog {
 						UiVbox::new()
 							.with_padding(16.0)
 							.containerize()
-							.with_name("Settings hBox")
+							.with_name("Settings hBox") // :TODO: fix name
 							.with_child_element_containers(self.create_audio_buttons())
 					},
 					{
-						UiVbox::new()
+						UiHbox::new()
 							.with_padding(16.0)
 							.containerize()
-							.with_name("Settings hBox")
+							.with_name("Labels hBox")
 							.with_child_element_containers(self.create_info_labels())
 					},
 				]
