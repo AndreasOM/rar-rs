@@ -100,10 +100,10 @@ impl GameState for GameStateGame {
 		debug!("Generating colliders...");
 		self.world
 			.generate_collider_layers("Collider", &["Tile Layer 1", "terrain"].to_vec())?;
-//			.generate_collider_layers("Collider", &["Tile Layer", "terrain"].to_vec())?;
-//			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
-//		self.world
-//			.generate_collider_layers("Collider", &["terrain"].to_vec())?;
+		//			.generate_collider_layers("Collider", &["Tile Layer", "terrain"].to_vec())?;
+		//			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
+		//		self.world
+		//			.generate_collider_layers("Collider", &["terrain"].to_vec())?;
 		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
 
 		/*
