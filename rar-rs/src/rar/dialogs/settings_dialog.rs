@@ -207,9 +207,11 @@ impl UiElement for SettingsDialog {
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
 		//let button_size = Vector2::new(256.0, 64.0);
 		container.add_child_element_container(
-			UiImage::new(
+			Ui3x3Image::new(
 				"ui-3x3-grassland",
-				&Vector2::new(1024.0 + 256.0, 1024.0 - 256.0),
+				//				&Vector2::new(1024.0 + 256.0, 1024.0 - 256.0),
+				&Vector2::new(192.0 * 7.0, 192.0 * 4.0), // 3x3 doesn't support repeating by non integer ... yet
+				&Vector2::new(192.0, 192.0),
 			)
 			.containerize()
 			.with_name("Settings Dialog - background"), //.with_child_element_containers(self.create_children().into()),

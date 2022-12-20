@@ -35,8 +35,8 @@ oml-audio = "0.6.9-alpha"
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-#path = "../../oml-game"
-version = "0.26.3-alpha"
+path = "../../oml-game"
+version = "0.26.4-dev"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }

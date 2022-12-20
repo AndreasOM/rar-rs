@@ -13,6 +13,8 @@ pub use ui_event::UiEvent;
 pub use ui_event::UiEventResponse;
 pub use ui_event::UiEventResponseButtonClicked;
 
+mod ui_3x3_image;
+pub use ui_3x3_image::Ui3x3Image;
 mod ui_block;
 pub use ui_block::UiBlock;
 mod ui_button;
