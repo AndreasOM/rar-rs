@@ -31,13 +31,59 @@ impl SettingsDialog {
 			//..Default::default()
 		}
 	}
-	fn create_children(&self) -> Vec<UiElementContainer> {
+	fn create_info_labels(&self) -> Vec<UiElementContainer> {
 		let label_size = Vector2::new(768.0, 96.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
 
 		let code_build_number = env!("CODE_BUILD_NUMBER");
+		[
+			{ UiLabel::new(&label_size, &format!("Version : {}", VERSION)).containerize() },
+			{ UiLabel::new(&label_size, &format!("Build at: {}", BUILD_DATETIME)).containerize() },
+			{
+				UiLabel::new(&label_size, &format!("Code Build#: {}", code_build_number))
+					.containerize()
+			},
+			{
+				UiLabel::new(
+					&label_size,
+					&format!("'base' data Build#: {}", self.base_data_build_number),
+				)
+				.containerize()
+			},
+			{ UiLabel::new(&label_size, &format!("Commit : {}", GIT_COMMIT_HASH)).containerize() },
+		]
+		.into()
+	}
+	fn create_audio_buttons(&self) -> Vec<UiElementContainer> {
+		[
+			{
+				UiToggleButton::new(
+					"ui-togglebutton_music_on",
+					"ui-togglebutton_music_off",
+					&Vector2::new(64.0, 64.0),
+				)
+				.containerize()
+				.with_name("music/toggle")
+				.with_fade_out(0.0)
+				.with_fade_in(1.0)
+			},
+			{
+				UiToggleButton::new(
+					"ui-togglebutton_sound_on",
+					"ui-togglebutton_sound_off",
+					&Vector2::new(64.0, 64.0),
+				)
+				.containerize()
+				.with_name("sound/toggle")
+				.with_fade_out(0.0)
+				.with_fade_in(1.0)
+			},
+		]
+		.into()
+	}
+	fn create_children(&self) -> Vec<UiElementContainer> {
 		[UiHbox::new()
 			.with_padding(16.0)
 			.containerize()
@@ -56,79 +102,14 @@ impl SettingsDialog {
 							.with_padding(16.0)
 							.containerize()
 							.with_name("Settings hBox")
-							.with_child_element_containers(
-								[
-									{
-										UiToggleButton::new(
-											"ui-togglebutton_music_on",
-											"ui-togglebutton_music_off",
-											&Vector2::new(64.0, 64.0),
-										)
-										.containerize()
-										.with_name("music/toggle")
-										.with_fade_out(0.0)
-										.with_fade_in(1.0)
-									},
-									{
-										UiToggleButton::new(
-											"ui-togglebutton_sound_on",
-											"ui-togglebutton_sound_off",
-											&Vector2::new(64.0, 64.0),
-										)
-										.containerize()
-										.with_name("sound/toggle")
-										.with_fade_out(0.0)
-										.with_fade_in(1.0)
-									},
-								]
-								.into(),
-							)
+							.with_child_element_containers(self.create_audio_buttons())
 					},
 					{
 						UiVbox::new()
 							.with_padding(16.0)
 							.containerize()
 							.with_name("Settings hBox")
-							.with_child_element_containers(
-								[
-									{
-										UiLabel::new(&label_size, &format!("Version : {}", VERSION))
-											.containerize()
-									},
-									{
-										UiLabel::new(
-											&label_size,
-											&format!("Build at: {}", BUILD_DATETIME),
-										)
-										.containerize()
-									},
-									{
-										UiLabel::new(
-											&label_size,
-											&format!("Code Build#: {}", code_build_number),
-										)
-										.containerize()
-									},
-									{
-										UiLabel::new(
-											&label_size,
-											&format!(
-												"'base' data Build#: {}",
-												self.base_data_build_number
-											),
-										)
-										.containerize()
-									},
-									{
-										UiLabel::new(
-											&label_size,
-											&format!("Commit : {}", GIT_COMMIT_HASH),
-										)
-										.containerize()
-									},
-								]
-								.into(),
-							)
+							.with_child_element_containers(self.create_info_labels())
 					},
 				]
 				.into(),
@@ -209,6 +190,14 @@ impl UiElement for SettingsDialog {
 
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
 		//let button_size = Vector2::new(256.0, 64.0);
+		container.add_child_element_container(
+			UiImage::new(
+				"ui-3x3-grassland",
+				&Vector2::new(1024.0 + 256.0, 1024.0 - 256.0),
+			)
+			.containerize()
+			.with_name("Settings Dialog - background"), //.with_child_element_containers(self.create_children().into()),
+		);
 		container.add_child_element_container(
 			UiVbox::new()
 				.with_padding(16.0)

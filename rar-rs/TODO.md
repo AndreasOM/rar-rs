@@ -3,10 +3,10 @@
 
 ## In Progress
 
+- [ ] Fix text alignment in settings dialog
 
 ## TODO
 
-- [ ] Add background to settings dialog
 - [ ] Create 3x3 UiImage
 - [ ] Add Pause menu
     - [ ] With settings?
@@ -55,11 +55,12 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 1.5h  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 2.0h  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
 - [x] Move sound & music button update into settings dialog
+- [x] Add background to settings dialog
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
