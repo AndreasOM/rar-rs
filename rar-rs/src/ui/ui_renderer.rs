@@ -5,6 +5,8 @@ pub struct UiRenderer<'a> {
 	renderer:                    &'a mut Renderer,
 	transform_stack:             Vec<Matrix32>,
 	transform_mtx:               Matrix32,
+	texture_matrix_stack:		 Vec<Matrix32>,
+	texture_matrix:					Matrix32,
 	opacity_stack:               Vec<f32>,
 	opacity:                     f32,
 	color_stack:                 StateStack<Color>,
@@ -28,6 +30,8 @@ impl<'a> UiRenderer<'a> {
 			renderer,
 			transform_stack: Vec::new(),
 			transform_mtx: Matrix32::identity(),
+			texture_matrix_stack: Vec::new(),
+			texture_matrix: Matrix32::identity(),
 			opacity_stack: Vec::new(),
 			opacity: 1.0,
 			color_stack: StateStack::new(Color::white()),
@@ -47,6 +51,16 @@ impl<'a> UiRenderer<'a> {
 	pub fn pop_transform(&mut self) {
 		// :TODO: protect against mismatched push/pop
 		self.transform_mtx = self.transform_stack.pop().unwrap();
+	}
+
+	pub fn push_texture_matrix(&mut self, m: &Matrix32 ) {
+		self.texture_matrix_stack.push( self.texture_matrix );
+		self.texture_matrix = *m;	// :TODO: probably should multiply
+	}
+
+	pub fn pop_texture_matrix(&mut self){
+		// :TODO: protect against mismatched push/pop
+		self.texture_matrix = self.texture_matrix_stack.pop().unwrap();
 	}
 
 	pub fn push_opacity(&mut self, opacity: f32) {
@@ -77,7 +91,9 @@ impl<'a> UiRenderer<'a> {
 		self.renderer.set_color(&color);
 		self.renderer.use_layer(self.layer_id);
 		self.renderer.use_effect(self.textured_render_effect_id);
+		self.renderer.set_tex_matrix(&self.texture_matrix);
 		self.renderer.render_textured_quad(&transformed_pos, size);
+		self.renderer.set_tex_matrix(&Matrix32::identity());
 	}
 
 	pub fn render_quad(&mut self, pos: &Vector2, size: &Vector2) {

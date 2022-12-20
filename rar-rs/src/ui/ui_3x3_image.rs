@@ -29,9 +29,12 @@ impl Ui3x3Image {
 		let corner = size.sub(&ts3).scaled(0.5);
 		let top_left = corner.scaled_vector2(&Vector2::new(-1.0, 1.0));
 		// top left
-		quads.push((top_left.clone(), ts3.clone(), Matrix32::identity()));
+		let mtx13 = Matrix32::identity().with_scaling(1.0 / 3.0);
+
+		quads.push((top_left.clone(), ts3.clone(), mtx13.clone()));
 
 		// top part
+		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 0.0));
 		if cy > 0 {
 			// should always be true, otherwise we scale
 			if cx > 2 {
@@ -39,19 +42,21 @@ impl Ui3x3Image {
 					quads.push((
 						top_left.sub(&ts3.scaled_vector2(&Vector2::new(-x as f32, 0.0))),
 						ts3.clone(),
-						Matrix32::identity(),
+						mtx.clone(),
 					));
 				}
 			}
 		}
 		// top right
+		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 0.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new((1 - cx) as f32, 0.0))),
 			ts3.clone(),
-			Matrix32::identity(),
+			mtx.clone(),
 		));
 
 		// far left column
+		let mtx = mtx13.clone().with_translation(&Vector2::new(0.0/3.0, 1.0/3.0));
 		if cx > 0 {
 			// should always be true, otherwise we scale
 			if cy > 2 {
@@ -59,24 +64,26 @@ impl Ui3x3Image {
 					quads.push((
 						top_left.sub(&ts3.scaled_vector2(&Vector2::new(0.0, y as f32))),
 						ts3.clone(),
-						Matrix32::identity(),
+						mtx.clone(),
 					));
 				}
 			}
 		}
 		// middle part
+		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 1.0/3.0));
 		if cx > 2 && cy > 2 {
 			for y in 1..cy - 1 {
 				for x in 1..cx - 1 {
 					quads.push((
 						top_left.sub(&ts3.scaled_vector2(&Vector2::new(-x as f32, y as f32))),
 						ts3.clone(),
-						Matrix32::identity(),
+						mtx.clone(),
 					));
 				}
 			}
 		}
 		// far right column
+		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 1.0/3.0));
 		if cx > 2 {
 			// should always be true, otherwise we scale
 			if cy > 2 {
@@ -84,18 +91,20 @@ impl Ui3x3Image {
 					quads.push((
 						top_left.sub(&ts3.scaled_vector2(&Vector2::new((1 - cx) as f32, y as f32))),
 						ts3.clone(),
-						Matrix32::identity(),
+						mtx.clone(),
 					));
 				}
 			}
 		}
 		// bottom left
+		let mtx = mtx13.clone().with_translation(&Vector2::new(0.0/3.0, 2.0/3.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new(0.0, (cy - 1) as f32))),
 			ts3.clone(),
-			Matrix32::identity(),
+			mtx.clone(),
 		));
 		// bottom part
+		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 2.0/3.0));
 		if cy > 2 {
 			// should always be true, otherwise we scale
 			if cx > 2 {
@@ -104,16 +113,17 @@ impl Ui3x3Image {
 						top_left
 							.sub(&ts3.scaled_vector2(&Vector2::new(-x as f32, (cy - 1) as f32))),
 						ts3.clone(),
-						Matrix32::identity(),
+						mtx.clone(),
 					));
 				}
 			}
 		}
 		// bottom right
+		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 2.0/3.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new((1 - cx) as f32, (cy - 1) as f32))),
 			ts3.clone(),
-			Matrix32::identity(),
+			mtx.clone(),
 		));
 
 		Self {
@@ -158,7 +168,9 @@ impl UiElement for Ui3x3Image {
 				let p = &q.0; // :TODO: I am pretty sure we need to factor in the container.pos here ... somehow ... maybe
 				let s = &q.1;
 				let m = &q.2;
+				ui_renderer.push_texture_matrix(&m);
 				ui_renderer.render_textured_quad(&p, &s);
+				ui_renderer.pop_texture_matrix();
 			}
 			ui_renderer.pop_opacity();
 		}
