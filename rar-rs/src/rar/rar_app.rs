@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::rc::Rc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
+use std::sync::Arc;
 
 use oml_audio::Audio;
 //use oml_game::system::audio_fileloader_system::*;
@@ -23,6 +24,7 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 use tracing::*;
 
+use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::font_ids::FontId;
 //use crate::rar::game_state::get_game_state_as_specific;
@@ -190,6 +192,9 @@ impl App for RarApp {
 
 	fn setup(&mut self, window: &mut Window) -> anyhow::Result<()> {
 		window.set_title("RAR - RS");
+
+		let rar_data = RarData::new();
+		self.system.set_data(Arc::new(rar_data));
 
 		let mut lfs = FilesystemLayered::new();
 
@@ -417,6 +422,19 @@ impl App for RarApp {
 			.set_sound_tx(self.sound_tx.clone())
 			.with_is_music_playing(self.audio.is_music_playing())
 			.with_is_sound_enabled(self.is_sound_enabled);
+
+		match self.system.data().as_any().downcast_ref::<RarData>() {
+			Some(data) => {
+				data.audio.write().and_then(|mut audio| {
+					// could probably try_write here
+					//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
+					audio.is_music_enabled = self.audio.is_music_playing();
+					audio.is_sound_enabled = self.is_sound_enabled;
+					Ok(())
+				});
+			},
+			None => {},
+		}
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.set_size(&self.size); // :TODO: only call on change;

@@ -30,6 +30,9 @@ impl UiElementContainerData {
 			children:   Vec::new(),
 		}
 	}
+	pub fn name(&self) -> &str {
+		&self.name
+	}
 	pub fn set_size(&mut self, size: &Vector2) {
 		self.size = *size;
 	}
@@ -76,6 +79,49 @@ impl UiElementContainerData {
 		element_container: UiElementContainer,
 	) -> UiElementContainerHandle {
 		self.add_child(element_container)
+	}
+
+	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
+		if path.len() == 0 {
+			// nothing left to check
+			return None;
+		}
+		let (head, tail) = path.split_at(1);
+		let head = head[0];
+
+		//		println!("Checking {} for {}, {:?}", self.name(), head, tail );
+
+		if head == self.name() {
+			if tail.len() == 0 {
+				//				println!("Found {}!", &head );
+				//				return Some( &mut UiElementContainerHandle::new( *self ) );
+				todo!();
+			/*
+			if let Some(handle) = &mut self.handle {
+				return Some(handle.upgrade());
+			} else {
+				println!("Found {}, but it doesn't have a handle!", &head);
+				return None;
+			}
+			*/
+			} else {
+				//				println!("Found {} ... {:?}", &head, &tail );
+				return self.find_child_mut(tail);
+			}
+		}
+
+		//		println!("Checking {} children for {}, {:?}", self.data.borrow_children().len(), head, tail );
+
+		for c in self.borrow_children_mut().iter_mut() {
+			if let Some(r) = c.borrow_mut().find_child_mut(path) {
+				return Some(r);
+			}
+		}
+		None
+	}
+
+	pub fn dump_info(&self) {
+		todo!("dump_info");
 	}
 }
 
@@ -160,7 +206,7 @@ impl UiElementContainer {
 	}
 
 	pub fn update(&mut self, time_step: f64) {
-		self.element.update(&self.data, time_step);
+		self.element.update(&mut self.data, time_step);
 		self.update_fade_state(time_step);
 		for c in self.data.children.iter_mut() {
 			c.borrow_mut().update(time_step);

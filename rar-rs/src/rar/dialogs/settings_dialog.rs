@@ -1,11 +1,17 @@
-use oml_game::math::Vector2;
-use oml_game::system::System;
+use std::sync::Arc;
 
+use oml_game::math::Vector2;
+use oml_game::system::Data;
+use oml_game::system::System;
+use tracing::*;
+
+use crate::rar::data::RarData;
 use crate::ui::*;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct SettingsDialog {
 	base_data_build_number: String,
+	data:                   Arc<dyn Data>,
 }
 
 impl SettingsDialog {
@@ -21,7 +27,8 @@ impl SettingsDialog {
 		};
 		Self {
 			base_data_build_number,
-			..Default::default()
+			data: Arc::clone(system.data()),
+			//..Default::default()
 		}
 	}
 	fn create_children(&self) -> Vec<UiElementContainer> {
@@ -128,6 +135,68 @@ impl SettingsDialog {
 			)]
 		.into()
 	}
+
+	fn update_music(
+		&self,
+		uielement: &dyn UiElement,
+		container: &mut UiElementContainerData,
+		is_on: bool,
+	) {
+		if let Some(mut stb) = container.find_child_mut(&[
+			"Settings Dialog - vbox",
+			"Settings hBox",
+			"Settings hBox",
+			"music/toggle",
+		]) {
+			// debug!("Found sound/toggle");
+			let mut stb = stb.borrow_mut();
+			let stb = stb.borrow_element_mut();
+			match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
+				Some(stb) => {
+					if is_on {
+						stb.goto_a();
+					} else {
+						stb.goto_b();
+					}
+				},
+				None => panic!("{:?} isn't a UiToggleButton!", &stb),
+			};
+		} else {
+			uielement.dump_info();
+			todo!("Fix path to music toggle button");
+		}
+	}
+
+	fn update_sound(
+		&self,
+		uielement: &dyn UiElement,
+		container: &mut UiElementContainerData,
+		is_on: bool,
+	) {
+		if let Some(mut stb) = container.find_child_mut(&[
+			"Settings Dialog - vbox",
+			"Settings hBox",
+			"Settings hBox",
+			"sound/toggle",
+		]) {
+			// debug!("Found sound/toggle");
+			let mut stb = stb.borrow_mut();
+			let stb = stb.borrow_element_mut();
+			match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
+				Some(stb) => {
+					if is_on {
+						stb.goto_a();
+					} else {
+						stb.goto_b();
+					}
+				},
+				None => panic!("{:?} isn't a UiToggleButton!", &stb),
+			};
+		} else {
+			uielement.dump_info();
+			todo!("Fix path to sound toggle button");
+		}
+	}
 }
 
 impl UiElement for SettingsDialog {
@@ -148,5 +217,20 @@ impl UiElement for SettingsDialog {
 				.with_child_element_containers(self.create_children().into()),
 		);
 	}
-	fn update(&mut self, _container: &UiElementContainerData, _time_step: f64) {}
+	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
+		match self.data.as_any().downcast_ref::<RarData>() {
+			Some(data) => {
+				data.audio.read().and_then(|audio| {
+					// :TODO: maybe use try_read instead of potentially blocking
+					//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
+					//debug!("is_music_enabled {:?}", audio.is_music_enabled);
+					let uielement: &dyn UiElement = self;
+					self.update_sound(uielement, container, audio.is_sound_enabled);
+					self.update_music(uielement, container, audio.is_music_enabled);
+					Ok(())
+				});
+			},
+			None => {},
+		}
+	}
 }

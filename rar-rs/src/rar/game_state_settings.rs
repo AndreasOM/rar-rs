@@ -16,7 +16,6 @@ use crate::rar::AppUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::ui::UiEventResponse;
-use crate::ui::UiGravityBox;
 use crate::ui::UiSystem;
 use crate::ui::*;
 
@@ -89,59 +88,6 @@ impl GameState for GameStateSettings {
 		let mut responses = Vec::new();
 
 		self.ui_system.update(auc);
-
-		if let Some(root) = self.ui_system.get_root_mut() {
-			if let Some(mut mtb) = root.find_child_mut(&[
-				"Settings Dialog - vbox",
-				"Settings hBox",
-				"Settings hBox",
-				"music/toggle",
-			]) {
-				// debug!("Found music/toggle");
-				let mut mtb = mtb.borrow_mut();
-				let mtb = mtb.borrow_element_mut();
-				match mtb.as_any_mut().downcast_mut::<UiToggleButton>() {
-					Some(mtb) => {
-						if auc.is_music_playing() {
-							mtb.goto_a();
-						} else {
-							mtb.goto_b();
-						}
-					},
-					None => panic!("{:?} isn't a UiToggleButton!", &mtb),
-				};
-			} else {
-				root.dump_info();
-				todo!("Fix path to music toggle button");
-			}
-		}
-
-		if let Some(root) = self.ui_system.get_root_mut() {
-			if let Some(mut stb) = root.find_child_mut(&[
-				"Settings Dialog - vbox",
-				"Settings hBox",
-				"Settings hBox",
-				"sound/toggle",
-			]) {
-				// debug!("Found sound/toggle");
-				let mut stb = stb.borrow_mut();
-				let stb = stb.borrow_element_mut();
-				match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
-					Some(stb) => {
-						if auc.is_sound_enabled() {
-							stb.goto_a();
-						} else {
-							stb.goto_b();
-						}
-					},
-					None => panic!("{:?} isn't a UiToggleButton!", &stb),
-				};
-			} else {
-				root.dump_info();
-				todo!("Fix path to sound toggle button");
-			}
-		}
-
 		// :TODO:
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);

@@ -27,7 +27,7 @@ pub trait UiElement {
 
 	fn recalculate_size(&mut self, _container: &mut UiElementContainerData) {}
 	fn add_child(&mut self, _child: &mut UiElementContainerData) {}
-	fn update(&mut self, _container: &UiElementContainerData, _time_step: f64) {}
+	fn update(&mut self, _container: &mut UiElementContainerData, _time_step: f64) {}
 	fn render(&self, _container: &UiElementContainerData, _ui_renderer: &mut UiRenderer) {}
 	fn layout(&mut self, container: &mut UiElementContainerData, _pos: &Vector2) {
 		for c in container.borrow_children_mut().iter_mut() {
@@ -68,6 +68,7 @@ pub trait UiElement {
 	{
 		UiElementContainer::new(Box::new(self))
 	}
+	fn dump_info(&self) {}
 }
 
 impl std::fmt::Debug for dyn UiElement {
