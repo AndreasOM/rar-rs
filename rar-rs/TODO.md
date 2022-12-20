@@ -6,7 +6,6 @@
 
 ## TODO
 
-- [ ] Create 3x3 UiImage
 - [ ] Add Pause menu
     - [ ] With settings?
 
@@ -63,6 +62,7 @@
 - [x] Move sound & music button update into settings dialog
 - [x] Add background to settings dialog
 - [x] Fix text alignment in settings dialog
+- [x] Create 3x3 UiImage
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
