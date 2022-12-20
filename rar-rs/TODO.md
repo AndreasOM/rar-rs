@@ -11,6 +11,7 @@
 - [ ] Add Pause menu
     - [ ] With settings?
 
+- [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
 - [ ] Fix font rendering

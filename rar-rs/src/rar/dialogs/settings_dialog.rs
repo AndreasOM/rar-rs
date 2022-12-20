@@ -36,25 +36,23 @@ impl SettingsDialog {
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
-
 		let code_build_number = env!("CODE_BUILD_NUMBER");
-		[
-			{ UiLabel::new(&label_size, &format!("Version : {}", VERSION)).containerize() },
-			{ UiLabel::new(&label_size, &format!("Build at: {}", BUILD_DATETIME)).containerize() },
-			{
-				UiLabel::new(&label_size, &format!("Code Build#: {}", code_build_number))
-					.containerize()
-			},
-			{
-				UiLabel::new(
-					&label_size,
-					&format!("'base' data Build#: {}", self.base_data_build_number),
-				)
-				.containerize()
-			},
-			{ UiLabel::new(&label_size, &format!("Commit : {}", GIT_COMMIT_HASH)).containerize() },
-		]
-		.into()
+
+		let labels = [
+			("Version           :", VERSION),
+			("Build at          :", BUILD_DATETIME),
+			("Code Build#       :", &format!("{}", code_build_number)),
+			(
+				"'base' data Build#:",
+				&format!("{}", self.base_data_build_number),
+			),
+			("Commit            :", GIT_COMMIT_HASH),
+		];
+		let mut vl = Vec::new();
+		for l in labels {
+			vl.push(UiLabel::new(&label_size, &format!("{}{}", l.0, l.1)).containerize());
+		}
+		vl
 	}
 	fn create_audio_buttons(&self) -> Vec<UiElementContainer> {
 		[
