@@ -13,19 +13,26 @@ pub struct Ui3x3Image {
 
 impl Ui3x3Image {
 	pub fn new(imagename: &str, size: &Vector2, texturesize: &Vector2) -> Self {
-		let div = size.scaled_reciprocal_vector2(&texturesize);
-		let _scale = 1.0;
-		if div.x.fract() != 0.0 || div.y.fract() != 0.0 {
-			dbg!(&div);
-			warn!("Ui3x3Image doesn't support non integer repeats!")
+		// Note: the whole quad handling is a massive :HACK: there are much better ways to create, and render the mesh
+		let mut div = size.scaled_reciprocal_vector2(&texturesize);
+		let mut scale = Vector2::new(1.0 / 3.0, 1.0 / 3.0);
+		if div.x.fract() != 0.0 {
+			info!("Ui3x3Image with non integer X repeat {}!", div.x);
+			let fx = div.x.floor();
+			scale.x *= div.x / fx;
+			div.x = fx;
 		}
-		let ts3 = texturesize.scaled(1.0 / 3.0);
+		if div.y.fract() != 0.0 {
+			info!("Ui3x3Image with non integer Y repeat {}!", div.y);
+			let fy = div.y.floor();
+			scale.y *= div.y / fy;
+			div.y = fy;
+		}
+		let ts3 = texturesize.scaled_vector2(&scale);
 		let cx = div.x as isize * 3;
 		let cy = div.y as isize * 3;
 		let mut quads = Vec::new();
-		// Test: one fullsize quad
-		//quads.push((Vector2::zero(), *size, Matrix32::identity()));
-		//
+
 		let corner = size.sub(&ts3).scaled(0.5);
 		let top_left = corner.scaled_vector2(&Vector2::new(-1.0, 1.0));
 		// top left
@@ -34,7 +41,9 @@ impl Ui3x3Image {
 		quads.push((top_left.clone(), ts3.clone(), mtx13.clone()));
 
 		// top part
-		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 0.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(1.0 / 3.0, 0.0));
 		if cy > 0 {
 			// should always be true, otherwise we scale
 			if cx > 2 {
@@ -48,7 +57,9 @@ impl Ui3x3Image {
 			}
 		}
 		// top right
-		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 0.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(2.0 / 3.0, 0.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new((1 - cx) as f32, 0.0))),
 			ts3.clone(),
@@ -56,7 +67,9 @@ impl Ui3x3Image {
 		));
 
 		// far left column
-		let mtx = mtx13.clone().with_translation(&Vector2::new(0.0/3.0, 1.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(0.0 / 3.0, 1.0 / 3.0));
 		if cx > 0 {
 			// should always be true, otherwise we scale
 			if cy > 2 {
@@ -70,7 +83,9 @@ impl Ui3x3Image {
 			}
 		}
 		// middle part
-		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 1.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(1.0 / 3.0, 1.0 / 3.0));
 		if cx > 2 && cy > 2 {
 			for y in 1..cy - 1 {
 				for x in 1..cx - 1 {
@@ -83,7 +98,9 @@ impl Ui3x3Image {
 			}
 		}
 		// far right column
-		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 1.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(2.0 / 3.0, 1.0 / 3.0));
 		if cx > 2 {
 			// should always be true, otherwise we scale
 			if cy > 2 {
@@ -97,14 +114,18 @@ impl Ui3x3Image {
 			}
 		}
 		// bottom left
-		let mtx = mtx13.clone().with_translation(&Vector2::new(0.0/3.0, 2.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(0.0 / 3.0, 2.0 / 3.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new(0.0, (cy - 1) as f32))),
 			ts3.clone(),
 			mtx.clone(),
 		));
 		// bottom part
-		let mtx = mtx13.clone().with_translation(&Vector2::new(1.0/3.0, 2.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(1.0 / 3.0, 2.0 / 3.0));
 		if cy > 2 {
 			// should always be true, otherwise we scale
 			if cx > 2 {
@@ -119,7 +140,9 @@ impl Ui3x3Image {
 			}
 		}
 		// bottom right
-		let mtx = mtx13.clone().with_translation(&Vector2::new(2.0/3.0, 2.0/3.0));
+		let mtx = mtx13
+			.clone()
+			.with_translation(&Vector2::new(2.0 / 3.0, 2.0 / 3.0));
 		quads.push((
 			top_left.sub(&ts3.scaled_vector2(&Vector2::new((1 - cx) as f32, (cy - 1) as f32))),
 			ts3.clone(),
@@ -134,11 +157,6 @@ impl Ui3x3Image {
 		}
 	}
 }
-/*
-		let mtx = Matrix32::scaling_xy(1.0 * a, 1.0);
-		//mtx.pos.x = - self.pos.x / 1024.0;
-		renderer.set_tex_matrix(&mtx);
-*/
 
 impl UiElement for Ui3x3Image {
 	fn as_any(&self) -> &dyn std::any::Any {
@@ -150,10 +168,6 @@ impl UiElement for Ui3x3Image {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)
 	}
-	/*
-	fn update( &mut self, _time_step: f64 ) {
-	}
-	*/
 	fn render(&self, container: &UiElementContainerData, ui_renderer: &mut UiRenderer) {
 		if *container.fade_state() != UiElementFadeState::FadedOut {
 			let l = container.get_fade_level();

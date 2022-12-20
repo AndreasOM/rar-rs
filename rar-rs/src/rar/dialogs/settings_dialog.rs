@@ -210,7 +210,7 @@ impl UiElement for SettingsDialog {
 			Ui3x3Image::new(
 				"ui-3x3-grassland",
 				//				&Vector2::new(1024.0 + 256.0, 1024.0 - 256.0),
-				&Vector2::new(192.0 * 7.0, 192.0 * 4.0), // 3x3 doesn't support repeating by non integer ... yet
+				&Vector2::new(192.0 * 6.0, 192.0 * 3.0), // 3x3 doesn't support repeating by non integer ... yet
 				&Vector2::new(192.0, 192.0),
 			)
 			.containerize()
