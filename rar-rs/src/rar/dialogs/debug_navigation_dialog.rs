@@ -61,7 +61,17 @@ impl UiElement for DebugNavigationDialog {
 						.containerize()
 						.with_name("Debug Navigation Dialog - hbox")
 						.with_child_element_containers(
-							[Self::create_button("back", &button_size)].into(),
+							[
+								//Self::create_button("back", &button_size)
+								{
+									UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
+										.containerize()
+										.with_name("back")
+										.with_fade_out(0.0)
+										.with_fade_in(1.0)
+								},
+							]
+							.into(),
 						)]
 					.into(),
 				),

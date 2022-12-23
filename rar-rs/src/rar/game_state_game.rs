@@ -91,7 +91,7 @@ impl GameStateGame {
 	fn update_ui_system(
 		&mut self,
 		auc: &mut AppUpdateContext,
-		_response: &mut Vec<GameStateResponse>,
+		responses: &mut Vec<GameStateResponse>,
 	) {
 		self.ui_system.update(auc);
 
@@ -100,6 +100,10 @@ impl GameStateGame {
 				match gme.message.as_str() {
 					"playpause/toggle" => {
 						self.toggle_game_pause();
+					},
+					"back" => {
+						let r = GameStateResponse::new("GotoMainMenu");
+						responses.push(r);
 					},
 					_ => {
 						warn!("Unhandled generic message {}", &gme.message);

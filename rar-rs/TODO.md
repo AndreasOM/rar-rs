@@ -3,14 +3,14 @@
 
 ## In Progress
 
-- [ ] Add Pause menu
-    - [ ] With button to open settings
-    - [ ] Add button to go back to menu
 
 ## TODO
+- [ ] Hook up button to open ingame settings
 - [ ] Split game & game state
-- [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
 
+- [ ] Cleanup ui handling to use newer features/helpers
+
+- [ ] Add confirmation when leaving game
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
@@ -55,9 +55,13 @@
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
 
+
+## Obsolete
+- [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
+
 ## Done
 
-### Epsiode 0026 - 2.0h + 3.5h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 4.0h??  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
@@ -67,7 +71,9 @@
 - [x] Create 3x3 UiImage
 - [x] Add some helper to make working with the UI easier
 - [x] Add Play/Pause toggle button
-
+- [x] Add Pause menu
+    - [x] Add button to open settings
+    - [x] Add button to go back to menu
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup

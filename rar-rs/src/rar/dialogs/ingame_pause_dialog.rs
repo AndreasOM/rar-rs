@@ -27,13 +27,22 @@ impl IngamePauseDialog {
 			.with_name("Paused Buttons")
 			.with_fade_out(0.0)
 			.with_child_element_containers(
-				[{
-					UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
-						.containerize()
-						.with_name("settings")
-						.with_fade_out(0.0)
-						.with_fade_in(1.0)
-				}]
+				[
+					{
+						UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
+							.containerize()
+							.with_name("settings")
+							.with_fade_out(0.0)
+							.with_fade_in(1.0)
+					},
+					{
+						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
+							.containerize()
+							.with_name("back")
+							.with_fade_out(0.0)
+							.with_fade_in(1.0)
+					},
+				]
 				.into(),
 			)
 	}
@@ -101,7 +110,7 @@ impl IngamePauseDialog {
 				"Paused Buttons",
 			],
 			&|container| {
-				dbg!(&container);
+				//dbg!(&container);
 
 				if is_paused {
 					container.fade_in(1.0);
@@ -118,7 +127,7 @@ impl IngamePauseDialog {
 				"playpause/toggle",
 			],
 			&|pptb| {
-				dbg!(&pptb);
+				//dbg!(&pptb);
 				if is_paused {
 					pptb.goto_a();
 				} else {
@@ -213,6 +222,10 @@ impl UiElement for IngamePauseDialog {
 					return Some(Box::new(UiEventResponseGenericMessage::new(
 						"playpause/toggle",
 					)));
+				},
+				"back" => {
+					debug!("back button clicked");
+					return Some(Box::new(UiEventResponseGenericMessage::new("back")));
 				},
 				_ => {},
 			},
