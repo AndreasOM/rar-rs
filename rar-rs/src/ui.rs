@@ -12,6 +12,7 @@ mod ui_event;
 pub use ui_event::UiEvent;
 pub use ui_event::UiEventResponse;
 pub use ui_event::UiEventResponseButtonClicked;
+pub use ui_event::UiEventResponseGenericMessage;
 
 mod ui_3x3_image;
 pub use ui_3x3_image::Ui3x3Image;

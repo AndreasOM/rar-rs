@@ -1,15 +1,20 @@
 use std::any::Any;
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::Arc;
 
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
+use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
 
 //use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
+use crate::rar::data::RarData;
+use crate::rar::dialogs::IngamePauseDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{
@@ -20,9 +25,16 @@ use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::AppUpdateContext;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
+use crate::ui::UiElement;
+use crate::ui::UiEventResponse;
+use crate::ui::UiEventResponseGenericMessage;
+use crate::ui::UiSystem;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct GameStateGame {
+	ui_system: UiSystem,
+	event_response_sender: Sender<Box<dyn UiEventResponse>>,
+	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
 	entity_configuration_manager: EntityConfigurationManager,
 	entity_manager: EntityManager,
 	world: World,
@@ -34,20 +46,75 @@ pub struct GameStateGame {
 	player_id: EntityId,
 	world_name: String,
 	fixed_update_count: u32,
+	is_game_paused: bool,
+	data: Option<Arc<dyn Data>>,
+}
+
+impl Default for GameStateGame {
+	fn default() -> Self {
+		let (tx, rx) = channel();
+		Self {
+			ui_system: UiSystem::default(),
+			event_response_sender: tx,
+			event_response_receiver: rx,
+			camera: Default::default(),
+			entity_configuration_manager: Default::default(),
+			entity_manager: Default::default(),
+			fixed_camera: Default::default(),
+			fixed_update_count: Default::default(),
+			player_id: Default::default(),
+			total_time: Default::default(),
+			use_fixed_camera: Default::default(),
+			world: Default::default(),
+			world_name: Default::default(),
+			world_renderer: Default::default(),
+			data: Default::default(),
+			is_game_paused: false,
+		}
+	}
 }
 
 impl GameStateGame {
-	pub fn new() -> Self {
+	pub fn new(system: &mut System) -> Self {
 		Self {
 			entity_manager: EntityManager::new(),
 			entity_configuration_manager: EntityConfigurationManager::new(),
 			world: World::new(),
 			world_name: "dev".to_string(),
+			data: system.data().as_ref().map(|data| Arc::clone(&data)),
 			..Default::default()
 		}
 	}
 	pub fn select_world(&mut self, world: &str) {
 		self.world_name = world.to_string();
+	}
+	fn update_ui_system(
+		&mut self,
+		auc: &mut AppUpdateContext,
+		_response: &mut Vec<GameStateResponse>,
+	) {
+		self.ui_system.update(auc);
+
+		while let Ok(ev) = self.event_response_receiver.try_recv() {
+			if let Some(gme) = ev.as_any().downcast_ref::<UiEventResponseGenericMessage>() {
+				match gme.message.as_str() {
+					"playpause/toggle" => {
+						self.toggle_game_pause();
+					},
+					_ => {
+						warn!("Unhandled generic message {}", &gme.message);
+					},
+				}
+			}
+		}
+	}
+
+	fn toggle_game_pause(&mut self) {
+		if self.is_game_paused {
+			self.is_game_paused = false;
+		} else {
+			self.is_game_paused = true;
+		}
 	}
 }
 
@@ -188,15 +255,59 @@ impl GameState for GameStateGame {
 			EffectId::TexturedDesaturated as u16,
 		);
 		*/
+		self.ui_system
+			.setup(system, self.event_response_sender.clone())?;
+
+		self.ui_system.set_root(
+			IngamePauseDialog::new(system)
+				.containerize()
+				.with_name("Ingame Pause Dialog"),
+		);
+
+		self.ui_system.layout();
 
 		Ok(())
 	}
 	fn teardown(&mut self) {
+		self.ui_system.teardown();
 		self.world_renderer.teardown();
 		self.entity_manager.teardown();
 	}
+	fn set_size(&mut self, size: &Vector2) {
+		self.ui_system.set_size(size);
+		self.ui_system.layout();
+		if let Some(root) = self.ui_system.get_root_mut() {
+			root.set_size(size);
+			if let Some(mut gbox) = root.find_child_mut(&["Ingame Pause Dialog - Gravity Box"]) {
+				let mut gbox = gbox.borrow_mut();
+				gbox.set_size(size);
+			}
+		}
+	}
+
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
+		let mut response = Vec::new();
 		self.fixed_update_count = 0;
+
+		if let Some(data) = &self.data {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.game
+						.write()
+						.and_then(|mut game| {
+							// could probably try_write here
+							game.is_game_paused = self.is_game_paused;
+							Ok(())
+						})
+						.unwrap();
+				},
+				None => {
+					warn!("Could not update game data!");
+				},
+			}
+		}
+
+		self.update_ui_system(auc, &mut response);
 		// :HACK: make debug rendering relative to camera
 		{
 			let active_camera = if self.use_fixed_camera {
@@ -207,96 +318,100 @@ impl GameState for GameStateGame {
 			let offset = active_camera.offset();
 			debug_renderer::debug_renderer_set_offset(&offset);
 		}
-		let mut euc = EntityUpdateContext::new().with_world(&self.world);
-
 		let wuc = match auc.wuc() {
 			Some(wuc) => wuc,
 			None => return Vec::new(),
 		};
-
-		self.total_time += wuc.time_step;
-		if wuc.was_key_pressed('p' as u8) {
-			self.camera.punch(5.0);
-		}
-
-		if wuc.was_key_pressed('[' as u8) {
-			self.use_fixed_camera = !self.use_fixed_camera;
-		}
-
-		let mut pic = PlayerInputContext::default();
-		if let Some(p) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
-			if p.is_alive() && wuc.is_key_pressed('t' as u8) {
-				// t for terminate
-				p.kill();
-			} else if wuc.is_key_pressed('r' as u8) {
-				p.respawn();
-				self.camera.thaw();
-			}
-		}
-
-		if wuc.is_key_pressed('a' as u8) {
-			pic.is_left_pressed = true;
-		}
-		if wuc.is_key_pressed('d' as u8) {
-			pic.is_right_pressed = true;
-		}
-		if wuc.is_key_pressed('w' as u8) {
-			pic.is_up_pressed = true;
-			// :HACK:
-
-			self.camera
-				.set_target_pos(&self.camera.pos().add(&Vector2::new(100.0, 0.0)));
-		}
-		if wuc.is_key_pressed('s' as u8) {
-			pic.is_down_pressed = true;
-		}
-		euc.add_player_input_context(pic);
-
-		let mut pic = PlayerInputContext::default();
-		if wuc.is_key_pressed('j' as u8) {
-			pic.is_left_pressed = true;
-		}
-		if wuc.is_key_pressed('l' as u8) {
-			pic.is_right_pressed = true;
-		}
-		if wuc.is_key_pressed('i' as u8) {
-			pic.is_up_pressed = true;
-		}
-		if wuc.is_key_pressed('k' as u8) {
-			pic.is_down_pressed = true;
-		}
-		euc.add_player_input_context(pic);
-
-		euc = euc.set_time_step(wuc.time_step);
-
-		for e in self.entity_manager.iter_mut() {
-			e.update(&mut euc);
-		}
-
 		// :HACK: we really need a better place to calculate our aspect ratio fixed frame
 		let scaling = 1024.0 / wuc.window_size.y;
 		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
 		self.camera.set_frame_size(&frame_size);
-		self.camera.update(wuc.time_step, &self.entity_manager);
-
 		self.fixed_camera.set_frame_size(&frame_size);
-		self.fixed_camera
-			.update(wuc.time_step, &self.entity_manager);
 
-		self.world_renderer.update(wuc.time_step);
-
-		Vec::new()
-	}
-	fn fixed_update(&mut self, time_step: f64) {
-		let euc = EntityUpdateContext::new()
-			.set_time_step(time_step)
-			.with_fixed_update_count(self.fixed_update_count)
-			.with_world(&self.world);
-
-		for e in self.entity_manager.iter_mut() {
-			e.fixed_update(&euc);
+		if wuc.was_key_pressed('p' as u8) {
+			//self.camera.punch(5.0);
+			self.toggle_game_pause();
 		}
 
+		if !self.is_game_paused {
+			let mut euc = EntityUpdateContext::new().with_world(&self.world);
+
+			self.total_time += wuc.time_step;
+
+			if wuc.was_key_pressed('[' as u8) {
+				self.use_fixed_camera = !self.use_fixed_camera;
+			}
+
+			let mut pic = PlayerInputContext::default();
+			if let Some(p) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
+				if p.is_alive() && wuc.is_key_pressed('t' as u8) {
+					// t for terminate
+					p.kill();
+				} else if wuc.is_key_pressed('r' as u8) {
+					p.respawn();
+					self.camera.thaw();
+				}
+			}
+
+			if wuc.is_key_pressed('a' as u8) {
+				pic.is_left_pressed = true;
+			}
+			if wuc.is_key_pressed('d' as u8) {
+				pic.is_right_pressed = true;
+			}
+			if wuc.is_key_pressed('w' as u8) {
+				pic.is_up_pressed = true;
+				// :HACK:
+
+				self.camera
+					.set_target_pos(&self.camera.pos().add(&Vector2::new(100.0, 0.0)));
+			}
+			if wuc.is_key_pressed('s' as u8) {
+				pic.is_down_pressed = true;
+			}
+			euc.add_player_input_context(pic);
+
+			let mut pic = PlayerInputContext::default();
+			if wuc.is_key_pressed('j' as u8) {
+				pic.is_left_pressed = true;
+			}
+			if wuc.is_key_pressed('l' as u8) {
+				pic.is_right_pressed = true;
+			}
+			if wuc.is_key_pressed('i' as u8) {
+				pic.is_up_pressed = true;
+			}
+			if wuc.is_key_pressed('k' as u8) {
+				pic.is_down_pressed = true;
+			}
+			euc.add_player_input_context(pic);
+
+			euc = euc.set_time_step(wuc.time_step);
+
+			for e in self.entity_manager.iter_mut() {
+				e.update(&mut euc);
+			}
+
+			self.camera.update(wuc.time_step, &self.entity_manager);
+
+			self.fixed_camera
+				.update(wuc.time_step, &self.entity_manager);
+
+			self.world_renderer.update(wuc.time_step);
+		}
+		response
+	}
+	fn fixed_update(&mut self, time_step: f64) {
+		if !self.is_game_paused {
+			let euc = EntityUpdateContext::new()
+				.set_time_step(time_step)
+				.with_fixed_update_count(self.fixed_update_count)
+				.with_world(&self.world);
+
+			for e in self.entity_manager.iter_mut() {
+				e.fixed_update(&euc);
+			}
+		}
 		self.fixed_update_count += 1;
 	}
 
@@ -333,6 +448,7 @@ impl GameState for GameStateGame {
 		self.world_renderer
 			.render(renderer, active_camera, &self.world);
 		//		renderer.pop_matrix();
+		self.ui_system.render(renderer);
 	}
 
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
@@ -417,6 +533,7 @@ impl GameState for GameStateGame {
 		let screen_center = Vector2::zero();
 
 		debug_renderer.add_line(&screen_center, cam_frame_center, 3.0, &Color::white());
+		self.ui_system.render_debug(debug_renderer);
 	}
 
 	fn name(&self) -> &str {

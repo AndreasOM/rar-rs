@@ -11,7 +11,7 @@ use crate::ui::*;
 #[derive(Debug)]
 pub struct SettingsDialog {
 	base_data_build_number: String,
-	data:                   Arc<dyn Data>,
+	data:                   Option<Arc<dyn Data>>,
 }
 
 impl SettingsDialog {
@@ -27,7 +27,7 @@ impl SettingsDialog {
 		};
 		Self {
 			base_data_build_number,
-			data: Arc::clone(system.data()),
+			data: system.data().as_ref().map(|data| Arc::clone(data)),
 			//..Default::default()
 		}
 	}
@@ -225,19 +225,21 @@ impl UiElement for SettingsDialog {
 		);
 	}
 	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
-		match self.data.as_any().downcast_ref::<RarData>() {
-			Some(data) => {
-				data.audio.read().and_then(|audio| {
-					// :TODO: maybe use try_read instead of potentially blocking
-					//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
-					//debug!("is_music_enabled {:?}", audio.is_music_enabled);
-					let uielement: &dyn UiElement = self;
-					self.update_sound(uielement, container, audio.is_sound_enabled);
-					self.update_music(uielement, container, audio.is_music_enabled);
-					Ok(())
-				});
-			},
-			None => {},
+		if let Some(data) = &self.data {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio.read().and_then(|audio| {
+						// :TODO: maybe use try_read instead of potentially blocking
+						//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
+						//debug!("is_music_enabled {:?}", audio.is_music_enabled);
+						let uielement: &dyn UiElement = self;
+						self.update_sound(uielement, container, audio.is_sound_enabled);
+						self.update_music(uielement, container, audio.is_music_enabled);
+						Ok(())
+					});
+				},
+				None => {},
+			}
 		}
 	}
 }

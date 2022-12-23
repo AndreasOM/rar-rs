@@ -6,15 +6,22 @@ pub struct AudioData {
 	pub is_music_enabled: bool,
 }
 
+#[derive(Debug, Default)]
+pub struct GameData {
+	pub is_game_paused: bool,
+}
+
 #[derive(Debug)]
 pub struct RarData {
 	pub audio: RwLock<AudioData>,
+	pub game:  RwLock<GameData>,
 }
 
 impl RarData {
 	pub fn new() -> Self {
 		Self {
 			audio: RwLock::new(AudioData::default()),
+			game:  RwLock::new(GameData::default()),
 		}
 	}
 }

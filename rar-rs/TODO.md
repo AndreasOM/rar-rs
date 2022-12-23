@@ -3,11 +3,12 @@
 
 ## In Progress
 
+- [ ] Add Pause menu
+    - [ ] With button to open settings
 
 ## TODO
-
-- [ ] Add Pause menu
-    - [ ] With settings?
+- [ ] Split game & game state
+- [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
 
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button

@@ -82,14 +82,8 @@ pub struct RarApp {
 
 impl Default for RarApp {
 	fn default() -> Self {
-		let mut game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
-		game_states.insert(GameStates::Menu, Box::new(GameStateMenu::new()));
-		game_states.insert(GameStates::Game, Box::new(GameStateGame::new()));
-		game_states.insert(
-			GameStates::DebugCollisions,
-			Box::new(GameStateDebugCollisions::new()),
-		);
-		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
+		let system = System::new();
+		let game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
 
 		let (sound_tx, sound_rx) = std::sync::mpsc::channel();
 		Self {
@@ -101,7 +95,7 @@ impl Default for RarApp {
 			size: Vector2::zero(),
 			viewport_size: Vector2::zero(),
 			scaling: 1.0,
-			system: System::new(),
+			system,
 			is_done: false,
 			debug_renderer: Rc::new(None),
 			cursor_pos: Vector2::zero(),
@@ -195,6 +189,18 @@ impl App for RarApp {
 
 		let rar_data = RarData::new();
 		self.system.set_data(Arc::new(rar_data));
+
+		let game_states = &mut self.game_states;
+		game_states.insert(GameStates::Menu, Box::new(GameStateMenu::new()));
+		game_states.insert(
+			GameStates::Game,
+			Box::new(GameStateGame::new(&mut self.system)),
+		);
+		game_states.insert(
+			GameStates::DebugCollisions,
+			Box::new(GameStateDebugCollisions::new()),
+		);
+		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
 
 		let mut lfs = FilesystemLayered::new();
 
@@ -423,17 +429,19 @@ impl App for RarApp {
 			.with_is_music_playing(self.audio.is_music_playing())
 			.with_is_sound_enabled(self.is_sound_enabled);
 
-		match self.system.data().as_any().downcast_ref::<RarData>() {
-			Some(data) => {
-				data.audio.write().and_then(|mut audio| {
-					// could probably try_write here
-					//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
-					audio.is_music_enabled = self.audio.is_music_playing();
-					audio.is_sound_enabled = self.is_sound_enabled;
-					Ok(())
-				});
-			},
-			None => {},
+		if let Some(data) = self.system.data() {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio.write().and_then(|mut audio| {
+						// could probably try_write here
+						//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
+						audio.is_music_enabled = self.audio.is_music_playing();
+						audio.is_sound_enabled = self.is_sound_enabled;
+						Ok(())
+					});
+				},
+				None => {},
+			}
 		}
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
