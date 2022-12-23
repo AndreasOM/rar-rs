@@ -81,6 +81,60 @@ impl UiElementContainerData {
 		self.add_child(element_container)
 	}
 
+	pub fn find_child_container_mut_then(
+		&mut self,
+		path: &[&str],
+		f: &dyn Fn(&mut UiElementContainer) -> (),
+	) {
+		if path.is_empty() {
+			return;
+		}
+		let (head, tail) = path.split_at(1);
+		let head = head[0];
+
+		// find a child that matches
+		for c in self.children.iter_mut() {
+			let mut c = c.borrow_mut();
+			if c.name() == head {
+				if tail.is_empty() {
+					// found -> run f with container
+					f(&mut c);
+				} else {
+					// path matches so far, go deeper
+					c.find_child_container_mut_then(&tail, f);
+				}
+			}
+		}
+	}
+
+	pub fn find_child_mut_as_element_then<E: 'static>(
+		&mut self,
+		path: &[&str],
+		f: &dyn Fn(&mut E) -> (),
+	) {
+		if let Some(mut c) = self.find_child_mut(path) {
+			let mut c = c.borrow_mut();
+			let c = c.borrow_element_mut();
+			match c.as_any_mut().downcast_mut::<E>() {
+				Some(e) => {
+					f(e);
+				},
+				None => panic!(
+					"{:?} isn't a {:?} at {:#?}!",
+					&c,
+					std::any::type_name::<E>(),
+					&path
+				),
+			}
+		} else {
+			warn!(
+				"Cannot find {:?} at path {:#?}",
+				std::any::type_name::<E>(),
+				&path
+			);
+		}
+	}
+
 	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
 		if path.len() == 0 {
 			// nothing left to check
@@ -511,6 +565,32 @@ impl UiElementContainer {
 		let bl = Vector2::zero().sub(&hs);
 		let tr = Vector2::zero().add(&hs);
 		pos.x >= bl.x && pos.y >= bl.y && pos.x <= tr.x && pos.y <= tr.y
+	}
+
+	pub fn find_child_container_mut_then(
+		&mut self,
+		path: &[&str],
+		f: &dyn Fn(&mut UiElementContainer) -> (),
+	) {
+		if path.is_empty() {
+			return;
+		}
+		let (head, tail) = path.split_at(1);
+		let head = head[0];
+
+		// find a child that matches
+		for c in self.data.borrow_children_mut().iter_mut() {
+			let mut c = c.borrow_mut();
+			if c.name() == head {
+				if tail.is_empty() {
+					// found -> run f with container
+					f(&mut c);
+				} else {
+					// path matches so far, go deeper
+					c.find_child_container_mut_then(&tail, f);
+				}
+			}
+		}
 	}
 
 	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {

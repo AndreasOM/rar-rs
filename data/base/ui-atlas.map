@@ -4,7 +4,8 @@ ui-button_back.png:256,192-320,256
 ui-button_pause-export.png:320,192-384,256
 ui-button_pause.png:384,192-448,256
 ui-button_play.png:448,192-512,256
-ui-togglebutton_music_off.png:512,192-576,256
-ui-togglebutton_music_on.png:576,192-640,256
-ui-togglebutton_sound_off.png:640,192-704,256
-ui-togglebutton_sound_on.png:704,192-768,256
+ui-button_settings.png:512,192-576,256
+ui-togglebutton_music_off.png:576,192-640,256
+ui-togglebutton_music_on.png:640,192-704,256
+ui-togglebutton_sound_off.png:704,192-768,256
+ui-togglebutton_sound_on.png:768,192-832,256

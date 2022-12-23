@@ -5,6 +5,7 @@
 
 - [ ] Add Pause menu
     - [ ] With button to open settings
+    - [ ] Add button to go back to menu
 
 ## TODO
 - [ ] Split game & game state
@@ -56,7 +57,7 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 2.5h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 3.5h??  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
@@ -64,6 +65,9 @@
 - [x] Add background to settings dialog
 - [x] Fix text alignment in settings dialog
 - [x] Create 3x3 UiImage
+- [x] Add some helper to make working with the UI easier
+- [x] Add Play/Pause toggle button
+
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
