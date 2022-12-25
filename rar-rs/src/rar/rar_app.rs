@@ -180,8 +180,8 @@ impl RarApp {
 			ui_debug_config.set_mode(UiDebugConfigMode::Selected);
 			ui_debug_config.select("Menu", 3);
 			ui_debug_config.select("Settings", 3);
+			ui_debug_config.select("Game", 3);
 			ui_debug_config.select("Debug Collisions", 1);
-			ui_debug_config.set_mode(UiDebugConfigMode::All);
 		});
 	}
 }

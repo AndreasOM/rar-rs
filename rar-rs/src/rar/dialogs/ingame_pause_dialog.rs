@@ -46,8 +46,8 @@ impl IngamePauseDialog {
 				.into(),
 			)
 	}
-	fn create_children(&self) -> Vec<UiElementContainer> {
-		[UiVbox::new()
+	fn create_children(&self) -> UiElementContainer {
+		UiVbox::new()
 			.with_padding(16.0)
 			.containerize()
 			.with_name("Ingame Pause vBox")
@@ -92,8 +92,7 @@ impl IngamePauseDialog {
 										*/
 				]
 				.into(),
-			)]
-		.into()
+			)
 	}
 
 	fn update_playpause(
@@ -105,7 +104,7 @@ impl IngamePauseDialog {
 		container.find_child_container_mut_then(
 			&[
 				//???"Settings hBox",
-				"Ingame Pause Dialog - Gravity Box",
+				//"Ingame Pause Dialog - Gravity Box",
 				"Ingame Pause vBox",
 				"Paused Buttons",
 			],
@@ -122,7 +121,7 @@ impl IngamePauseDialog {
 		container.find_child_mut_as_element_then::<UiToggleButton>(
 			&[
 				//???"Settings hBox",
-				"Ingame Pause Dialog - Gravity Box",
+				//"Ingame Pause Dialog - Gravity Box",
 				"Ingame Pause vBox",
 				"playpause/toggle",
 			],
@@ -172,19 +171,7 @@ impl UiElement for IngamePauseDialog {
 	}
 
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		//let button_size = Vector2::new(256.0, 64.0);
-		container.add_child_element_container(
-			UiGravityBox::new()
-				.with_padding(16.0)
-				.with_gravity(&Vector2::new(-1.0, 1.0))
-				/*
-							UiVbox::new()
-								.with_padding(16.0)
-				*/
-				.containerize()
-				.with_name("Ingame Pause Dialog - Gravity Box")
-				.with_child_element_containers(self.create_children().into()),
-		);
+		container.add_child_element_container(self.create_children());
 	}
 	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
 		if let Some(data) = &self.data {
