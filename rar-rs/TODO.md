@@ -7,6 +7,7 @@
 
 
 ## TODO
+- [ ] Extract `back` button from settings
 - [ ] Split game & game state
     - [ ] Fix pause state on game start
 

@@ -11,6 +11,7 @@ use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
 use crate::ui::UiElement;
 use crate::ui::UiElementContainer;
+use crate::ui::UiElementFadeState;
 use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
 use crate::ui::UiGravityBox;
@@ -60,6 +61,23 @@ impl UiSystem {
 			}
 			root.add_child(child);
 		}
+	}
+
+	pub fn toggle_child_fade(&mut self, path: &[&str]) -> bool {
+		let mut was_on = false;
+		if let Some(root) = &mut self.root {
+			root.find_child_container_mut_then(path, &mut |dialog| match dialog.fade_state() {
+				UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
+					dialog.fade_in(1.0);
+					was_on = false
+				},
+				UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
+					dialog.fade_out(1.0);
+					was_on = true;
+				},
+			});
+		}
+		was_on
 	}
 	/*
 	pub fn set_root(&mut self, root: UiElementContainer) {

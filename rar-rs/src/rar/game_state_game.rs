@@ -102,6 +102,10 @@ impl GameStateGame {
 					"playpause/toggle" => {
 						self.toggle_game_pause();
 					},
+					"settings/toggle" => {
+						self.ui_system
+							.toggle_child_fade(&["Ingame Settings Dialog"]);
+					},
 					"back" => {
 						let r = GameStateResponse::new("GotoMainMenu");
 						responses.push(r);
@@ -269,6 +273,14 @@ impl GameState for GameStateGame {
 			IngamePauseDialog::new(system)
 				.containerize()
 				.with_name("Ingame Pause Dialog"),
+		);
+
+		self.ui_system.add_child(
+			&Vector2::new(0.0, 0.0),
+			SettingsDialog::new(system)
+				.containerize()
+				.with_name("Ingame Settings Dialog")
+				.with_fade_out(0.0),
 		);
 
 		self.ui_system.layout();

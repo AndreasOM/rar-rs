@@ -85,7 +85,7 @@ impl UiElementContainerData {
 	pub fn find_child_container_mut_then(
 		&mut self,
 		path: &[&str],
-		f: &dyn Fn(&mut UiElementContainer) -> (),
+		f: &mut dyn FnMut(&mut UiElementContainer) -> (),
 	) {
 		if path.is_empty() {
 			return;
@@ -628,7 +628,7 @@ impl UiElementContainer {
 	pub fn find_child_container_mut_then(
 		&mut self,
 		path: &[&str],
-		f: &dyn Fn(&mut UiElementContainer) -> (),
+		f: &mut dyn FnMut(&mut UiElementContainer) -> (),
 	) {
 		if path.is_empty() {
 			return;

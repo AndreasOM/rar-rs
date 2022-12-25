@@ -108,7 +108,7 @@ impl IngamePauseDialog {
 				"Ingame Pause vBox",
 				"Paused Buttons",
 			],
-			&|container| {
+			&mut |container| {
 				//dbg!(&container);
 
 				if is_paused {
@@ -208,6 +208,12 @@ impl UiElement for IngamePauseDialog {
 					debug!("playpause button clicked");
 					return Some(Box::new(UiEventResponseGenericMessage::new(
 						"playpause/toggle",
+					)));
+				},
+				"settings" => {
+					debug!("settings button clicked");
+					return Some(Box::new(UiEventResponseGenericMessage::new(
+						"settings/toggle",
 					)));
 				},
 				"back" => {
