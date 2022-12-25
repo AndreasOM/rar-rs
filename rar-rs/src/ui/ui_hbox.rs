@@ -1,4 +1,5 @@
 use oml_game::math::Vector2;
+use tracing::*;
 
 use crate::ui::{UiElement, UiElementContainerData};
 
@@ -25,6 +26,9 @@ impl UiHbox {
 }
 
 impl UiElement for UiHbox {
+	fn type_name(&self) -> &str {
+		"[UiHbox]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
@@ -48,6 +52,7 @@ impl UiElement for UiHbox {
 	}
 
 	fn layout(&mut self, container: &mut UiElementContainerData, pos: &Vector2) {
+		debug!("{}", container.name());
 		let mut total_size = Vector2::zero();
 		let mut c_positions_x = Vec::new();
 		let padding = self.padding;

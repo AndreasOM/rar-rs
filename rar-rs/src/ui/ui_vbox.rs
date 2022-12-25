@@ -25,6 +25,9 @@ impl UiVbox {
 }
 
 impl UiElement for UiVbox {
+	fn type_name(&self) -> &str {
+		"[UiVbox]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

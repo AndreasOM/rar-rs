@@ -60,10 +60,15 @@ impl GameStateDebugCollisions {
 
 impl GameState for GameStateDebugCollisions {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
-		self.ui_system
-			.setup(system, self.event_response_sender.clone())?;
+		self.ui_system.setup(
+			"Debug Collisions",
+			system,
+			self.event_response_sender.clone(),
+		)?;
 
-		self.ui_system.set_root(
+		//self.ui_system.set_root(
+		self.ui_system.add_child(
+			&Vector2::new(-1.0, 1.0),
 			DebugNavigationDialog::new()
 				.containerize()
 				.with_name("Debug Navigation Dialog"),
@@ -90,7 +95,10 @@ impl GameState for GameStateDebugCollisions {
 	}
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
-		self.ui_system.layout();
+		//self.ui_system.layout();
+		//self.ui_system.dump_info();
+		// :TODO-UI:
+		/*
 		if let Some(root) = self.ui_system.get_root_mut() {
 			root.set_size(size);
 			//			debug!("Set size of >{}< to {:?} => {:?}", root.name(), size, root.size());
@@ -101,6 +109,7 @@ impl GameState for GameStateDebugCollisions {
 				gbox.set_size(size);
 			}
 		}
+		*/
 	}
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {

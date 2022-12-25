@@ -1,5 +1,6 @@
 use std::sync::mpsc::Sender;
 
+use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 
@@ -21,11 +22,41 @@ pub enum UiElementFadeState {
 }
 
 pub trait UiElement {
+	fn type_name(&self) -> &str {
+		"[UiElement]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any;
 	fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
 	fn setup_within_container(&mut self, _container: &mut UiElementContainerData) {}
 
-	fn recalculate_size(&mut self, _container: &mut UiElementContainerData) {}
+	fn parent_size_changed(
+		&mut self,
+		_container_data: &mut UiElementContainerData,
+		_parent_size: &Vector2,
+	) {
+	}
+	/*
+		fn children_bounding_rect(&self, container: &mut UiElementContainerData) -> Rectangle{
+			let mut r = Rectangle::default();
+
+			r
+		}
+	*/
+	fn recalculate_size(&mut self, container: &mut UiElementContainerData) {
+		let mut r = Rectangle::default()
+			.with_center(&Vector2::zero())
+			.with_size(&container.size);
+
+		for c in container.borrow_children().iter() {
+			let rc = Rectangle::default()
+				.with_center(c.borrow().pos())
+				.with_size(c.borrow().size());
+			r = r.combine_with(&rc);
+		}
+
+		container.set_size(r.size());
+		// :TODO-UI: add our own size?!
+	}
 	fn add_child(&mut self, _child: &mut UiElementContainerData) {}
 	fn update(&mut self, _container: &mut UiElementContainerData, _time_step: f64) {}
 	fn render(&self, _container: &UiElementContainerData, _ui_renderer: &mut UiRenderer) {}
@@ -34,6 +65,9 @@ pub trait UiElement {
 			c.borrow_mut().layout(&Vector2::zero());
 		}
 		//		container.set_pos( pos );	// no! This is the default anyway
+		// :TODO-UI:
+		//		container.set_size(&total_size);
+		self.recalculate_size(container);
 	}
 	fn render_debug(
 		&self,

@@ -7,6 +7,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use tracing::*;
 
+use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 use crate::ui::{
 	UiElement, UiElementFadeData, UiElementFadeState, UiEvent, UiEventResponse, UiRenderer,
 };
@@ -379,52 +380,99 @@ impl UiElementContainer {
 		self.data.get_fade_level()
 	}
 
-	pub fn render_debug(&self, debug_renderer: &mut DebugRenderer, offset: &Vector2) {
+	pub fn render_debug(&self, debug_renderer: &mut DebugRenderer, offset: &Vector2, depth: usize) {
 		if *self.fade_state() == UiElementFadeState::FadedOut {
 			return;
 		}
 
-		self.element
-			.render_debug(&self.data, debug_renderer, offset);
+		let mut depth = depth;
+		UiDebugConfig::read_then(&mut |ui_debug_config| match ui_debug_config.mode() {
+			UiDebugConfigMode::All => {
+				depth = 1;
+			},
+			UiDebugConfigMode::Selected => {
+				if let Some(d) = ui_debug_config.is_selected(self.name()) {
+					depth = d + 1;
+				}
+			},
+			_ => {},
+		});
+
+		if depth > 0 {
+			self.element
+				.render_debug(&self.data, debug_renderer, offset);
+		}
 		for c in self.data.borrow_children().iter() {
 			let co = offset.add(c.borrow().pos());
-			c.borrow().render_debug(debug_renderer, &co);
+			c.borrow()
+				.render_debug(debug_renderer, &co, depth.saturating_sub(1));
 		}
-		debug_renderer.add_line(
-			&Vector2::zero(),
-			&Vector2::zero().add(&offset),
-			3.0,
-			&Color::from_rgba(0.5, 0.5, 0.5, 0.8),
-		);
-		let hs = self.size().scaled(0.5);
-		let bl = offset.sub(&hs);
-		let tr = offset.add(&hs);
-		let tl = Vector2::new(bl.x, tr.y);
-		let br = Vector2::new(tr.x, bl.y);
-		let color = Color::from_rgba(0.2, 0.9, 0.2, 0.3);
-		debug_renderer.add_line(&tl, &bl, 3.0, &color);
-		debug_renderer.add_line(&bl, &br, 3.0, &color);
-		debug_renderer.add_line(&br, &tr, 3.0, &color);
-		debug_renderer.add_line(&tr, &tl, 3.0, &color);
+		if depth > 0 {
+			debug_renderer.add_line(
+				&Vector2::zero(),
+				&Vector2::zero().add(&offset),
+				3.0,
+				&Color::from_rgba(0.5, 0.5, 0.5, 0.8),
+			);
+			let hs = self.size().scaled(0.5);
+			let bl = offset.sub(&hs);
+			let tr = offset.add(&hs);
+			let tl = Vector2::new(bl.x, tr.y);
+			let br = Vector2::new(tr.x, bl.y);
+			let color = Color::from_rgba(0.2, 0.9, 0.2, 0.3);
+			debug_renderer.add_line(&tl, &bl, 3.0, &color);
+			debug_renderer.add_line(&bl, &br, 3.0, &color);
+			debug_renderer.add_line(&br, &tr, 3.0, &color);
+			debug_renderer.add_line(&tr, &tl, 3.0, &color);
+
+			let color = Color::from_rgba(0.2, 0.9, 0.2, 0.8);
+			debug_renderer.add_text(
+				&tr,
+				&format!("{}/{} - {}", offset.x, offset.y, self.name()),
+				20.0,
+				2.0,
+				&color,
+			)
+		}
 	}
 
 	pub fn dump_info(&self) {
-		self.dump_info_internal(&"", &Vector2::zero());
+		self.dump_info_internal(&"", &Vector2::zero(), 0);
 	}
-	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2) {
-		println!(
-			"{} {}: {},{} {},{}",
-			indent,
-			&self.data.name,
-			self.pos().x,
-			self.pos().y,
-			self.size().x,
-			self.size().y
-		);
+	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2, depth: usize) {
+		let mut depth = depth;
+		UiDebugConfig::read_then(&mut |ui_debug_config| match ui_debug_config.mode() {
+			UiDebugConfigMode::All => {
+				depth = 1;
+			},
+			UiDebugConfigMode::Selected => {
+				if let Some(d) = ui_debug_config.is_selected(self.name()) {
+					depth = d + 1;
+				}
+			},
+			_ => {},
+		});
+
+		if depth > 0 {
+			println!(
+				"C  {} {} ({}): {}x{} @{},{} +({},{})",
+				indent,
+				&self.data.name,
+				self.element.type_name(),
+				self.size().x,
+				self.size().y,
+				self.pos().x,
+				self.pos().y,
+				offset.x,
+				offset.y,
+			);
+		}
 		let new_indent = format!("{}  ", indent);
 		for c in self.data.borrow_children().iter() {
-			let co = offset; //.add( c.pos() );
-			c.borrow().dump_info_internal(&new_indent, &co);
+			//			let co = offset; //.add( c.pos() );
+			let co = offset.add(c.borrow().pos());
+			c.borrow()
+				.dump_info_internal(&new_indent, &co, depth.saturating_sub(1));
 		}
 	}
 
@@ -477,8 +525,18 @@ impl UiElementContainer {
 		self
 	}
 
+	pub fn parent_size_changed(&mut self, parent_size: &Vector2) {
+		self.element
+			.parent_size_changed(&mut self.data, parent_size);
+	}
+
 	pub fn layout(&mut self, pos: &Vector2) {
-		//		println!("Container layout for {} -> {}, {}", &self.data.name, pos.x, pos.y );
+		/*
+		debug!(
+			"Container layout for {} -> {}, {}",
+			&self.data.name, pos.x, pos.y
+		);
+		*/
 		self.data.pos = *pos;
 		self.element.layout(&mut self.data, pos);
 	}
@@ -526,7 +584,7 @@ impl UiElementContainer {
 					//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
 					//debug!("Hit {:?}", &self);
 					debug!("Hit {:?}", &pos);
-					self.dump_info_internal("", &Vector2::zero());
+					self.dump_info_internal("", &Vector2::zero(), usize::MAX);
 					for c in self.data.borrow_children_mut().iter_mut() {
 						let mut c = c.borrow_mut();
 						let cpos = pos.sub(c.pos());

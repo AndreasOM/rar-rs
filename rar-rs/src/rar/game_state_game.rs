@@ -15,6 +15,7 @@ use tracing::*;
 use crate::rar::camera::Camera;
 use crate::rar::data::RarData;
 use crate::rar::dialogs::IngamePauseDialog;
+use crate::rar::dialogs::SettingsDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::{
@@ -260,9 +261,11 @@ impl GameState for GameStateGame {
 		);
 		*/
 		self.ui_system
-			.setup(system, self.event_response_sender.clone())?;
+			.setup("Game", system, self.event_response_sender.clone())?;
 
-		self.ui_system.set_root(
+		//self.ui_system.set_root(
+		self.ui_system.add_child(
+			&Vector2::new(-1.0, 0.0),
 			IngamePauseDialog::new(system)
 				.containerize()
 				.with_name("Ingame Pause Dialog"),
@@ -280,6 +283,8 @@ impl GameState for GameStateGame {
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
 		self.ui_system.layout();
+		// :TODO-UI:
+		/*
 		if let Some(root) = self.ui_system.get_root_mut() {
 			root.set_size(size);
 			if let Some(mut gbox) = root.find_child_mut(&["Ingame Pause Dialog - Gravity Box"]) {
@@ -287,6 +292,7 @@ impl GameState for GameStateGame {
 				gbox.set_size(size);
 			}
 		}
+		*/
 	}
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {

@@ -42,6 +42,7 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
 #[derive(Debug, PartialEq, Hash, Eq)]
 enum GameStates {
@@ -174,6 +175,15 @@ impl RarApp {
 		error!("Active GameState >{:?}< not found", &self.active_game_state);
 		panic!("");
 	}
+	fn setup_debug(&mut self) {
+		UiDebugConfig::write_then(&mut |ui_debug_config| {
+			ui_debug_config.set_mode(UiDebugConfigMode::Selected);
+			ui_debug_config.select("Menu", 3);
+			ui_debug_config.select("Settings", 3);
+			ui_debug_config.select("Debug Collisions", 1);
+			ui_debug_config.set_mode(UiDebugConfigMode::All);
+		});
+	}
 }
 
 impl App for RarApp {
@@ -185,6 +195,8 @@ impl App for RarApp {
 	}
 
 	fn setup(&mut self, window: &mut Window) -> anyhow::Result<()> {
+		self.setup_debug();
+
 		window.set_title("RAR - RS");
 
 		let rar_data = RarData::new();

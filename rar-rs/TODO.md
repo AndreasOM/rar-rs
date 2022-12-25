@@ -3,10 +3,12 @@
 
 ## In Progress
 
+- [ ] Hook up button to open ingame settings
+
 
 ## TODO
-- [ ] Hook up button to open ingame settings
 - [ ] Split game & game state
+    - [ ] Fix pause state on game start
 
 - [ ] Cleanup ui handling to use newer features/helpers
 

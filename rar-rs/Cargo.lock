@@ -1369,9 +1369,7 @@ dependencies = [
 
 [[package]]
 name = "oml-game"
-version = "0.26.4-alpha"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4c2ddebf47c5485792bdc18df0cecb8846f350393e3de85d280c6e2f59866f1"
+version = "0.26.5-dev"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1567,6 +1565,7 @@ dependencies = [
  "derive-getters",
  "oml-audio",
  "oml-game",
+ "once_cell",
  "rand",
  "serde",
  "serde_json",

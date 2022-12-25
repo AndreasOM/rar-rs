@@ -56,6 +56,9 @@ impl UiToggleButton {
 }
 
 impl UiElement for UiToggleButton {
+	fn type_name(&self) -> &str {
+		"[UiToggleButton]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

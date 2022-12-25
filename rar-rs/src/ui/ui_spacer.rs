@@ -20,6 +20,9 @@ impl UiSpacer {
 static UI_LABEL_VISIBLE: bool = false;
 
 impl UiElement for UiSpacer {
+	fn type_name(&self) -> &str {
+		"[UiSpacer]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

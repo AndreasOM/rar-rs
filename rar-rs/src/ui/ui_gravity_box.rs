@@ -1,4 +1,5 @@
 use oml_game::math::Vector2;
+use tracing::*;
 
 use crate::ui::{UiElement, UiElementContainerData};
 
@@ -48,6 +49,9 @@ impl UiGravityBox {
 }
 
 impl UiElement for UiGravityBox {
+	fn type_name(&self) -> &str {
+		"[UiGravityBox]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
@@ -55,24 +59,45 @@ impl UiElement for UiGravityBox {
 		self
 	}
 	fn add_child(&mut self, _child: &mut UiElementContainerData) {
+		debug!(
+			"Adding child to gravity box with {}, {}",
+			self.gravity.x, self.gravity.y
+		);
 		self.children_gravities.push(self.gravity);
 	}
+
+	fn parent_size_changed(
+		&mut self,
+		container_data: &mut UiElementContainerData,
+		parent_size: &Vector2,
+	) {
+		// we always use the parents size as our own size
+		container_data.set_size(parent_size);
+	}
+	fn recalculate_size(&mut self, _container: &mut UiElementContainerData) {}
 
 	fn layout(&mut self, container: &mut UiElementContainerData, pos: &Vector2) {
 		let ws = container
 			.size
 			.sub(&Vector2::new(2.0 * self.padding, 2.0 * self.padding));
+		//debug!("size: {:?}", &container.size);
+		//debug!("ws: {:?}", &ws);
 		for (g, c) in self
 			.children_gravities
 			.iter()
 			.zip(container.borrow_children_mut().iter_mut())
 		{
+			//debug!("g: {:?}", &g);
 			let mut c = c.borrow_mut();
 			let cs = c.size();
 			let cpos = ws.sub(&cs).scaled(0.5).scaled_vector2(&g);
+			//debug!("cs: {:?}", &cs);
+			//debug!("cpos: {:?}", &cpos);
 			c.layout(&cpos);
 		}
+		//debug!("pos: {:?}", &pos);
 
 		container.set_pos(pos);
+		// note: a gravity box always uses the given parent size!
 	}
 }

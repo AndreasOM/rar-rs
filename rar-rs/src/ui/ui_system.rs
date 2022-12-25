@@ -9,24 +9,35 @@ use tracing::*;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
+use crate::ui::UiElement;
 use crate::ui::UiElementContainer;
 use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
+use crate::ui::UiGravityBox;
 use crate::ui::UiRenderer;
 
 #[derive(Debug, Default)]
 pub struct UiSystem {
+	name:                  String,
 	root:                  Option<UiElementContainer>,
+	//root:					Option<UiGravityBox>,
 	event_response_sender: Option<Sender<Box<dyn UiEventResponse>>>,
 }
 
 impl UiSystem {
 	pub fn setup(
 		&mut self,
+		name: &str,
 		_system: &mut System,
 		event_response_sender: Sender<Box<dyn UiEventResponse>>,
 	) -> anyhow::Result<()> {
+		self.name = name.to_owned();
 		self.event_response_sender = Some(event_response_sender);
+		let root = UiGravityBox::new()
+			.with_padding(16.0)
+			.containerize()
+			.with_name(name);
+		self.root = Some(root);
 		Ok(())
 	}
 
@@ -35,6 +46,22 @@ impl UiSystem {
 		if let Some(_root) = self.root.take() {}
 	}
 
+	pub fn add_child(&mut self, gravity: &Vector2, child: UiElementContainer) {
+		if let Some(root) = &mut self.root {
+			//let mut root = root.borrow_mut();
+			{
+				let root = root.borrow_element_mut();
+				match root.as_any_mut().downcast_mut::<UiGravityBox>() {
+					Some(root) => {
+						root.set_gravity(gravity);
+					},
+					None => panic!("root for {} is not a UiGravityBox", &self.name),
+				};
+			}
+			root.add_child(child);
+		}
+	}
+	/*
 	pub fn set_root(&mut self, root: UiElementContainer) {
 		self.root = Some(root);
 	}
@@ -53,15 +80,39 @@ impl UiSystem {
 		&mut self.root
 	}
 
+	*/
 	pub fn set_size(&mut self, size: &Vector2) {
+		// :TODO-UI: should probably use parent_size_changed instead
 		if let Some(root) = &mut self.root {
-			root.set_size(size);
+			root.parent_size_changed(size);
+			//		root.set_size(size);
+			/*
+			for c in root.borrow_children_mut() {
+				let mut c = c.borrow_mut();
+				c.set_size(size);
+			}
+			*/
 		}
+		self.layout();
+		self.dump_info();
 	}
 
 	pub fn layout(&mut self) {
 		if let Some(root) = &mut self.root {
 			root.layout(&Vector2::zero());
+			// :TODO-UI: nope?
+			/*
+			for c in root.borrow_children_mut() {
+				let mut c = c.borrow_mut();
+				//c.layout(&Vector2::zero());
+			}
+			*/
+		}
+	}
+
+	pub fn dump_info(&self) {
+		if let Some(root) = &self.root {
+			root.dump_info();
 		}
 	}
 
@@ -111,7 +162,7 @@ impl UiSystem {
 
 	pub fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		if let Some(root) = &mut self.root {
-			root.render_debug(debug_renderer, &Vector2::zero());
+			root.render_debug(debug_renderer, &Vector2::zero(), 0);
 		}
 	}
 }

@@ -39,6 +39,9 @@ impl WorldSelectionDialog {
 }
 
 impl UiElement for WorldSelectionDialog {
+	fn type_name(&self) -> &str {
+		"[WorldSelectionDialog]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

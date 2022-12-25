@@ -197,6 +197,9 @@ impl SettingsDialog {
 }
 
 impl UiElement for SettingsDialog {
+	fn type_name(&self) -> &str {
+		"[SettingsDialog]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

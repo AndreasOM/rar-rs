@@ -34,6 +34,9 @@ impl UiLabel {
 }
 
 impl UiElement for UiLabel {
+	fn type_name(&self) -> &str {
+		"[UiLabel]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}

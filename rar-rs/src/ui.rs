@@ -39,3 +39,6 @@ pub use ui_vbox::UiVbox;
 
 mod ui_system;
 pub use ui_system::UiSystem;
+
+mod ui_debug_config;
+pub use ui_debug_config::{UiDebugConfig, UiDebugConfigMode};

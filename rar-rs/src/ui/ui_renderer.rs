@@ -1,6 +1,7 @@
 use oml_game::math::{Matrix32, Vector2};
 use oml_game::renderer::{Color, Renderer};
 
+#[derive(Debug)]
 pub struct UiRenderer<'a> {
 	renderer:                    &'a mut Renderer,
 	transform_stack:             Vec<Matrix32>,
@@ -120,6 +121,7 @@ impl<'a> UiRenderer<'a> {
 	}
 }
 
+#[derive(Debug)]
 struct StateStack<T> {
 	elements: Vec<T>,
 }

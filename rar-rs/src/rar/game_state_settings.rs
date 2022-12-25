@@ -57,9 +57,11 @@ impl GameState for GameStateSettings {
 	}
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.ui_system
-			.setup(system, self.event_response_sender.clone())?;
+			.setup("Settings", system, self.event_response_sender.clone())?;
 
-		self.ui_system.set_root(
+		//self.ui_system.set_root(
+		self.ui_system.add_child(
+			&Vector2::zero(),
 			SettingsDialog::new(system)
 				.containerize()
 				.with_name("Settings Dialog"),
@@ -73,6 +75,8 @@ impl GameState for GameStateSettings {
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
 		self.ui_system.layout();
+		// :TODO-UI:
+		/*
 		if let Some(root) = self.ui_system.get_root_mut() {
 			root.set_size(size);
 			/* :TODO: maybe
@@ -83,6 +87,7 @@ impl GameState for GameStateSettings {
 			}
 			*/
 		}
+		*/
 	}
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut responses = Vec::new();
