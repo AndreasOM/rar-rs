@@ -106,6 +106,7 @@ impl SettingsDialog {
 			.with_name("Settings hBox")
 			.with_child_element_containers(
 				[
+				/*
 					{
 						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
 							.containerize()
@@ -113,11 +114,12 @@ impl SettingsDialog {
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
 					},
+				*/
 					{
 						UiVbox::new()
 							.with_padding(16.0)
 							.containerize()
-							.with_name("Settings hBox") // :TODO: fix name
+							.with_name("Settings vBox") // :TODO: fix name
 							.with_child_element_containers(self.create_audio_buttons())
 					},
 					{

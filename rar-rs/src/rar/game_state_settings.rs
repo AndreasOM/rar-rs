@@ -59,7 +59,13 @@ impl GameState for GameStateSettings {
 		self.ui_system
 			.setup("Settings", system, self.event_response_sender.clone())?;
 
-		//self.ui_system.set_root(
+		self.ui_system.add_child(
+			&Vector2::new(-1.0,1.0),
+			UiButton::new("ui-button_back", &Vector2::new(64.0,64.0))
+				.containerize()
+				.with_name("back"),
+		);
+
 		self.ui_system.add_child(
 			&Vector2::zero(),
 			SettingsDialog::new(system)

@@ -3,11 +3,10 @@
 
 ## In Progress
 
-- [ ] Hook up button to open ingame settings
-
 
 ## TODO
-- [ ] Extract `back` button from settings
+- [ ] Hook up music & sound toggle buttons when settings is used ingame
+
 - [ ] Split game & game state
     - [ ] Fix pause state on game start
 
@@ -37,6 +36,8 @@
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
     - [x] Implement game state `settings`
+    - [ ] Implement game state `intro`
+    - [ ] Implement game state `credits`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -77,7 +78,9 @@
 - [x] Add Pause menu
     - [x] Add button to open settings
     - [x] Add button to go back to menu
-- [ ] Add hotkey `=` to cycle through ui debug modes
+    - [x] Hook up button to open ingame settings
+- [x] Add hotkey `=` to cycle through ui debug modes
+- [x] Extract `back` button from settings
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
