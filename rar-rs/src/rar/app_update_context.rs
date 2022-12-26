@@ -1,27 +1,31 @@
 use oml_game::math::Vector2;
 use oml_game::window::window_update_context::WindowUpdateContext;
+use tracing::*;
 
 use crate::rar::AudioMessage;
+use crate::ui::UiUpdateContext;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct AppUpdateContext {
-	time_step:        f64,
-	cursor_pos:       Vector2,
-	wuc:              Option<WindowUpdateContext>,
-	sound_tx:         Option<std::sync::mpsc::Sender<AudioMessage>>,
-	is_music_playing: bool,
-	is_sound_enabled: bool,
+	time_step:         f64,
+	cursor_pos:        Vector2,
+	wuc:               Option<WindowUpdateContext>,
+	sound_tx:          Option<std::sync::mpsc::Sender<AudioMessage>>,
+	is_music_playing:  bool,
+	is_sound_enabled:  bool,
+	ui_update_context: Option<Box<dyn UiUpdateContext>>,
 }
 
 impl AppUpdateContext {
 	pub fn new() -> Self {
 		Self {
-			time_step:        0.0,
-			cursor_pos:       Vector2::zero(),
-			wuc:              None,
-			sound_tx:         None,
-			is_music_playing: false,
-			is_sound_enabled: true,
+			time_step:         0.0,
+			cursor_pos:        Vector2::zero(),
+			wuc:               None,
+			sound_tx:          None,
+			is_music_playing:  false,
+			is_sound_enabled:  true,
+			ui_update_context: None,
 		}
 	}
 
@@ -76,5 +80,23 @@ impl AppUpdateContext {
 
 	pub fn is_sound_enabled(&self) -> bool {
 		self.is_sound_enabled
+	}
+
+	pub fn with_ui_update_context(mut self, ui_update_context: Box<dyn UiUpdateContext>) -> Self {
+		self.ui_update_context = Some(ui_update_context);
+		self
+	}
+
+	pub fn ui_update_context_as_then<E: 'static>(&mut self, f: &dyn Fn(&mut E) -> ()) {
+		if let Some(uuc) = &mut self.ui_update_context {
+			match uuc.as_any_mut().downcast_mut::<E>() {
+				Some(e) => {
+					f(e);
+				},
+				None => panic!("{:?} isn't a {:?}!", &uuc, std::any::type_name::<E>(),),
+			}
+		} else {
+			warn!("No UiUpdateContext!",);
+		}
 	}
 }

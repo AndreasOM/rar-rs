@@ -37,3 +37,6 @@ pub mod audio_message;
 pub use audio_message::AudioMessage;
 
 mod data;
+
+mod rar_ui_update_context;
+pub use rar_ui_update_context::RarUiUpdateContext;

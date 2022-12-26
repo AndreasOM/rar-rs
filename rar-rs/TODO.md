@@ -3,9 +3,9 @@
 
 ## In Progress
 
+- [ ] Hook up music & sound toggle buttons when settings is used ingame
 
 ## TODO
-- [ ] Hook up music & sound toggle buttons when settings is used ingame
 
 - [ ] Split game & game state
     - [ ] Fix pause state on game start
@@ -80,7 +80,7 @@
     - [x] Add button to go back to menu
     - [x] Hook up button to open ingame settings
 - [x] Add hotkey `=` to cycle through ui debug modes
-- [x] Extract `back` button from settings
+- [x] Extract/remove `back` button from settings
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup

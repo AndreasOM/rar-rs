@@ -42,6 +42,7 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarUiUpdateContext;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
 #[derive(Debug, PartialEq, Hash, Eq)]
@@ -439,13 +440,18 @@ impl App for RarApp {
 			}
 		}
 
+		//
+
+		let ruuc = RarUiUpdateContext::default();
+
 		let mut auc = AppUpdateContext::new()
 			.set_time_step(wuc.time_step)
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc)
 			.set_sound_tx(self.sound_tx.clone())
 			.with_is_music_playing(self.audio.is_music_playing())
-			.with_is_sound_enabled(self.is_sound_enabled);
+			.with_is_sound_enabled(self.is_sound_enabled)
+			.with_ui_update_context(Box::new(ruuc));
 
 		if let Some(data) = self.system.data() {
 			match data.as_any().downcast_ref::<RarData>() {

@@ -42,3 +42,7 @@ pub use ui_system::UiSystem;
 
 mod ui_debug_config;
 pub use ui_debug_config::{UiDebugConfig, UiDebugConfigMode};
+
+mod ui_update_context;
+pub use ui_update_context::UiUpdateContext;
+pub use ui_update_context::UiUpdateContextHelper;
