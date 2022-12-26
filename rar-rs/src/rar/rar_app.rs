@@ -182,6 +182,7 @@ impl RarApp {
 			ui_debug_config.select("Settings", 3);
 			ui_debug_config.select("Game", 3);
 			ui_debug_config.select("Debug Collisions", 1);
+			ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
 	}
 }
@@ -351,6 +352,11 @@ impl App for RarApp {
 			);
 		}
 
+		if wuc.was_key_pressed('=' as u8) {
+			UiDebugConfig::write_then(&mut |ui_debug_config| {
+				ui_debug_config.cycle_mode();
+			});
+		}
 		debug_renderer::debug_renderer_begin_frame();
 
 		// the specific DebugRenderer

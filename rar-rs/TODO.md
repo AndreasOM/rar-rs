@@ -64,7 +64,7 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 4.0h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 4.5h??  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
@@ -77,6 +77,7 @@
 - [x] Add Pause menu
     - [x] Add button to open settings
     - [x] Add button to go back to menu
+- [ ] Add hotkey `=` to cycle through ui debug modes
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup

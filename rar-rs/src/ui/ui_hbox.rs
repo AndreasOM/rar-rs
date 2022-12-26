@@ -52,7 +52,7 @@ impl UiElement for UiHbox {
 	}
 
 	fn layout(&mut self, container: &mut UiElementContainerData, pos: &Vector2) {
-		debug!("{}", container.name());
+		//debug!("{}", container.name());
 		let mut total_size = Vector2::zero();
 		let mut c_positions_x = Vec::new();
 		let padding = self.padding;

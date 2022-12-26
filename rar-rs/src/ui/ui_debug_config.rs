@@ -25,6 +25,14 @@ impl UiDebugConfig {
 	pub fn mode(&self) -> UiDebugConfigMode {
 		self.mode
 	}
+	pub fn cycle_mode(&mut self) -> UiDebugConfigMode {
+		self.mode = match self.mode {
+			UiDebugConfigMode::All => UiDebugConfigMode::Selected,
+			UiDebugConfigMode::Selected => UiDebugConfigMode::None,
+			UiDebugConfigMode::None => UiDebugConfigMode::All,
+		};
+		self.mode
+	}
 	pub fn select(&mut self, name: &str, depth: usize) {
 		let selected = self.selected.entry(name.to_string()).or_insert(0);
 		*selected = depth;
