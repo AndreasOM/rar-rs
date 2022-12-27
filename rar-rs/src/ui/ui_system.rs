@@ -146,9 +146,9 @@ impl UiSystem {
 						button: 0,
 					};
 					if let Some(event_response_sender) = &mut self.event_response_sender {
-						//debug!("{:?}", &root);
+						debug!("{:?}", &root);
 						if let Some(ev) = root.handle_ui_event(&ev, &event_response_sender) {
-							//println!("Click handled");
+							debug!("Click handled");
 							let _ = event_response_sender.send(ev).unwrap();
 						} else {
 							//root.dump_info( "", &Vector2::zero() );

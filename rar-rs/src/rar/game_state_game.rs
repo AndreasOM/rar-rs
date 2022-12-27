@@ -11,7 +11,6 @@ use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
 
-//use oml_game::window::WindowUpdateContext;
 use crate::rar::camera::Camera;
 use crate::rar::data::RarData;
 use crate::rar::dialogs::IngamePauseDialog;
@@ -25,9 +24,12 @@ use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::AppUpdateContext;
+//use oml_game::window::WindowUpdateContext;
+use crate::rar::AudioMessage;
 use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
 use crate::ui::UiElement;
 use crate::ui::UiEventResponse;
+use crate::ui::UiEventResponseButtonClicked;
 use crate::ui::UiEventResponseGenericMessage;
 use crate::ui::UiSystem;
 
@@ -114,7 +116,55 @@ impl GameStateGame {
 						warn!("Unhandled generic message {}", &gme.message);
 					},
 				}
+			} else if let Some(bce) = ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
+				println!("Button {} clicked", &bce.button_name);
+				if let Some(sound_tx) = auc.sound_tx() {
+					let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
+				}
+				match bce.button_name.as_str() {
+					"music/toggle" => {
+						if let Some(sound_tx) = auc.sound_tx() {
+							let _ = sound_tx.send(AudioMessage::ToggleMusic);
+						}
+					},
+					"sound/toggle" => {
+						if let Some(sound_tx) = auc.sound_tx() {
+							let _ = sound_tx.send(AudioMessage::ToggleSound);
+						}
+					},
+					o => {
+						println!("Unhandled button click from {}", o);
+					},
+				}
 			}
+			/*
+			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
+				Some(e) => {
+					println!("Button {} clicked", &e.button_name);
+					if let Some(sound_tx) = auc.sound_tx() {
+						let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
+					}
+
+					match e.button_name.as_str() {
+						"music/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleMusic);
+							}
+						},
+						"sound/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleSound);
+							}
+						},
+						_ => {
+							println!("Unhandled button click from {}", &e.button_name);
+						},
+					}
+				},
+				None => {},
+			}
+
+			*/
 		}
 	}
 
@@ -420,6 +470,35 @@ impl GameState for GameStateGame {
 				.update(wuc.time_step, &self.entity_manager);
 
 			self.world_renderer.update(wuc.time_step);
+		}
+
+		while let Ok(ev) = self.event_response_receiver.try_recv() {
+			debug!("{:?}", &ev);
+			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
+				Some(e) => {
+					println!("Button {} clicked", &e.button_name);
+					if let Some(sound_tx) = auc.sound_tx() {
+						let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
+					}
+
+					match e.button_name.as_str() {
+						"music/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleMusic);
+							}
+						},
+						"sound/toggle" => {
+							if let Some(sound_tx) = auc.sound_tx() {
+								let _ = sound_tx.send(AudioMessage::ToggleSound);
+							}
+						},
+						_ => {
+							println!("Unhandled button click from {}", &e.button_name);
+						},
+					}
+				},
+				None => {},
+			}
 		}
 		response
 	}

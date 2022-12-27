@@ -3,7 +3,6 @@
 
 ## In Progress
 
-- [ ] Hook up music & sound toggle buttons when settings is used ingame
 
 ## TODO
 
@@ -54,6 +53,9 @@
 - [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
 - [ ] Create UiGridBox
 
+## TODO - Later
+- [ ] Refactor button click handling
+
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
@@ -65,7 +67,7 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 4.5h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 5.0h??  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
@@ -81,6 +83,7 @@
     - [x] Hook up button to open ingame settings
 - [x] Add hotkey `=` to cycle through ui debug modes
 - [x] Extract/remove `back` button from settings
+- [x] Hook up music & sound toggle buttons when settings is used ingame
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
