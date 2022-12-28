@@ -3,11 +3,12 @@
 
 ## In Progress
 
+- [ ] Split game & game state
+    - [ ] Fix pause state on game start
+
 
 ## TODO
 
-- [ ] Split game & game state
-    - [ ] Fix pause state on game start
 
 - [ ] Cleanup ui handling to use newer features/helpers
 
