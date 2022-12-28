@@ -106,15 +106,6 @@ impl SettingsDialog {
 			.with_name("Settings hBox")
 			.with_child_element_containers(
 				[
-					/*
-						{
-							UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-								.containerize()
-								.with_name("back")
-								.with_fade_out(0.0)
-								.with_fade_in(1.0)
-						},
-					*/
 					{
 						UiVbox::new()
 							.with_padding(16.0)
@@ -141,29 +132,22 @@ impl SettingsDialog {
 		container: &mut UiElementContainerData,
 		is_on: bool,
 	) {
-		if let Some(mut stb) = container.find_child_mut(&[
-			"Settings Dialog - vbox",
-			"Settings hBox",
-			"Settings hBox",
-			"music/toggle",
-		]) {
-			// debug!("Found sound/toggle");
-			let mut stb = stb.borrow_mut();
-			let stb = stb.borrow_element_mut();
-			match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
-				Some(stb) => {
-					if is_on {
-						stb.goto_a();
-					} else {
-						stb.goto_b();
-					}
-				},
-				None => panic!("{:?} isn't a UiToggleButton!", &stb),
-			};
-		} else {
-			uielement.dump_info();
-			todo!("Fix path to music toggle button");
-		}
+		container.find_child_mut_as_element_then::<UiToggleButton>(
+			&[
+				"Settings Dialog - vbox",
+				"Settings hBox",
+				"Settings hBox",
+				"music/toggle",
+			],
+			&|stb| {
+				// debug!("Found music/toggle");
+				if is_on {
+					stb.goto_a();
+				} else {
+					stb.goto_b();
+				}
+			},
+		);
 	}
 
 	fn update_sound(
@@ -172,29 +156,22 @@ impl SettingsDialog {
 		container: &mut UiElementContainerData,
 		is_on: bool,
 	) {
-		if let Some(mut stb) = container.find_child_mut(&[
-			"Settings Dialog - vbox",
-			"Settings hBox",
-			"Settings hBox",
-			"sound/toggle",
-		]) {
-			// debug!("Found sound/toggle");
-			let mut stb = stb.borrow_mut();
-			let stb = stb.borrow_element_mut();
-			match stb.as_any_mut().downcast_mut::<UiToggleButton>() {
-				Some(stb) => {
-					if is_on {
-						stb.goto_a();
-					} else {
-						stb.goto_b();
-					}
-				},
-				None => panic!("{:?} isn't a UiToggleButton!", &stb),
-			};
-		} else {
-			uielement.dump_info();
-			todo!("Fix path to sound toggle button");
-		}
+		container.find_child_mut_as_element_then::<UiToggleButton>(
+			&[
+				"Settings Dialog - vbox",
+				"Settings hBox",
+				"Settings hBox",
+				"sound/toggle",
+			],
+			&|stb| {
+				// debug!("Found sound/toggle");
+				if is_on {
+					stb.goto_a();
+				} else {
+					stb.goto_b();
+				}
+			},
+		);
 	}
 }
 
@@ -214,12 +191,11 @@ impl UiElement for SettingsDialog {
 		container.add_child_element_container(
 			Ui3x3Image::new(
 				"ui-3x3-grassland",
-				//				&Vector2::new(1024.0 + 256.0, 1024.0 - 256.0),
-				&Vector2::new(192.0 * 6.0, 192.0 * 3.0), // 3x3 doesn't support repeating by non integer ... yet
+				&Vector2::new(192.0 * 6.0, 192.0 * 3.0),
 				&Vector2::new(192.0, 192.0),
 			)
 			.containerize()
-			.with_name("Settings Dialog - background"), //.with_child_element_containers(self.create_children().into()),
+			.with_name("Settings Dialog - background"),
 		);
 		container.add_child_element_container(
 			UiVbox::new()
@@ -235,8 +211,6 @@ impl UiElement for SettingsDialog {
 				Some(data) => {
 					data.audio.read().and_then(|audio| {
 						// :TODO: maybe use try_read instead of potentially blocking
-						//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
-						//debug!("is_music_enabled {:?}", audio.is_music_enabled);
 						let uielement: &dyn UiElement = self;
 						self.update_sound(uielement, container, audio.is_sound_enabled);
 						self.update_music(uielement, container, audio.is_music_enabled);

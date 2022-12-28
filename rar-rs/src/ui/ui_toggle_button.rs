@@ -47,10 +47,7 @@ impl UiToggleButton {
 
 	pub fn foo(&mut self) -> Vec<Box<impl UiEventResponse>> {
 		let mut r = Vec::new();
-		//let ev = Box::new( UiEventResponseButtonClicked{ button_name: container.name.clone() } );
-		//event_sender.send( ev ).unwrap();
 		r.push(Box::new(UiEventResponseButtonClicked::new("foo")));
-
 		r
 	}
 }
@@ -90,8 +87,6 @@ impl UiElement for UiToggleButton {
 		_event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		debug!("Button toggled");
-		//let ev = Box::new( UiEventResponseButtonClicked{ button_name: container.name.clone() } );
-		//event_sender.send( ev ).unwrap();
 		Some(Box::new(UiEventResponseButtonClicked::new(&container.name)))
 	}
 	fn preferred_size(&self) -> Option<&Vector2> {

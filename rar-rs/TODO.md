@@ -7,9 +7,6 @@
 
 ## TODO
 
-
-- [ ] Cleanup ui handling to use newer features/helpers
-
 - [ ] Add confirmation when leaving game
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
@@ -86,6 +83,7 @@
 
 - [x] Split game & game state
 - [x] Fix pause state on game start
+- [x] Cleanup ui handling to use newer features/helpers
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup

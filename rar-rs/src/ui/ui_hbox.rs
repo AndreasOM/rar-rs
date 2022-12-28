@@ -58,7 +58,6 @@ impl UiElement for UiHbox {
 		let padding = self.padding;
 
 		let mut w1 = 0.0;
-		//let mut w0 = 0.0;
 
 		for c in container.borrow_children().iter() {
 			let c = c.borrow();

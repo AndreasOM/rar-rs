@@ -7,34 +7,7 @@ pub struct DebugNavigationDialog {}
 
 impl DebugNavigationDialog {
 	pub fn new() -> Self {
-		Self {
-			..Default::default()
-		}
-	}
-	fn create_button(name: &str, size: &Vector2) -> UiElementContainer {
-		let container = UiGravityBox::new()
-			.containerize()
-			.with_size(size)
-			.with_child_element_containers(
-				[
-					{
-						UiButton::new("ui-button", size)
-							.containerize()
-							.with_name(name)
-							.with_fade_out(0.0)
-							.with_fade_in(1.0)
-					},
-					{
-						UiLabel::new(&size, name)
-							.containerize()
-							.with_name(name)
-							.with_fade_out(0.0)
-							.with_fade_in(1.0)
-					},
-				]
-				.into(),
-			);
-		container
+		Default::default()
 	}
 }
 
@@ -68,12 +41,4 @@ impl UiElement for DebugNavigationDialog {
 				),
 		);
 	}
-	/*
-	fn layout(&mut self, container: &mut UiElementContainerData, _pos: &Vector2) {
-		for c in container.borrow_children_mut().iter_mut() {
-			c.borrow_mut().layout(&Vector2::zero());
-		}
-		//		container.set_pos( pos );	// no! This is the default anyway
-	}
-	*/
 }

@@ -3,14 +3,6 @@ use tracing::*;
 
 use crate::ui::{UiElement, UiElementContainerData};
 
-/*
-#[derive(Debug)]
-struct Child {
-	pub element: Box<dyn UiElement>,
-	pub gravity: Vector2,
-}
-*/
-
 #[derive(Debug)]
 pub struct UiGravityBox {
 	padding:            f32,
@@ -80,23 +72,16 @@ impl UiElement for UiGravityBox {
 		let ws = container
 			.size
 			.sub(&Vector2::new(2.0 * self.padding, 2.0 * self.padding));
-		//debug!("size: {:?}", &container.size);
-		//debug!("ws: {:?}", &ws);
 		for (g, c) in self
 			.children_gravities
 			.iter()
 			.zip(container.borrow_children_mut().iter_mut())
 		{
-			//debug!("g: {:?}", &g);
 			let mut c = c.borrow_mut();
 			let cs = c.size();
 			let cpos = ws.sub(&cs).scaled(0.5).scaled_vector2(&g);
-			//debug!("cs: {:?}", &cs);
-			//debug!("cpos: {:?}", &cpos);
 			c.layout(&cpos);
 		}
-		//debug!("pos: {:?}", &pos);
-
 		container.set_pos(pos);
 		// note: a gravity box always uses the given parent size!
 	}

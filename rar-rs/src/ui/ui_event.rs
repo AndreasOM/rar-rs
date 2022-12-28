@@ -19,7 +19,6 @@ impl UiEventResponseButtonClicked {
 	}
 }
 
-// :TODO: use derived Debug where available
 impl UiEventResponse for UiEventResponseButtonClicked {
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
@@ -43,7 +42,6 @@ impl UiEventResponseGenericMessage {
 	}
 }
 
-// :TODO: use derived Debug where available
 impl UiEventResponse for UiEventResponseGenericMessage {
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

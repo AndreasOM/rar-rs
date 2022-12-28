@@ -12,7 +12,7 @@ use crate::ui::{
 	UiElement, UiElementFadeData, UiElementFadeState, UiEvent, UiEventResponse, UiRenderer,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UiElementContainerData {
 	pub name:       String,
 	pub pos:        Vector2,
@@ -23,13 +23,7 @@ pub struct UiElementContainerData {
 
 impl UiElementContainerData {
 	pub fn new() -> Self {
-		Self {
-			name:       String::new(),
-			pos:        Vector2::zero(),
-			size:       Vector2::zero(),
-			fade_state: UiElementFadeState::FadedIn,
-			children:   Vec::new(),
-		}
+		Default::default()
 	}
 	pub fn name(&self) -> &str {
 		&self.name

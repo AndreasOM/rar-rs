@@ -21,7 +21,6 @@ use crate::ui::UiRenderer;
 pub struct UiSystem {
 	name:                  String,
 	root:                  Option<UiElementContainer>,
-	//root:					Option<UiGravityBox>,
 	event_response_sender: Option<Sender<Box<dyn UiEventResponse>>>,
 }
 
@@ -49,7 +48,6 @@ impl UiSystem {
 
 	pub fn add_child(&mut self, gravity: &Vector2, child: UiElementContainer) {
 		if let Some(root) = &mut self.root {
-			//let mut root = root.borrow_mut();
 			{
 				let root = root.borrow_element_mut();
 				match root.as_any_mut().downcast_mut::<UiGravityBox>() {
@@ -79,37 +77,11 @@ impl UiSystem {
 		}
 		was_on
 	}
-	/*
-	pub fn set_root(&mut self, root: UiElementContainer) {
-		self.root = Some(root);
-	}
 
-	pub fn take_root(&mut self) -> Option<UiElementContainer> {
-		todo!("Why do you call this? Do we need this");
-		#[allow(unreachable_code)]
-		self.root.take()
-	}
-
-	pub fn get_root(&mut self) -> &Option<UiElementContainer> {
-		&self.root
-	}
-
-	pub fn get_root_mut(&mut self) -> &mut Option<UiElementContainer> {
-		&mut self.root
-	}
-
-	*/
 	pub fn set_size(&mut self, size: &Vector2) {
 		// :TODO-UI: should probably use parent_size_changed instead
 		if let Some(root) = &mut self.root {
 			root.parent_size_changed(size);
-			//		root.set_size(size);
-			/*
-			for c in root.borrow_children_mut() {
-				let mut c = c.borrow_mut();
-				c.set_size(size);
-			}
-			*/
 		}
 		self.layout();
 		self.dump_info();
@@ -118,13 +90,6 @@ impl UiSystem {
 	pub fn layout(&mut self) {
 		if let Some(root) = &mut self.root {
 			root.layout(&Vector2::zero());
-			// :TODO-UI: nope?
-			/*
-			for c in root.borrow_children_mut() {
-				let mut c = c.borrow_mut();
-				//c.layout(&Vector2::zero());
-			}
-			*/
 		}
 	}
 
@@ -165,7 +130,6 @@ impl UiSystem {
 		if let Some(root) = &mut self.root {
 			// :CHEAT: ???
 			renderer.use_layer(LayerId::Ui as u8);
-			//			renderer.use_effect( EffectId::ColoredTextured as u16 );
 
 			let mut ui_renderer = UiRenderer::new(
 				renderer,

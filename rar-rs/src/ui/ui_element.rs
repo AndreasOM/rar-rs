@@ -13,10 +13,11 @@ pub struct UiElementFadeData {
 	pub speed: f32,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, Default, PartialEq)]
 pub enum UiElementFadeState {
 	FadedOut,
 	FadingIn(UiElementFadeData),
+	#[default]
 	FadedIn,
 	FadingOut(UiElementFadeData),
 }
@@ -35,13 +36,6 @@ pub trait UiElement {
 		_parent_size: &Vector2,
 	) {
 	}
-	/*
-		fn children_bounding_rect(&self, container: &mut UiElementContainerData) -> Rectangle{
-			let mut r = Rectangle::default();
-
-			r
-		}
-	*/
 	fn recalculate_size(&mut self, container: &mut UiElementContainerData) {
 		let mut r = Rectangle::default()
 			.with_center(&Vector2::zero())
@@ -55,7 +49,6 @@ pub trait UiElement {
 		}
 
 		container.set_size(r.size());
-		// :TODO-UI: add our own size?!
 	}
 	fn add_child(&mut self, _child: &mut UiElementContainerData) {}
 	fn update(&mut self, _container: &mut UiElementContainerData, _time_step: f64) {}
@@ -64,9 +57,6 @@ pub trait UiElement {
 		for c in container.borrow_children_mut().iter_mut() {
 			c.borrow_mut().layout(&Vector2::zero());
 		}
-		//		container.set_pos( pos );	// no! This is the default anyway
-		// :TODO-UI:
-		//		container.set_size(&total_size);
 		self.recalculate_size(container);
 	}
 	fn render_debug(
@@ -94,7 +84,6 @@ pub trait UiElement {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		None
 	}
-	//	fn set_size( &mut self, size: &Vector2 ) {}
 
 	fn containerize(self) -> UiElementContainer
 	where
@@ -107,7 +96,6 @@ pub trait UiElement {
 
 impl std::fmt::Debug for dyn UiElement {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-		//		writeln!( f,"[Trait] UiElement: {}x{} @ {}, {}", self.size().x, self.size().y, self.pos().x, self.pos().y )
 		writeln!(f, "[Trait] UiElement")
 	}
 }

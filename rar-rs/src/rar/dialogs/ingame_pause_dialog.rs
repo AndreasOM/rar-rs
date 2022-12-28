@@ -65,31 +65,6 @@ impl IngamePauseDialog {
 						.with_fade_in(1.0)
 					},
 					self.create_paused_box(),
-					/*
-										{
-											UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-												.containerize()
-												.with_name("back")
-												.with_fade_out(0.0)
-												.with_fade_in(1.0)
-										},
-					*/
-										/*
-										{
-											UiVbox::new()
-												.with_padding(16.0)
-												.containerize()
-												.with_name("Settings hBox") // :TODO: fix name
-												.with_child_element_containers(self.create_audio_buttons())
-										},
-										{
-											UiHbox::new()
-												.with_padding(16.0)
-												.containerize()
-												.with_name("Labels hBox")
-												.with_child_element_containers(self.create_info_labels())
-										},
-										*/
 				]
 				.into(),
 			)
@@ -102,15 +77,8 @@ impl IngamePauseDialog {
 		is_paused: bool,
 	) {
 		container.find_child_container_mut_then(
-			&[
-				//???"Settings hBox",
-				//"Ingame Pause Dialog - Gravity Box",
-				"Ingame Pause vBox",
-				"Paused Buttons",
-			],
+			&["Ingame Pause vBox", "Paused Buttons"],
 			&mut |container| {
-				//dbg!(&container);
-
 				if is_paused {
 					container.fade_in(1.0);
 				} else {
@@ -119,12 +87,7 @@ impl IngamePauseDialog {
 			},
 		);
 		container.find_child_mut_as_element_then::<UiToggleButton>(
-			&[
-				//???"Settings hBox",
-				//"Ingame Pause Dialog - Gravity Box",
-				"Ingame Pause vBox",
-				"playpause/toggle",
-			],
+			&["Ingame Pause vBox", "playpause/toggle"],
 			&|pptb| {
 				//dbg!(&pptb);
 				if is_paused {
@@ -134,31 +97,6 @@ impl IngamePauseDialog {
 				}
 			},
 		);
-		/* Example: without the helper
-				if let Some(mut pptb) = container.find_child_mut(&[
-					//???"Settings hBox",
-					"Ingame Pause Dialog - Gravity Box",
-					"Ingame Pause vBox",
-					"playpause/toggle",
-				]) {
-					// debug!("Found sound/toggle");
-					let mut pptb = pptb.borrow_mut();
-					let pptb = pptb.borrow_element_mut();
-					match pptb.as_any_mut().downcast_mut::<UiToggleButton>() {
-						Some(pptb) => {
-							if is_paused {
-								pptb.goto_a();
-							} else {
-								pptb.goto_b();
-							}
-						},
-						None => panic!("{:?} isn't a UiToggleButton!", &pptb),
-					};
-				} else {
-					// ??? container.dump_info();
-					todo!("Fix path to sound toggle button");
-				}
-		*/
 	}
 }
 
@@ -181,8 +119,6 @@ impl UiElement for IngamePauseDialog {
 						.read()
 						.and_then(|game| {
 							// :TODO: maybe use try_read instead of potentially blocking
-							//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
-							//debug!("is_music_enabled {:?}", audio.is_music_enabled);
 							let uielement: &dyn UiElement = self;
 							self.update_playpause(uielement, container, game.is_paused);
 							Ok(())
