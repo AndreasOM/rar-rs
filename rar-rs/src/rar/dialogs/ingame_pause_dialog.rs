@@ -184,7 +184,7 @@ impl UiElement for IngamePauseDialog {
 							//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
 							//debug!("is_music_enabled {:?}", audio.is_music_enabled);
 							let uielement: &dyn UiElement = self;
-							self.update_playpause(uielement, container, game.is_game_paused);
+							self.update_playpause(uielement, container, game.is_paused);
 							Ok(())
 						})
 						.unwrap();

@@ -9,18 +9,14 @@ use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
 
-use crate::rar::camera::Camera;
-use crate::rar::data::RarData;
 use crate::rar::dialogs::IngamePauseDialog;
 use crate::rar::dialogs::SettingsDialog;
-use crate::rar::entities::entity::Entity;
-use crate::rar::entities::{EntityConfigurationManager, EntityId, EntityManager};
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::AppUpdateContext;
 //use oml_game::window::WindowUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::Game;
-use crate::rar::{GameState, World, WorldRenderer};
+use crate::rar::GameState;
 use crate::ui::UiElement;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
@@ -32,11 +28,6 @@ pub struct GameStateGame {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
-	entity_manager:          EntityManager,
-	world_renderer:          WorldRenderer,
-	world_name:              String,
-	fixed_update_count:      u32,
-	is_game_paused:          bool,
 	data:                    Option<Arc<dyn Data>>,
 	game:                    Game,
 }
@@ -48,12 +39,7 @@ impl Default for GameStateGame {
 			ui_system:               UiSystem::default(),
 			event_response_sender:   tx,
 			event_response_receiver: rx,
-			entity_manager:          Default::default(),
-			fixed_update_count:      Default::default(),
-			world_name:              Default::default(),
-			world_renderer:          Default::default(),
 			data:                    Default::default(),
-			is_game_paused:          false,
 			game:                    Default::default(),
 		}
 	}
@@ -62,14 +48,12 @@ impl Default for GameStateGame {
 impl GameStateGame {
 	pub fn new(system: &mut System) -> Self {
 		Self {
-			entity_manager: EntityManager::new(),
-			world_name: "dev".to_string(),
 			data: system.data().as_ref().map(|data| Arc::clone(&data)),
+			game: Game::new(system),
 			..Default::default()
 		}
 	}
 	pub fn select_world(&mut self, world: &str) {
-		self.world_name = world.to_string();
 		self.game.select_world(world);
 	}
 	fn update_ui_system(
@@ -118,43 +102,11 @@ impl GameStateGame {
 					},
 				}
 			}
-			/*
-			match ev.as_any().downcast_ref::<UiEventResponseButtonClicked>() {
-				Some(e) => {
-					println!("Button {} clicked", &e.button_name);
-					if let Some(sound_tx) = auc.sound_tx() {
-						let _ = sound_tx.send(AudioMessage::PlaySound("BUTTON".to_string()));
-					}
-
-					match e.button_name.as_str() {
-						"music/toggle" => {
-							if let Some(sound_tx) = auc.sound_tx() {
-								let _ = sound_tx.send(AudioMessage::ToggleMusic);
-							}
-						},
-						"sound/toggle" => {
-							if let Some(sound_tx) = auc.sound_tx() {
-								let _ = sound_tx.send(AudioMessage::ToggleSound);
-							}
-						},
-						_ => {
-							println!("Unhandled button click from {}", &e.button_name);
-						},
-					}
-				},
-				None => {},
-			}
-
-			*/
 		}
 	}
 
 	fn toggle_game_pause(&mut self) {
-		if self.is_game_paused {
-			self.is_game_paused = false;
-		} else {
-			self.is_game_paused = true;
-		}
+		self.game.toggle_pause();
 	}
 }
 
@@ -165,7 +117,6 @@ impl GameState for GameStateGame {
 		self.ui_system
 			.setup("Game", system, self.event_response_sender.clone())?;
 
-		//self.ui_system.set_root(
 		self.ui_system.add_child(
 			&Vector2::new(-1.0, 1.0),
 			IngamePauseDialog::new(system)
@@ -188,8 +139,6 @@ impl GameState for GameStateGame {
 	fn teardown(&mut self) {
 		self.game.teardown();
 		self.ui_system.teardown();
-		self.world_renderer.teardown();
-		self.entity_manager.teardown();
 	}
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
@@ -208,26 +157,8 @@ impl GameState for GameStateGame {
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		let mut response = Vec::new();
-		self.fixed_update_count = 0;
 
 		let _gr = self.game.update(auc);
-		if let Some(data) = &self.data {
-			match data.as_any().downcast_ref::<RarData>() {
-				Some(data) => {
-					data.game
-						.write()
-						.and_then(|mut game| {
-							// could probably try_write here
-							game.is_game_paused = self.is_game_paused;
-							Ok(())
-						})
-						.unwrap();
-				},
-				None => {
-					warn!("Could not update game data!");
-				},
-			}
-		}
 
 		self.update_ui_system(auc, &mut response);
 		let wuc = match auc.wuc() {

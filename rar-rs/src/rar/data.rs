@@ -8,7 +8,7 @@ pub struct AudioData {
 
 #[derive(Debug, Default)]
 pub struct GameData {
-	pub is_game_paused: bool,
+	pub is_paused: bool,
 }
 
 #[derive(Debug)]

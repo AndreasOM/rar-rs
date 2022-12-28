@@ -10,6 +10,7 @@ use oml_game::system::System;
 use tracing::*;
 
 use crate::rar::camera::Camera;
+use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
 use crate::rar::entities::Background;
@@ -39,7 +40,7 @@ pub struct Game {
 	player_id: EntityId,
 	world_name: String,
 	fixed_update_count: u32,
-	is_game_paused: bool,
+	is_paused: bool,
 	data: Option<Arc<dyn Data>>,
 }
 
@@ -54,6 +55,14 @@ impl Game {
 	pub fn select_world(&mut self, world: &str) {
 		self.world_name = world.to_string();
 	}
+	pub fn toggle_pause(&mut self) {
+		if self.is_paused {
+			self.is_paused = false;
+		} else {
+			self.is_paused = true;
+		}
+	}
+
 	pub fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.entity_configuration_manager
 			.load(system, "todo_filename");
@@ -163,7 +172,7 @@ impl Game {
 	pub fn teardown(&mut self) {}
 
 	pub fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
-		let mut response = Vec::new();
+		let response = Vec::new();
 		self.fixed_update_count = 0;
 
 		let wuc = match auc.wuc() {
@@ -187,7 +196,7 @@ impl Game {
 		self.camera.set_frame_size(&frame_size);
 		self.fixed_camera.set_frame_size(&frame_size);
 
-		if !self.is_game_paused {
+		if !self.is_paused {
 			let mut euc = EntityUpdateContext::new().with_world(&self.world);
 
 			self.total_time += wuc.time_step;
@@ -254,11 +263,29 @@ impl Game {
 			self.world_renderer.update(wuc.time_step);
 		}
 
+		if let Some(data) = &self.data {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.game
+						.write()
+						.and_then(|mut game| {
+							// could probably try_write here
+							game.is_paused = self.is_paused;
+							Ok(())
+						})
+						.unwrap();
+				},
+				None => {
+					warn!("Could not update game data!");
+				},
+			}
+		}
+
 		response
 	}
 
 	pub fn fixed_update(&mut self, time_step: f64) {
-		if !self.is_game_paused {
+		if !self.is_paused {
 			let euc = EntityUpdateContext::new()
 				.set_time_step(time_step)
 				.with_fixed_update_count(self.fixed_update_count)
