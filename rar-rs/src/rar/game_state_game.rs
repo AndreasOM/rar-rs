@@ -3,9 +3,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
 
 use oml_game::math::Vector2;
-use oml_game::renderer::debug_renderer;
 use oml_game::renderer::debug_renderer::DebugRenderer;
-use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 use oml_game::system::Data;
 use oml_game::system::System;
@@ -15,19 +13,14 @@ use crate::rar::camera::Camera;
 use crate::rar::data::RarData;
 use crate::rar::dialogs::IngamePauseDialog;
 use crate::rar::dialogs::SettingsDialog;
-use crate::rar::effect_ids::EffectId;
 use crate::rar::entities::entity::Entity;
-use crate::rar::entities::{
-	Background, EntityConfigurationManager, EntityId, EntityManager, Player,
-};
+use crate::rar::entities::{EntityConfigurationManager, EntityId, EntityManager};
 use crate::rar::game_state::GameStateResponse;
-use crate::rar::layer_ids::LayerId;
-use crate::rar::map;
 use crate::rar::AppUpdateContext;
 //use oml_game::window::WindowUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::Game;
-use crate::rar::{EntityUpdateContext, GameState, PlayerInputContext, World, WorldRenderer};
+use crate::rar::{GameState, World, WorldRenderer};
 use crate::ui::UiElement;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
@@ -36,46 +29,32 @@ use crate::ui::UiSystem;
 
 #[derive(Debug)]
 pub struct GameStateGame {
-	ui_system: UiSystem,
-	event_response_sender: Sender<Box<dyn UiEventResponse>>,
+	ui_system:               UiSystem,
+	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
-	entity_configuration_manager: EntityConfigurationManager,
-	entity_manager: EntityManager,
-	world: World,
-	world_renderer: WorldRenderer,
-	camera: Camera,
-	fixed_camera: Camera,
-	use_fixed_camera: bool,
-	total_time: f64,
-	player_id: EntityId,
-	world_name: String,
-	fixed_update_count: u32,
-	is_game_paused: bool,
-	data: Option<Arc<dyn Data>>,
-	game: Game,
+	entity_manager:          EntityManager,
+	world_renderer:          WorldRenderer,
+	world_name:              String,
+	fixed_update_count:      u32,
+	is_game_paused:          bool,
+	data:                    Option<Arc<dyn Data>>,
+	game:                    Game,
 }
 
 impl Default for GameStateGame {
 	fn default() -> Self {
 		let (tx, rx) = channel();
 		Self {
-			ui_system: UiSystem::default(),
-			event_response_sender: tx,
+			ui_system:               UiSystem::default(),
+			event_response_sender:   tx,
 			event_response_receiver: rx,
-			camera: Default::default(),
-			entity_configuration_manager: Default::default(),
-			entity_manager: Default::default(),
-			fixed_camera: Default::default(),
-			fixed_update_count: Default::default(),
-			player_id: Default::default(),
-			total_time: Default::default(),
-			use_fixed_camera: Default::default(),
-			world: Default::default(),
-			world_name: Default::default(),
-			world_renderer: Default::default(),
-			data: Default::default(),
-			is_game_paused: false,
-			game: Default::default(),
+			entity_manager:          Default::default(),
+			fixed_update_count:      Default::default(),
+			world_name:              Default::default(),
+			world_renderer:          Default::default(),
+			data:                    Default::default(),
+			is_game_paused:          false,
+			game:                    Default::default(),
 		}
 	}
 }
@@ -84,8 +63,6 @@ impl GameStateGame {
 	pub fn new(system: &mut System) -> Self {
 		Self {
 			entity_manager: EntityManager::new(),
-			entity_configuration_manager: EntityConfigurationManager::new(),
-			world: World::new(),
 			world_name: "dev".to_string(),
 			data: system.data().as_ref().map(|data| Arc::clone(&data)),
 			..Default::default()
@@ -184,128 +161,6 @@ impl GameStateGame {
 impl GameState for GameStateGame {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.game.setup(system)?;
-		/* moved to game
-		self.entity_configuration_manager
-			.load(system, "todo_filename");
-
-		self.entity_configuration_manager
-			.load_yaml(system, "player.entity_config.yaml")?;
-
-		self.entity_manager.setup();
-
-		*/
-
-		/* moved to game
-		// add background
-		let mut background = Background::new();
-		background.setup(self.entity_configuration_manager.get_config("background"));
-		self.entity_manager.add(Box::new(background));
-		*/
-
-		/* moved to game
-
-		// load world
-		debug!("Loading world {}", &self.world_name);
-		self.world.load(system, &self.world_name)?;
-		debug!("Loading all maps...");
-		self.world.load_all_maps(system)?;
-		debug!("Loading all tilesets...");
-		self.world.load_all_tilesets(system)?;
-
-		debug!("Generating colliders...");
-		self.world
-			.generate_collider_layers("Collider", &["Tile Layer 1", "terrain"].to_vec())?;
-		//			.generate_collider_layers("Collider", &["Tile Layer", "terrain"].to_vec())?;
-		//			.generate_collider_layers("Collider", &["Tile Layer"].to_vec())?;
-		//		self.world
-		//			.generate_collider_layers("Collider", &["terrain"].to_vec())?;
-		// self.world.generate_collider_layers( "Collider", &[ "Tile Layer" ].to_vec() )?; // force error for testing
-
-		*/
-
-		/* moved to game
-
-		let player_spawns = self
-			.world
-			.list_objects_in_layer_for_class("Player", "PlayerSpawn");
-		for ps in player_spawns.iter() {
-			dbg!(&ps);
-		}
-
-		for ps in player_spawns.iter() {
-			dbg!(&ps);
-			match ps.data() {
-				map::ObjectData::Point { pos } => {
-					// add player ... at spawn position
-					let mut player = Player::new();
-					player.setup(self.entity_configuration_manager.get_config("player"));
-					player.set_input_context_index(0);
-					player.set_spawn_pos(&pos.add(&Vector2::new(64.0 + 32.0, 64.0)));
-					player.respawn();
-					let player_id = self.entity_manager.add(Box::new(player));
-
-					self.camera.follow_player_entity_id(player_id);
-					self.player_id = player_id;
-					break; // just one for now ;)
-				},
-				o => {
-					println!("Ignoring invalid object type for Player Spawn {:?}", &o);
-				},
-			}
-		}
-
-		*/
-
-		/* moved to game
-
-		let camera_starts = self
-			.world
-			.list_objects_in_layer_for_class("CameraControl", "CameraStart");
-		for cs in camera_starts.iter() {
-			dbg!(&cs);
-		}
-
-		for cs in camera_starts.iter() {
-			dbg!(&cs);
-			match cs.data() {
-				map::ObjectData::Point { pos } => {
-					self.camera.set_pos(pos);
-					self.camera.set_target_pos(pos);
-					break; // just one for now ;)
-				},
-				o => {
-					println!("Ignoring invalid object type for Camera Start {:?}", &o);
-				},
-			}
-		}
-
-		// :HACK:
-		//self.camera.freeze();
-
-		*/
-
-		/* moved to game
-
-		self.world_renderer.setup()?;
-		self.world_renderer.enable_layer(
-			"Tile Layer 1",
-			LayerId::TileMap1 as u8,
-			EffectId::Textured as u16,
-		);
-		self.world_renderer.enable_layer(
-			"terrain",
-			LayerId::TileMap1 as u8,
-			EffectId::Textured as u16,
-		);
-		/*
-		self.world_renderer.enable_layer(
-			"Tile Layer 2",
-			LayerId::TileMap2 as u8,
-			EffectId::TexturedDesaturated as u16,
-		);
-		*/
-
-		*/
 
 		self.ui_system
 			.setup("Game", system, self.event_response_sender.clone())?;
