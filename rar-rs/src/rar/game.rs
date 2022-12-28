@@ -64,6 +64,8 @@ impl Game {
 	}
 
 	pub fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
+		self.is_paused = false;
+
 		self.entity_configuration_manager
 			.load(system, "todo_filename");
 

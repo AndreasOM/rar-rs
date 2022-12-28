@@ -3,8 +3,6 @@
 
 ## In Progress
 
-- [ ] Split game & game state
-    - [ ] Fix pause state on game start
 
 
 ## TODO
@@ -68,7 +66,7 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 5.0h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 6.0h??  ->  57.0h   + ??.?h     -> ??.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
@@ -85,6 +83,9 @@
 - [x] Add hotkey `=` to cycle through ui debug modes
 - [x] Extract/remove `back` button from settings
 - [x] Hook up music & sound toggle buttons when settings is used ingame
+
+- [x] Split game & game state
+- [x] Fix pause state on game start
 
 ### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
 - [x] Fix git messup
