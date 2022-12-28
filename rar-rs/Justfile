@@ -13,6 +13,9 @@ c:
 fmt:
 	cargo +nightly fmt
 
+clippy:
+	RUSTFLAGS=-Awarnings cargo clippy -- -Aclippy::all -Fclippy::correctness
+
 cook:
 	cd .. && ./cook.sh; cd -
 

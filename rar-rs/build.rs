@@ -14,7 +14,7 @@ fn main() {
 	println!("cargo:rustc-env=CODE_BUILD_NUMBER={}", code_build_number);
 
 	let result = Command::new("git")
-		.args(&["rev-parse", "HEAD"])
+		.args(["rev-parse", "HEAD"])
 		.output()
 		.unwrap();
 	let git_commit_hash = &String::from_utf8_lossy(&result.stdout)[..7];

@@ -85,7 +85,7 @@ impl UiElementContainerData {
 	pub fn find_child_container_mut_then(
 		&mut self,
 		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer) -> (),
+		f: &mut dyn FnMut(&mut UiElementContainer),
 	) {
 		if path.is_empty() {
 			return;
@@ -111,7 +111,7 @@ impl UiElementContainerData {
 	pub fn find_child_mut_as_element_then<E: 'static>(
 		&mut self,
 		path: &[&str],
-		f: &dyn Fn(&mut E) -> (),
+		f: &dyn Fn(&mut E),
 	) {
 		if let Some(mut c) = self.find_child_mut(path) {
 			let mut c = c.borrow_mut();
@@ -628,7 +628,7 @@ impl UiElementContainer {
 	pub fn find_child_container_mut_then(
 		&mut self,
 		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer) -> (),
+		f: &mut dyn FnMut(&mut UiElementContainer),
 	) {
 		if path.is_empty() {
 			return;

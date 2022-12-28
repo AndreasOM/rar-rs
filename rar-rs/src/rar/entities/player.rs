@@ -229,7 +229,8 @@ impl Player {
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
 		if let Some(pic) = euc.player_input_context(self.input_context_index) {
-			if false && pic.is_up_pressed {
+			const BACKFLIP_ENABLED: bool = !true;
+			if BACKFLIP_ENABLED && pic.is_up_pressed {
 				self.goto_state(PlayerState::Backflip);
 			// self.speed = -100.0;
 			// self.direction = PlayerDirection::Left;

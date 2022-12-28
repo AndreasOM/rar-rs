@@ -87,7 +87,7 @@ impl AppUpdateContext {
 		self
 	}
 
-	pub fn ui_update_context_as_then<E: 'static>(&mut self, f: &dyn Fn(&mut E) -> ()) {
+	pub fn ui_update_context_as_then<E: 'static>(&mut self, f: &dyn Fn(&mut E)) {
 		if let Some(uuc) = &mut self.ui_update_context {
 			match uuc.as_any_mut().downcast_mut::<E>() {
 				Some(e) => {

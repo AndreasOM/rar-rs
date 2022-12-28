@@ -149,7 +149,8 @@ impl UiSystem {
 						debug!("{:?}", &root);
 						if let Some(ev) = root.handle_ui_event(&ev, &event_response_sender) {
 							debug!("Click handled");
-							let _ = event_response_sender.send(ev).unwrap();
+							//let _ =
+							event_response_sender.send(ev).unwrap();
 						} else {
 							//root.dump_info( "", &Vector2::zero() );
 						}
