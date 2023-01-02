@@ -1,7 +1,7 @@
 ui-3x3-grassland.png:0,0-192,192
 ui-button.png:0,192-256,256
 ui-button_back.png:256,192-320,256
-ui-button_pause-export.png:320,192-384,256
+ui-button_confirm_danger.png:320,192-384,256
 ui-button_pause.png:384,192-448,256
 ui-button_play.png:448,192-512,256
 ui-button_settings.png:512,192-576,256

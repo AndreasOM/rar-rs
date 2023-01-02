@@ -566,6 +566,47 @@ impl UiElementContainer {
 		self.data.pos = *pos;
 	}
 
+	fn handle_mouse_click(
+		&mut self,
+		pos: &Vector2,
+		button: u8,
+		event: &UiEvent,
+		event_sender: &Sender<Box<dyn UiEventResponse>>,
+	) -> Option<Box<dyn UiEventResponse>> {
+		let pos = pos.sub(self.pos());
+		if self.is_hit_by(&pos) {
+			//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
+			//debug!("Hit {:?}", &self);
+			debug!("Hit {:?} -> {}", &pos, self.name());
+			self.dump_info_internal("", &Vector2::zero(), usize::MAX);
+			for c in self.data.borrow_children_mut().iter_mut() {
+				let mut c = c.borrow_mut();
+				let cpos = pos.sub(c.pos());
+				//						let pos = *pos;
+				//						println!("New pos: {},{} (child @ {}, {} -> {}, {})", pos.x, pos.y , c.pos().x, c.pos().y, cpos.x, cpos.y );
+				if c.is_hit_by(&cpos) {
+					println!("Child is hit");
+					let ev = UiEvent::MouseClick {
+						pos,
+						button: button,
+					};
+					if let Some(r) = c.handle_ui_event(&ev, event_sender) {
+						//return self.element.handle_ui_event_response(r);
+						return Some( r );
+					}
+				} else {
+					debug!("Child >{}< NOT hit ({:?})", &c.name(), &c.size());
+				}
+			}
+			// no child hit, so try give to our element
+			self.element
+				.handle_ui_event(&mut self.data, &event, event_sender)
+		} else {
+			debug!("Not hit: {:?}", &self);
+			None
+		}
+	}
+
 	pub fn handle_ui_event(
 		&mut self,
 		event: &UiEvent,
@@ -573,42 +614,23 @@ impl UiElementContainer {
 	) -> Option<Box<dyn UiEventResponse>> {
 		match event {
 			UiEvent::MouseClick { pos, button } => {
-				let pos = pos.sub(self.pos());
-				if self.is_hit_by(&pos) {
-					//debug!( "Hit with {} children", self.borrow_base_mut().children.len() );
-					//debug!("Hit {:?}", &self);
-					debug!("Hit {:?}", &pos);
-					self.dump_info_internal("", &Vector2::zero(), usize::MAX);
-					for c in self.data.borrow_children_mut().iter_mut() {
-						let mut c = c.borrow_mut();
-						let cpos = pos.sub(c.pos());
-						//						let pos = *pos;
-						//						println!("New pos: {},{} (child @ {}, {} -> {}, {})", pos.x, pos.y , c.pos().x, c.pos().y, cpos.x, cpos.y );
-						if c.is_hit_by(&cpos) {
-							println!("Child is hit");
-							let ev = UiEvent::MouseClick {
-								pos,
-								button: *button,
-							};
-							if let Some(r) = c.handle_ui_event(&ev, event_sender) {
-								return self.element.handle_ui_event_response(r);
-								//								return Some( r );
-							}
-						} else {
-							debug!("Child >{}< NOT hit ({:?})", &c.name(), &c.size());
-						}
-					}
-					// no child hit, so try give to our element
-					self.element
-						.handle_ui_event(&mut self.data, &event, event_sender)
+				if let Some(r) = self.handle_mouse_click(pos, *button, event, event_sender) {
+					// self.element.handle_ui_event_response(r)
+					self.handle_ui_event_response(r)
 				} else {
-					debug!("Not hit: {:?}", &self);
 					None
 				}
 			},
 			#[allow(unreachable_patterns)]
 			_ => None,
 		}
+	}
+
+	fn handle_ui_event_response(
+		&mut self,
+		response: Box<dyn UiEventResponse>,
+	) -> Option<Box<dyn UiEventResponse>> {
+		self.element.handle_ui_event_response(response)
 	}
 
 	// local coordinates!

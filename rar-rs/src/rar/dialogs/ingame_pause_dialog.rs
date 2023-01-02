@@ -36,11 +36,34 @@ impl IngamePauseDialog {
 							.with_fade_in(1.0)
 					},
 					{
-						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
+						UiHbox::new()
+							.with_padding(16.0)
 							.containerize()
-							.with_name("back")
+							.with_name("back box")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
+							.with_child_element_containers(
+								[
+									{
+										UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
+											.containerize()
+											.with_name("back")
+											.with_fade_out(0.0)
+											.with_fade_in(1.0)
+									},
+									{
+										UiButton::new(
+											"ui-button_confirm_danger",
+											&Vector2::new(64.0, 64.0),
+										)
+										.containerize()
+										.with_name("back_confirm")
+										.with_fade_out(0.0)
+										.with_fade_in(1.0)
+									},
+								]
+								.into(),
+							)
 					},
 				]
 				.into(),
@@ -154,6 +177,18 @@ impl UiElement for IngamePauseDialog {
 				},
 				"back" => {
 					debug!("back button clicked");
+					self.dump_info();
+					/*
+					container.find_child_mut_as_element_then::<UiToggleButton>(
+						&["Ingame Pause vBox", "Paused Buttons","back box","back"],
+						&|bcb| {
+							bcb.toggle_fade(3.0);
+						},
+					);
+					*/
+				},
+				"back_confirm" => {
+					debug!("back confirm button clicked");
 					return Some(Box::new(UiEventResponseGenericMessage::new("back")));
 				},
 				_ => {},

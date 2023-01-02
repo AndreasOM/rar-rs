@@ -3,11 +3,11 @@
 
 ## In Progress
 
+- [ ] Add confirmation when leaving game
 
 
 ## TODO
 
-- [ ] Add confirmation when leaving game
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
