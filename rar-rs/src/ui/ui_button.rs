@@ -45,6 +45,10 @@ impl UiElement for UiButton {
 		_event: &UiEvent,
 		_event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
+		if !container.is_visible() {
+			return None;
+		}
+		// :TODO: check actual event type
 		debug!("Button clicked");
 		Some(Box::new(UiEventResponseButtonClicked::new(&container.name)))
 	}

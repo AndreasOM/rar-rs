@@ -52,6 +52,15 @@ impl UiElementContainerData {
 			UiElementFadeState::FadingOut(d) => d.level,
 		}
 	}
+	pub fn is_visible(&self) -> bool {
+		let fs = self.fade_state;
+		match fs {
+			UiElementFadeState::FadedOut => false,
+			UiElementFadeState::FadedIn => true,
+			UiElementFadeState::FadingIn(_) => true,
+			UiElementFadeState::FadingOut(_) => false,
+		}
+	}
 
 	pub fn add_child(&mut self, child: UiElementContainer) -> UiElementContainerHandle {
 		let mut handle = UiElementContainerHandle::new(child);
@@ -337,6 +346,18 @@ impl UiElementContainer {
 				},
 			}
 		}
+	}
+	pub fn toggle_fade(&mut self, duration: f32) {
+		let fs = self.fade_state();
+		match fs {
+			UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_)=> {
+				self.fade_in( duration );
+			},
+			UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_)=> {
+				self.fade_out( duration );
+			},
+		}
+
 	}
 	fn update_fade_state(&mut self, time_step: f64) {
 		let fs = self.data.fade_state;
@@ -630,7 +651,7 @@ impl UiElementContainer {
 		&mut self,
 		response: Box<dyn UiEventResponse>,
 	) -> Option<Box<dyn UiEventResponse>> {
-		self.element.handle_ui_event_response(response)
+		self.element.handle_ui_event_response(&mut self.data, response)
 	}
 
 	// local coordinates!

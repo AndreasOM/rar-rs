@@ -77,6 +77,7 @@ pub trait UiElement {
 	}
 	fn handle_ui_event_response(
 		&mut self,
+		_container_data: &mut UiElementContainerData,
 		response: Box<dyn UiEventResponse>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		Some(response)

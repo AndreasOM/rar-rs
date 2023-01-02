@@ -59,7 +59,7 @@ impl IngamePauseDialog {
 										.containerize()
 										.with_name("back_confirm")
 										.with_fade_out(0.0)
-										.with_fade_in(1.0)
+										//.with_fade_in(1.0)
 									},
 								]
 								.into(),
@@ -156,6 +156,7 @@ impl UiElement for IngamePauseDialog {
 	}
 	fn handle_ui_event_response(
 		&mut self,
+		container_data: &mut UiElementContainerData,		
 		response: Box<dyn UiEventResponse>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		match response
@@ -178,8 +179,14 @@ impl UiElement for IngamePauseDialog {
 				"back" => {
 					debug!("back button clicked");
 					self.dump_info();
+					container_data.find_child_container_mut_then(
+						&["Ingame Pause vBox", "Paused Buttons","back box","back_confirm"],
+						&mut |c| {
+							c.toggle_fade(1.0);
+						},
+					);
 					/*
-					container.find_child_mut_as_element_then::<UiToggleButton>(
+					container_data.find_child_mut_as_element_then::<UiToggleButton>(
 						&["Ingame Pause vBox", "Paused Buttons","back box","back"],
 						&|bcb| {
 							bcb.toggle_fade(3.0);
