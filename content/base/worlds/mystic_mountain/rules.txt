@@ -1,0 +1,2 @@
+[*]
+rules/mystic_mountain_rules.tmj

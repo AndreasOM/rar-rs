@@ -1,6 +1,11 @@
-ui-button.png:0,0-256,64
-ui-button_back.png:0,64-64,128
-ui-togglebutton_music_off.png:64,64-128,128
-ui-togglebutton_music_on.png:128,64-192,128
-ui-togglebutton_sound_off.png:192,64-256,128
-ui-togglebutton_sound_on.png:0,128-64,192
+ui-3x3-grassland.png:0,0-192,192
+ui-button.png:0,192-256,256
+ui-button_back.png:256,192-320,256
+ui-button_confirm_danger.png:320,192-384,256
+ui-button_pause.png:384,192-448,256
+ui-button_play.png:448,192-512,256
+ui-button_settings.png:512,192-576,256
+ui-togglebutton_music_off.png:576,192-640,256
+ui-togglebutton_music_on.png:640,192-704,256
+ui-togglebutton_sound_off.png:704,192-768,256
+ui-togglebutton_sound_on.png:768,192-832,256

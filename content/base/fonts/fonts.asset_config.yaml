@@ -22,7 +22,7 @@ input:
   - "*.otf"
 parameters: {
 }
-cmd_line: "${tool} ${command} --texsize 1024 --size 96 --output ${data_directory}/${output} --distancefield-max-distance 4 --distancefield-scale 4 --input ${input}"
+cmd_line: "${tool} ${command} --texsize 1024 --size 64 --output ${data_directory}/${output} --distancefield-max-distance 4 --distancefield-scale 4 --input ${input}"
 
 #omt-font create --border 2                  \
 #  --texsize 1024 --size 104                 \

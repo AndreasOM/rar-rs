@@ -39,6 +39,9 @@ impl WorldSelectionDialog {
 }
 
 impl UiElement for WorldSelectionDialog {
+	fn type_name(&self) -> &str {
+		"[WorldSelectionDialog]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
@@ -58,6 +61,7 @@ impl UiElement for WorldSelectionDialog {
 						Self::create_world_button("dev", &button_size),
 						Self::create_world_button("debug", &button_size),
 						Self::create_world_button("grassland", &button_size),
+						Self::create_world_button("mystic_mountain", &button_size),
 						Self::create_world_button("DebugCollisions", &button_size),
 						Self::create_world_button("Settings", &button_size),
 					]

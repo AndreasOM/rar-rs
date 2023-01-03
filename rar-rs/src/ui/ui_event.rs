@@ -19,13 +19,35 @@ impl UiEventResponseButtonClicked {
 	}
 }
 
-// :TODO: use derived Debug where available
 impl UiEventResponse for UiEventResponseButtonClicked {
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
 		writeln!(f, "UiEventResponseButtonClicked -> {}", self.button_name)
+	}
+}
+
+#[derive(Debug)]
+pub struct UiEventResponseGenericMessage {
+	// :TODO: nooooooo....
+	pub message: String,
+}
+
+impl UiEventResponseGenericMessage {
+	pub fn new(message: &str) -> Self {
+		Self {
+			message: message.to_owned(),
+		}
+	}
+}
+
+impl UiEventResponse for UiEventResponseGenericMessage {
+	fn as_any(&self) -> &dyn std::any::Any {
+		self
+	}
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		writeln!(f, "UiEventResponseGenericMessage -> {}", self.message)
 	}
 }
 

@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::rc::Rc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
+use std::sync::Arc;
 
 use oml_audio::Audio;
 //use oml_game::system::audio_fileloader_system::*;
@@ -23,6 +24,7 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 use tracing::*;
 
+use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::font_ids::FontId;
 //use crate::rar::game_state::get_game_state_as_specific;
@@ -40,6 +42,8 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarUiUpdateContext;
+use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
 #[derive(Debug, PartialEq, Hash, Eq)]
 enum GameStates {
@@ -80,14 +84,8 @@ pub struct RarApp {
 
 impl Default for RarApp {
 	fn default() -> Self {
-		let mut game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
-		game_states.insert(GameStates::Menu, Box::new(GameStateMenu::new()));
-		game_states.insert(GameStates::Game, Box::new(GameStateGame::new()));
-		game_states.insert(
-			GameStates::DebugCollisions,
-			Box::new(GameStateDebugCollisions::new()),
-		);
-		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
+		let system = System::new();
+		let game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
 
 		let (sound_tx, sound_rx) = std::sync::mpsc::channel();
 		Self {
@@ -99,7 +97,7 @@ impl Default for RarApp {
 			size: Vector2::zero(),
 			viewport_size: Vector2::zero(),
 			scaling: 1.0,
-			system: System::new(),
+			system,
 			is_done: false,
 			debug_renderer: Rc::new(None),
 			cursor_pos: Vector2::zero(),
@@ -178,6 +176,16 @@ impl RarApp {
 		error!("Active GameState >{:?}< not found", &self.active_game_state);
 		panic!("");
 	}
+	fn setup_debug(&mut self) {
+		UiDebugConfig::write_then(&mut |ui_debug_config| {
+			ui_debug_config.set_mode(UiDebugConfigMode::Selected);
+			ui_debug_config.select("Menu", 3);
+			ui_debug_config.select("Settings", 3);
+			ui_debug_config.select("Game", 3);
+			ui_debug_config.select("Debug Collisions", 1);
+			ui_debug_config.set_mode(UiDebugConfigMode::None);
+		});
+	}
 }
 
 impl App for RarApp {
@@ -189,7 +197,24 @@ impl App for RarApp {
 	}
 
 	fn setup(&mut self, window: &mut Window) -> anyhow::Result<()> {
+		self.setup_debug();
+
 		window.set_title("RAR - RS");
+
+		let rar_data = RarData::new();
+		self.system.set_data(Arc::new(rar_data));
+
+		let game_states = &mut self.game_states;
+		game_states.insert(GameStates::Menu, Box::new(GameStateMenu::new()));
+		game_states.insert(
+			GameStates::Game,
+			Box::new(GameStateGame::new(&mut self.system)),
+		);
+		game_states.insert(
+			GameStates::DebugCollisions,
+			Box::new(GameStateDebugCollisions::new()),
+		);
+		game_states.insert(GameStates::Settings, Box::new(GameStateSettings::new()));
 
 		let mut lfs = FilesystemLayered::new();
 
@@ -328,6 +353,11 @@ impl App for RarApp {
 			);
 		}
 
+		if wuc.was_key_pressed('=' as u8) {
+			UiDebugConfig::write_then(&mut |ui_debug_config| {
+				ui_debug_config.cycle_mode();
+			});
+		}
 		debug_renderer::debug_renderer_begin_frame();
 
 		// the specific DebugRenderer
@@ -410,13 +440,33 @@ impl App for RarApp {
 			}
 		}
 
+		//
+
+		let ruuc = RarUiUpdateContext::default();
+
 		let mut auc = AppUpdateContext::new()
 			.set_time_step(wuc.time_step)
 			.set_cursor_pos(&self.cursor_pos)
 			.set_wuc(&wuc)
 			.set_sound_tx(self.sound_tx.clone())
 			.with_is_music_playing(self.audio.is_music_playing())
-			.with_is_sound_enabled(self.is_sound_enabled);
+			.with_is_sound_enabled(self.is_sound_enabled)
+			.with_ui_update_context(Box::new(ruuc));
+
+		if let Some(data) = self.system.data() {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio.write().and_then(|mut audio| {
+						// could probably try_write here
+						//debug!("is_sound_enabled {:?}", audio.is_sound_enabled);
+						audio.is_music_enabled = self.audio.is_music_playing();
+						audio.is_sound_enabled = self.is_sound_enabled;
+						Ok(())
+					});
+				},
+				None => {},
+			}
+		}
 
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.set_size(&self.size); // :TODO: only call on change;

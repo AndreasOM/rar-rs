@@ -1,5 +1,9 @@
 mod app_update_context;
 pub use app_update_context::AppUpdateContext;
+
+mod game;
+pub use game::Game;
+
 mod game_state;
 pub use game_state::GameState;
 mod game_state_response_data;
@@ -35,3 +39,8 @@ mod dialogs;
 
 pub mod audio_message;
 pub use audio_message::AudioMessage;
+
+mod data;
+
+mod rar_ui_update_context;
+pub use rar_ui_update_context::RarUiUpdateContext;

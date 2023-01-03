@@ -3,13 +3,12 @@
 
 ## In Progress
 
-- [ ] Extract settings state into dialog
+- [ ] Add confirmation when leaving game
+
 
 ## TODO
 
-- [ ] Add Pause menu
-    - [ ] With settings?
-
+- [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
 - [ ] Fix font rendering
@@ -32,6 +31,8 @@
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
     - [x] Implement game state `settings`
+    - [ ] Implement game state `intro`
+    - [ ] Implement game state `credits`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
 - [ ] Move world when player gets close to edge
@@ -45,14 +46,49 @@
 - [ ] Understand why macOS can load data from .app
 
 
+- [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
+- [ ] Create UiGridBox
+
+## TODO - Later
+- [ ] Refactor button click handling
+
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
 - [ ] Understand how to organise tiled worlds
 
+
+## Obsolete
+- [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
+
 ## Done
 
-### Epsiode 0024 - 2.0h + 4.0   ->  54.0h   + 40.0h     -> 94.0h
+### Epsiode 0026 - 2.0h + 6.0h??  ->  57.0h   + ??.?h     -> ??.0h
+- [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
+
+- [x] Extract settings state into dialog
+- [x] Move sound & music button update into settings dialog
+- [x] Add background to settings dialog
+- [x] Fix text alignment in settings dialog
+- [x] Create 3x3 UiImage
+- [x] Add some helper to make working with the UI easier
+- [x] Add Play/Pause toggle button
+- [x] Add Pause menu
+    - [x] Add button to open settings
+    - [x] Add button to go back to menu
+    - [x] Hook up button to open ingame settings
+- [x] Add hotkey `=` to cycle through ui debug modes
+- [x] Extract/remove `back` button from settings
+- [x] Hook up music & sound toggle buttons when settings is used ingame
+
+- [x] Split game & game state
+- [x] Fix pause state on game start
+- [x] Cleanup ui handling to use newer features/helpers
+
+### Epsiode 0025 - 1.0h + 0.0h  ->  55.0h   + 40.0h     -> 55.0h
+- [x] Fix git messup
+
+### Epsiode 0024 - 2.0h + 4.0h  ->  54.0h   + 40.0h     -> 94.0h
 - [x] Add music & sound toggle to settings
 - [x] Use typed message for sound channel instead of raw strings
 - [x] Add grassland tiles, tileset, and test map/world.

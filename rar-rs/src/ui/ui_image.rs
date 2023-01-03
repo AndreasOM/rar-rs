@@ -1,4 +1,6 @@
 use oml_game::math::Vector2;
+use oml_game::renderer::debug_renderer::DebugRenderer;
+use tracing::*;
 
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
@@ -17,6 +19,9 @@ impl UiImage {
 }
 
 impl UiElement for UiImage {
+	fn type_name(&self) -> &str {
+		"[UiImage]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
@@ -26,10 +31,6 @@ impl UiElement for UiImage {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)
 	}
-	/*
-	fn update( &mut self, _time_step: f64 ) {
-	}
-	*/
 	fn render(&self, container: &UiElementContainerData, ui_renderer: &mut UiRenderer) {
 		if *container.fade_state() != UiElementFadeState::FadedOut {
 			let l = container.get_fade_level();

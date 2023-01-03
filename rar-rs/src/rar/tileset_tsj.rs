@@ -16,10 +16,10 @@ pub struct Grid {
 #[derive(Debug, Default, Getters, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct TileProperty {
-	name:       String,
+	name:             String,
 	#[serde(rename = "type")]
-	tilepropertytype:       String,
-	value:       String,
+	tilepropertytype: String,
+	value:            String,
 }
 
 #[derive(Debug, Default, Getters, Serialize, Deserialize)]
@@ -30,7 +30,7 @@ pub struct Tile {
 	imagewidth:  u32,
 	imageheight: u32,
 	#[serde(default)]
-	properties:		Vec< TileProperty >,
+	properties:  Vec<TileProperty>,
 }
 
 #[derive(Debug, Default, Getters, Serialize, Deserialize)]

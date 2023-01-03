@@ -2,7 +2,7 @@ use oml_game::math::Vector2;
 
 use crate::ui::{UiElement, UiElementFadeState};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UiElementBase {
 	pub name:       String,
 	pub pos:        Vector2,

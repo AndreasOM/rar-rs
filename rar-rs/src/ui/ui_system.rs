@@ -9,13 +9,17 @@ use tracing::*;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::AppUpdateContext;
+use crate::ui::UiElement;
 use crate::ui::UiElementContainer;
+use crate::ui::UiElementFadeState;
 use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
+use crate::ui::UiGravityBox;
 use crate::ui::UiRenderer;
 
 #[derive(Debug, Default)]
 pub struct UiSystem {
+	name:                  String,
 	root:                  Option<UiElementContainer>,
 	event_response_sender: Option<Sender<Box<dyn UiEventResponse>>>,
 }
@@ -23,10 +27,17 @@ pub struct UiSystem {
 impl UiSystem {
 	pub fn setup(
 		&mut self,
+		name: &str,
 		_system: &mut System,
 		event_response_sender: Sender<Box<dyn UiEventResponse>>,
 	) -> anyhow::Result<()> {
+		self.name = name.to_owned();
 		self.event_response_sender = Some(event_response_sender);
+		let root = UiGravityBox::new()
+			.with_padding(16.0)
+			.containerize()
+			.with_name(name);
+		self.root = Some(root);
 		Ok(())
 	}
 
@@ -35,33 +46,56 @@ impl UiSystem {
 		if let Some(_root) = self.root.take() {}
 	}
 
-	pub fn set_root(&mut self, root: UiElementContainer) {
-		self.root = Some(root);
+	pub fn add_child(&mut self, gravity: &Vector2, child: UiElementContainer) {
+		if let Some(root) = &mut self.root {
+			{
+				let root = root.borrow_element_mut();
+				match root.as_any_mut().downcast_mut::<UiGravityBox>() {
+					Some(root) => {
+						root.set_gravity(gravity);
+					},
+					None => panic!("root for {} is not a UiGravityBox", &self.name),
+				};
+			}
+			root.add_child(child);
+		}
 	}
 
-	pub fn take_root(&mut self) -> Option<UiElementContainer> {
-		todo!("Why do you call this? Do we need this");
-		#[allow(unreachable_code)]
-		self.root.take()
-	}
-
-	pub fn get_root(&mut self) -> &Option<UiElementContainer> {
-		&self.root
-	}
-
-	pub fn get_root_mut(&mut self) -> &mut Option<UiElementContainer> {
-		&mut self.root
+	pub fn toggle_child_fade(&mut self, path: &[&str]) -> bool {
+		let mut was_on = false;
+		if let Some(root) = &mut self.root {
+			root.find_child_container_mut_then(path, &mut |dialog| match dialog.fade_state() {
+				UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
+					dialog.fade_in(1.0);
+					was_on = false
+				},
+				UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
+					dialog.fade_out(1.0);
+					was_on = true;
+				},
+			});
+		}
+		was_on
 	}
 
 	pub fn set_size(&mut self, size: &Vector2) {
+		// :TODO-UI: should probably use parent_size_changed instead
 		if let Some(root) = &mut self.root {
-			root.set_size(size);
+			root.parent_size_changed(size);
 		}
+		self.layout();
+		self.dump_info();
 	}
 
 	pub fn layout(&mut self) {
 		if let Some(root) = &mut self.root {
 			root.layout(&Vector2::zero());
+		}
+	}
+
+	pub fn dump_info(&self) {
+		if let Some(root) = &self.root {
+			root.dump_info();
 		}
 	}
 
@@ -77,10 +111,11 @@ impl UiSystem {
 						button: 0,
 					};
 					if let Some(event_response_sender) = &mut self.event_response_sender {
-						//debug!("{:?}", &root);
+						debug!("{:?}", &root);
 						if let Some(ev) = root.handle_ui_event(&ev, &event_response_sender) {
-							//println!("Click handled");
-							let _ = event_response_sender.send(ev).unwrap();
+							debug!("Click handled");
+							//let _ =
+							event_response_sender.send(ev).unwrap();
 						} else {
 							//root.dump_info( "", &Vector2::zero() );
 						}
@@ -95,7 +130,6 @@ impl UiSystem {
 		if let Some(root) = &mut self.root {
 			// :CHEAT: ???
 			renderer.use_layer(LayerId::Ui as u8);
-			//			renderer.use_effect( EffectId::ColoredTextured as u16 );
 
 			let mut ui_renderer = UiRenderer::new(
 				renderer,
@@ -111,7 +145,7 @@ impl UiSystem {
 
 	pub fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		if let Some(root) = &mut self.root {
-			root.render_debug(debug_renderer, &Vector2::zero());
+			root.render_debug(debug_renderer, &Vector2::zero(), 0);
 		}
 	}
 }

@@ -1,13 +1,14 @@
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
+use tracing::*;
 
 use crate::ui::{
 	UiElement, UiElementContainerData, UiElementContainerHandle, UiEvent, UiEventResponse,
 	UiEventResponseButtonClicked, UiImage,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UiButton {
 	imagesize: Vector2,
 	imagename: String,
@@ -25,6 +26,9 @@ impl UiButton {
 }
 
 impl UiElement for UiButton {
+	fn type_name(&self) -> &str {
+		"[UiButton]"
+	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
 	}
@@ -41,13 +45,12 @@ impl UiElement for UiButton {
 		_event: &UiEvent,
 		_event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
-		println!("Button clicked");
-		//		let mut r = Vec::new();
-		//		let ev = Box::new( UiEventResponseButtonClicked{ button_name: container.name.clone() } );
-		//event_sender.send( ev ).unwrap();
-		//		r.push( Box::new( UiEventResponseButtonClicked::new( &container.name ) ) );
+		if !container.is_visible() {
+			return None;
+		}
+		// :TODO: check actual event type
+		debug!("Button clicked");
 		Some(Box::new(UiEventResponseButtonClicked::new(&container.name)))
-		//		r
 	}
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)

@@ -53,9 +53,11 @@ impl GameStateMenu {
 impl GameState for GameStateMenu {
 	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
 		self.ui_system
-			.setup(system, self.event_response_sender.clone())?;
+			.setup("Menu", system, self.event_response_sender.clone())?;
 
-		self.ui_system.set_root(
+		//self.ui_system.set_root(
+		self.ui_system.add_child(
+			&Vector2::new(0.0, 0.0),
 			WorldSelectionDialog::new()
 				.containerize()
 				.with_name("World Selection Dialog"),
@@ -69,6 +71,9 @@ impl GameState for GameStateMenu {
 	}
 	fn set_size(&mut self, size: &Vector2) {
 		self.ui_system.set_size(size);
+		//self.ui_system.layout();
+		//self.ui_system.dump_info();
+		//todo!();
 	}
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
@@ -96,6 +101,14 @@ impl GameState for GameStateMenu {
 						},
 						"grassland" => {
 							let world = "grassland";
+							let sw = GameStateResponseDataSelectWorld::new(world);
+							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
+							responses.push(r);
+							let r = GameStateResponse::new("StartGame");
+							responses.push(r);
+						},
+						"mystic_mountain" => {
+							let world = "mystic_mountain";
 							let sw = GameStateResponseDataSelectWorld::new(world);
 							let r = GameStateResponse::new("SelectWorld").with_data(Box::new(sw));
 							responses.push(r);
