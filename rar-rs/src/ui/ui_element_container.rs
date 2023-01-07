@@ -109,31 +109,45 @@ impl UiElementContainerData {
 	) -> UiElementContainerHandle {
 		self.add_child(element_container)
 	}
+	/*
+		pub fn find_child_container_mut_then(
+			&mut self,
+			path: &[&str],
+			f: &mut dyn FnMut(&mut UiElementContainer),
+		) {
+			if path.is_empty() {
+				return;
+			}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
 
-	pub fn find_child_container_mut_then(
-		&mut self,
-		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer),
-	) {
-		if path.is_empty() {
-			return;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		// find a child that matches
-		for c in self.children.iter_mut() {
-			let mut c = c.borrow_mut();
-			if c.name() == head {
-				if tail.is_empty() {
-					// found -> run f with container
-					f(&mut c);
-				} else {
-					// path matches so far, go deeper
-					c.find_child_container_mut_then(&tail, f);
+			// find a child that matches
+			for c in self.children.iter_mut() {
+				let mut c = c.borrow_mut();
+				if c.name() == head {
+					if tail.is_empty() {
+						// found -> run f with container
+						f(&mut c);
+					} else {
+						// path matches so far, go deeper
+						c.find_child_container_mut_then(&tail, f);
+					}
 				}
 			}
 		}
+	*/
+	pub fn find_child_container_by_tag_mut_then(
+		&mut self,
+		tag: &str,
+		f: &dyn Fn(&mut UiElementContainer),
+	) {
+		// lookup in tag_map
+		let maybe_index = self.tag_map.get(tag);
+		maybe_index.map(|i| {
+			self.children[*i]
+				.borrow_mut()
+				.find_child_container_by_tag_mut_then(tag, f)
+		});
 	}
 
 	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
@@ -149,59 +163,60 @@ impl UiElementContainerData {
 				.find_child_by_tag_as_mut_element_then(tag, f)
 		});
 	}
-
-	pub fn find_child_mut_as_element_then<E: 'static>(
-		&mut self,
-		path: &[&str],
-		f: &dyn Fn(&mut E),
-	) {
-		if let Some(mut c) = self.find_child_mut(path) {
-			let mut c = c.borrow_mut();
-			let c = c.borrow_element_mut();
-			match c.as_any_mut().downcast_mut::<E>() {
-				Some(e) => {
-					f(e);
-				},
-				None => panic!(
-					"{:?} isn't a {:?} at {:#?}!",
-					&c,
+	/*
+		pub fn find_child_mut_as_element_then<E: 'static>(
+			&mut self,
+			path: &[&str],
+			f: &dyn Fn(&mut E),
+		) {
+			if let Some(mut c) = self.find_child_mut(path) {
+				let mut c = c.borrow_mut();
+				let c = c.borrow_element_mut();
+				match c.as_any_mut().downcast_mut::<E>() {
+					Some(e) => {
+						f(e);
+					},
+					None => panic!(
+						"{:?} isn't a {:?} at {:#?}!",
+						&c,
+						std::any::type_name::<E>(),
+						&path
+					),
+				}
+			} else {
+				warn!(
+					"Cannot find {:?} at path {:#?}",
 					std::any::type_name::<E>(),
 					&path
-				),
-			}
-		} else {
-			warn!(
-				"Cannot find {:?} at path {:#?}",
-				std::any::type_name::<E>(),
-				&path
-			);
-		}
-	}
-
-	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
-		if path.len() == 0 {
-			// nothing left to check
-			return None;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		if head == self.name() {
-			if tail.len() == 0 {
-				todo!("Is searching for yourself in yourself actually a valid use case?");
-			} else {
-				return self.find_child_mut(tail);
+				);
 			}
 		}
-
-		for c in self.borrow_children_mut().iter_mut() {
-			if let Some(r) = c.borrow_mut().find_child_mut(path) {
-				return Some(r);
+	*/
+	/*
+		pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
+			if path.len() == 0 {
+				// nothing left to check
+				return None;
 			}
-		}
-		None
-	}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
 
+			if head == self.name() {
+				if tail.len() == 0 {
+					todo!("Is searching for yourself in yourself actually a valid use case?");
+				} else {
+					return self.find_child_mut(tail);
+				}
+			}
+
+			for c in self.borrow_children_mut().iter_mut() {
+				if let Some(r) = c.borrow_mut().find_child_mut(path) {
+					return Some(r);
+				}
+			}
+			None
+		}
+	*/
 	pub fn dump_info(&self) {
 		todo!("dump_info");
 	}
@@ -732,32 +747,45 @@ impl UiElementContainer {
 		}
 	}
 
-	pub fn find_child_container_mut_then(
+	pub fn find_child_container_by_tag_mut_then(
 		&mut self,
-		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer),
+		tag: &str,
+		f: &dyn Fn(&mut UiElementContainer),
 	) {
-		if path.is_empty() {
-			return;
+		if self.data.tag == Some(tag.to_string()) {
+			f(self);
+		} else {
+			self.data.find_child_container_by_tag_mut_then(tag, f);
 		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
+	}
+	/*
+		pub fn find_child_container_mut_then(
+			&mut self,
+			path: &[&str],
+			f: &mut dyn FnMut(&mut UiElementContainer),
+		) {
+			if path.is_empty() {
+				return;
+			}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
 
-		// find a child that matches
-		for c in self.data.borrow_children_mut().iter_mut() {
-			let mut c = c.borrow_mut();
-			if c.name() == head {
-				if tail.is_empty() {
-					// found -> run f with container
-					f(&mut c);
-				} else {
-					// path matches so far, go deeper
-					c.find_child_container_mut_then(&tail, f);
+			// find a child that matches
+			for c in self.data.borrow_children_mut().iter_mut() {
+				let mut c = c.borrow_mut();
+				if c.name() == head {
+					if tail.is_empty() {
+						// found -> run f with container
+						f(&mut c);
+					} else {
+						// path matches so far, go deeper
+						c.find_child_container_mut_then(&tail, f);
+					}
 				}
 			}
 		}
-	}
-
+	*/
+	/*
 	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
 		if path.len() == 0 {
 			// nothing left to check
@@ -793,4 +821,5 @@ impl UiElementContainer {
 		}
 		None
 	}
+	*/
 }

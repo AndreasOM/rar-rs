@@ -71,7 +71,8 @@ impl GameStateGame {
 					},
 					"settings/toggle" => {
 						self.ui_system
-							.toggle_child_fade(&["Ingame Settings Dialog"]);
+							//							.toggle_child_fade(&["Ingame Settings Dialog"]);
+							.toggle_child_fade_by_tag("settings_dialog");
 					},
 					"back" => {
 						let r = GameStateResponse::new("GotoMainMenu");
@@ -129,6 +130,7 @@ impl GameState for GameStateGame {
 			SettingsDialog::new(system)
 				.containerize()
 				.with_name("Ingame Settings Dialog")
+				.with_tag("settings_dialog")
 				.with_fade_out(0.0),
 		);
 

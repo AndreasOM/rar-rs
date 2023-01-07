@@ -25,6 +25,7 @@ impl IngamePauseDialog {
 			.with_padding(16.0)
 			.containerize()
 			.with_name("Paused Buttons")
+			.with_tag("paused_buttons")
 			.with_fade_out(0.0)
 			.with_child_element_containers(
 				[
@@ -58,6 +59,7 @@ impl IngamePauseDialog {
 										)
 										.containerize()
 										.with_name("back_confirm")
+										.with_tag("back_confirm/button")
 										.with_fade_out(0.0)
 										//.with_fade_in(1.0)
 									},
@@ -100,19 +102,13 @@ impl IngamePauseDialog {
 		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		// :TODO-UI: find by tag
-		container_data.find_child_container_mut_then(
-			&["Ingame Pause vBox", "Paused Buttons"],
-			&mut |container| {
-				if is_paused {
-					container.fade_in(1.0);
-				} else {
-					container.fade_out(1.0);
-				}
-			},
-		);
-		//		container.find_child_mut_as_element_then::<UiToggleButton>(
-		//			&["Ingame Pause vBox", "playpause/toggle"],
+		container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
+			if is_paused {
+				container.fade_in(1.0);
+			} else {
+				container.fade_out(1.0);
+			}
+		});
 		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"playpause/toggle",
 			&|pptb| {
@@ -182,26 +178,12 @@ impl UiElement for IngamePauseDialog {
 				},
 				"back" => {
 					debug!("back button clicked");
-					self.dump_info();
-					container_data.find_child_container_mut_then(
-						&[
-							"Ingame Pause vBox",
-							"Paused Buttons",
-							"back box",
-							"back_confirm",
-						],
+					container_data.find_child_container_by_tag_mut_then(
+						"back_confirm/button",
 						&mut |c| {
 							c.toggle_fade(1.0);
 						},
 					);
-					/*
-					container_data.find_child_mut_as_element_then::<UiToggleButton>(
-						&["Ingame Pause vBox", "Paused Buttons","back box","back"],
-						&|bcb| {
-							bcb.toggle_fade(3.0);
-						},
-					);
-					*/
 				},
 				"back_confirm" => {
 					debug!("back confirm button clicked");

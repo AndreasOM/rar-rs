@@ -1,6 +1,5 @@
 # TODO
 
-- [ ] Replace all UI path usage by UI tags
 
 ## In Progress
 
@@ -67,9 +66,10 @@
 
 ## Done
 
-### Episode 0028 - 1.5h + ...
+### Episode 0028 - 2.5h + ...
 - [x] Improve layout of settings dialog
-+ [x] Add UI tags for easier access of UI elements
+- [x] Add UI tags for easier access of UI elements
+- [x] Replace all UI path usage by UI tags
 
 ### Episode 0027 - special
 In episode 0027 we only caught up with the work done over the new years break
