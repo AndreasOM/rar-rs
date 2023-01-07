@@ -65,6 +65,12 @@
 
 ## Done
 
+### Episode 0028 - ...
+- [x] Improve layout of settings dialog
+
+### Episode 0027 - special
+In episode 0027 we only caught up with the work done over the new years break
+
 ### Epsiode 0026 - 2.0h + 6.0h  ->  57.0h   + 46.0h     -> 103.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 

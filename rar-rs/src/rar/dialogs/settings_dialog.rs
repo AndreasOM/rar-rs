@@ -32,22 +32,22 @@ impl SettingsDialog {
 		}
 	}
 	fn create_info_labels(&self) -> Vec<UiElementContainer> {
-		let label_size = Vector2::new(256.0 + 64.0 + 32.0, 96.0);
-		let value_size = Vector2::new(512.0, 96.0);
+		let label_size = Vector2::new(256.0 + 64.0 + 32.0, 48.0);
+		let value_size = Vector2::new(512.0, 48.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
 		let code_build_number = env!("CODE_BUILD_NUMBER");
 
 		let labels = [
-			("Version           :", VERSION),
-			("Build at          :", BUILD_DATETIME),
-			("Code Build#       :", &format!("{}", code_build_number)),
+			("Version", &format!(": {}", VERSION)),
+			("Build at", &format!(": {}", BUILD_DATETIME)),
+			("Code Build#", &format!(": {}", code_build_number)),
 			(
-				"'base' data Build#:",
-				&format!("{}", self.base_data_build_number),
+				"'base' data Build#",
+				&format!(": {}", self.base_data_build_number),
 			),
-			("Commit            :", GIT_COMMIT_HASH),
+			("Commit", &format!(": {}", GIT_COMMIT_HASH)),
 		];
 		let mut vl = Vec::new();
 		for l in labels {
