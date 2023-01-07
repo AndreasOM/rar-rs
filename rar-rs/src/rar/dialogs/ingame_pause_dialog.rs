@@ -84,6 +84,7 @@ impl IngamePauseDialog {
 						)
 						.containerize()
 						.with_name("playpause/toggle")
+						.with_tag("playpause/toggle")
 						.with_fade_out(0.0)
 						.with_fade_in(1.0)
 					},
@@ -96,10 +97,11 @@ impl IngamePauseDialog {
 	fn update_playpause(
 		&self,
 		_uielement: &dyn UiElement,
-		container: &mut UiElementContainerData,
+		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		container.find_child_container_mut_then(
+		// :TODO-UI: find by tag
+		container_data.find_child_container_mut_then(
 			&["Ingame Pause vBox", "Paused Buttons"],
 			&mut |container| {
 				if is_paused {
@@ -109,8 +111,10 @@ impl IngamePauseDialog {
 				}
 			},
 		);
-		container.find_child_mut_as_element_then::<UiToggleButton>(
-			&["Ingame Pause vBox", "playpause/toggle"],
+		//		container.find_child_mut_as_element_then::<UiToggleButton>(
+		//			&["Ingame Pause vBox", "playpause/toggle"],
+		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+			"playpause/toggle",
 			&|pptb| {
 				//dbg!(&pptb);
 				if is_paused {

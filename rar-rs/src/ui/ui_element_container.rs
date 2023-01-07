@@ -148,27 +148,6 @@ impl UiElementContainerData {
 				.borrow_mut()
 				.find_child_by_tag_as_mut_element_then(tag, f)
 		});
-		/*
-					// brute force check the whole tree, and call for ALL elements that have the matching tag
-					for c in self.borrow_children_mut().iter_mut() {
-						if c.borrow().tag() == Some(tag) {
-							let mut c = c.borrow_mut();
-							let c = c.borrow_element_mut();
-							match c.as_any_mut().downcast_mut::<E>() {
-								Some(e) => {
-									f(e);
-								},
-								None => panic!(
-									"{:?} isn't a {:?} with tag {:#?}!",
-									&c,
-									std::any::type_name::<E>(),
-									&tag,
-								),
-							}
-						}
-						c.borrow_mut().find_child_by_tag_as_mut_element_then(tag, f);
-					}
-		*/
 	}
 
 	pub fn find_child_mut_as_element_then<E: 'static>(
