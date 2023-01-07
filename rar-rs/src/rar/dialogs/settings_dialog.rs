@@ -40,37 +40,22 @@ impl SettingsDialog {
 		let code_build_number = env!("CODE_BUILD_NUMBER");
 
 		let labels = [
-			("Version", &format!(": {}", VERSION)),
-			("Build at", &format!(": {}", BUILD_DATETIME)),
-			("Code Build#", &format!(": {}", code_build_number)),
-			(
-				"'base' data Build#",
-				&format!(": {}", self.base_data_build_number),
-			),
-			("Commit", &format!(": {}", GIT_COMMIT_HASH)),
+			"Version",
+			&format!(": {}", VERSION),
+			"Build at",
+			&format!(": {}", BUILD_DATETIME),
+			"Code Build#",
+			&format!(": {}", code_build_number),
+			"'base' data Build#",
+			&format!(": {}", self.base_data_build_number),
+			"Commit",
+			&format!(": {}", GIT_COMMIT_HASH),
 		];
-		let mut vl = Vec::new();
-		for l in labels {
-			vl.push(UiLabel::new(&label_size, l.0).containerize());
-		}
-		let mut vv = Vec::new();
-		for l in labels {
-			vv.push(UiLabel::new(&value_size, l.1).containerize());
-		}
-		// Note: We could have done hbox in vbox instead. Should really have a gridbox ;)
-		[
-			UiVbox::new()
-				.with_padding(16.0)
-				.containerize()
-				.with_name("Labels")
-				.with_child_element_containers(vl),
-			UiVbox::new()
-				.with_padding(16.0)
-				.containerize()
-				.with_name("Values")
-				.with_child_element_containers(vv),
-		]
-		.into()
+
+		labels
+			.iter()
+			.map(|l| UiLabel::new(&label_size, l).containerize())
+			.collect()
 	}
 	fn create_audio_buttons(&self) -> Vec<UiElementContainer> {
 		[
@@ -116,8 +101,9 @@ impl SettingsDialog {
 							.with_child_element_containers(self.create_audio_buttons())
 					},
 					{
-						UiHbox::new()
+						UiGridBox::default()
 							.with_padding(16.0)
+							.with_column_count(2)
 							.containerize()
 							.with_name("Labels hBox")
 							.with_child_element_containers(self.create_info_labels())

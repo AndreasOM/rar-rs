@@ -5,6 +5,7 @@
 
 - [ ] Add confirmation when leaving game
     - [ ] Fix alignment of ingame pause buttons using grid box
+        - [ ] Fix padding for hbox & vbox
 
 
 ## TODO
@@ -65,12 +66,13 @@
 
 ## Done
 
-### Episode 0028 - 4.5h + ...
+### Episode 0028 - 5.0h + ...
 - [x] Improve layout of settings dialog
 - [x] Add support for tagging ui element instances, and finding them
 - [x] Add UI tags for easier access of UI elements
 - [x] Replace all UI path usage by UI tags
 - [x] Create UiGridBox
+- [x] Use grid box for settings dialog
 
 ### Episode 0027 - special
 In episode 0027 we only caught up with the work done over the new years break

@@ -32,7 +32,7 @@ impl IngamePauseDialog {
 			.with_child_element_containers(
 				[
 					{
-						UiButton::new("ui-button_settings", &Vector2::new(32.0 + 64.0, 64.0))
+						UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
 							.containerize()
 							.with_name("settings")
 							.with_fade_out(0.0)
@@ -40,7 +40,7 @@ impl IngamePauseDialog {
 					},
 					{ UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize() },
 					{
-						UiButton::new("ui-button_back", &Vector2::new(64.0, 32.0 + 64.0))
+						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
 							.containerize()
 							.with_name("back")
 							.with_fade_out(0.0)

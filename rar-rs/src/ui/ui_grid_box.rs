@@ -33,6 +33,8 @@ impl UiElement for UiGridBox {
 	fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
 		self
 	}
+
+	// :TODO: extract shared logic for row & column calculation
 	fn recalculate_size(&mut self, container: &mut UiElementContainerData) {
 		let mut total_size = Vector2::zero();
 
@@ -116,6 +118,11 @@ impl UiElement for UiGridBox {
 			}
 		}
 
+		if x > 0 {
+			total_height -= row_height;
+			row_starts.push(total_height);
+		}
+
 		let row_centers: Vec<f32> = row_starts
 			.windows(2)
 			.map(|w| 0.5 * w[0] + 0.5 * w[1])
@@ -149,41 +156,5 @@ impl UiElement for UiGridBox {
 			}
 		}
 		container.set_pos(pos);
-		//container.set_pos( &Vector2::new( 180.0, 0.0 ) );
-		//todo!();
-		/*
-		//debug!("{}", container.name());
-		let mut total_size = Vector2::zero();
-		let mut c_positions_x = Vec::new();
-		let padding = self.padding;
-
-		let mut w1 = 0.0;
-
-		for c in container.borrow_children().iter() {
-			let c = c.borrow();
-			let cs = c.size();
-			total_size.x += cs.x + padding;
-			if total_size.y < cs.y {
-				total_size.y = cs.y;
-			}
-			let w0 = w1;
-			w1 = 0.5 * cs.x;
-			c_positions_x.push(w0 + w1);
-		}
-		total_size.x -= padding;
-
-		c_positions_x.push(0.0);
-
-		let mut cpos = Vector2::new(-0.5 * total_size.x - self.padding, 0.0);
-
-		for (i, c) in container.borrow_children_mut().iter_mut().enumerate() {
-			let x = c_positions_x[i];
-			cpos.x += x + padding;
-			c.borrow_mut().layout(&cpos);
-		}
-
-		container.set_pos(pos);
-		//container.set_size(&total_size);
-		*/
 	}
 }
