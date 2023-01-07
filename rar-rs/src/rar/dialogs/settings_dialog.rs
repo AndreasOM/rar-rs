@@ -94,8 +94,7 @@ impl SettingsDialog {
 				)
 				.containerize()
 				.with_name("sound/toggle")
-//				.with_tag("music/toggle")				
-				.with_tag("sound/toggle")				
+				.with_tag("sound/toggle")
 				.with_fade_out(0.0)
 				.with_fade_in(1.0)
 			},
@@ -132,19 +131,10 @@ impl SettingsDialog {
 	fn update_music(
 		&self,
 		uielement: &dyn UiElement,
-		container: &mut UiElementContainerData,
+		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {
-		/*
-		container.find_child_mut_as_element_then::<UiToggleButton>(
-			&[
-				"Settings Dialog - vbox",
-				"Settings hBox",
-				"Settings hBox",
-				"music/toggle",
-			],
-		*/
-		container.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"music/toggle",
 			&|stb| {
 				// debug!("Found music/toggle");
@@ -160,19 +150,10 @@ impl SettingsDialog {
 	fn update_sound(
 		&self,
 		uielement: &dyn UiElement,
-		container: &mut UiElementContainerData,
+		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {
-		/*
-		container.find_child_mut_as_element_then::<UiToggleButton>(
-			&[
-				"Settings Dialog - vbox",
-				"Settings hBox",
-				"Settings hBox",
-				"sound/toggle",
-			],
-		*/
-		container.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"sound/toggle",
 			&|stb| {
 				debug!("Found sound/toggle");

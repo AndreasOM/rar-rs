@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Replace all UI path usage by UI tags
 
 ## In Progress
 
@@ -53,6 +54,7 @@
 
 ## TODO - Later
 - [ ] Refactor button click handling
+- [ ] Get rid of pointers/handles in UI element/container
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
@@ -65,8 +67,9 @@
 
 ## Done
 
-### Episode 0028 - ...
+### Episode 0028 - 1.5h + ...
 - [x] Improve layout of settings dialog
++ [x] Add UI tags for easier access of UI elements
 
 ### Episode 0027 - special
 In episode 0027 we only caught up with the work done over the new years break
