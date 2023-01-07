@@ -4,10 +4,12 @@
 ## In Progress
 
 - [ ] Add confirmation when leaving game
+    - [ ] Fix alignment of ingame pause buttons
 
 
 ## TODO
 
+- [ ] Add support for tagging ui element instances, and finding them
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
@@ -63,7 +65,7 @@
 
 ## Done
 
-### Epsiode 0026 - 2.0h + 6.0h??  ->  57.0h   + ??.?h     -> ??.0h
+### Epsiode 0026 - 2.0h + 6.0h  ->  57.0h   + 46.0h     -> 103.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules
 
 - [x] Extract settings state into dialog
