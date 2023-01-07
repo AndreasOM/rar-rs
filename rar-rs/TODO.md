@@ -4,12 +4,11 @@
 ## In Progress
 
 - [ ] Add confirmation when leaving game
-    - [ ] Fix alignment of ingame pause buttons
+    - [ ] Fix alignment of ingame pause buttons using grid box
 
 
 ## TODO
 
-- [ ] Add support for tagging ui element instances, and finding them
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
@@ -49,11 +48,11 @@
 
 
 - [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
-- [ ] Create UiGridBox
 
 ## TODO - Later
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
+- [ ] Reconsider how padding works in the UI
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
@@ -66,10 +65,12 @@
 
 ## Done
 
-### Episode 0028 - 2.5h + ...
+### Episode 0028 - 4.5h + ...
 - [x] Improve layout of settings dialog
+- [x] Add support for tagging ui element instances, and finding them
 - [x] Add UI tags for easier access of UI elements
 - [x] Replace all UI path usage by UI tags
+- [x] Create UiGridBox
 
 ### Episode 0027 - special
 In episode 0027 we only caught up with the work done over the new years break

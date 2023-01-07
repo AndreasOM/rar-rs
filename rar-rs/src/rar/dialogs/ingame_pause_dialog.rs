@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use oml_game::math::Vector2;
+use oml_game::renderer::Color;
 use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
@@ -21,8 +22,9 @@ impl IngamePauseDialog {
 		}
 	}
 	fn create_paused_box(&self) -> UiElementContainer {
-		UiVbox::new()
+		UiGridBox::default()
 			.with_padding(16.0)
+			.with_column_count(2)
 			.containerize()
 			.with_name("Paused Buttons")
 			.with_tag("paused_buttons")
@@ -30,42 +32,27 @@ impl IngamePauseDialog {
 			.with_child_element_containers(
 				[
 					{
-						UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
+						UiButton::new("ui-button_settings", &Vector2::new(32.0 + 64.0, 64.0))
 							.containerize()
 							.with_name("settings")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
 					},
+					{ UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize() },
 					{
-						UiHbox::new()
-							.with_padding(16.0)
+						UiButton::new("ui-button_back", &Vector2::new(64.0, 32.0 + 64.0))
 							.containerize()
-							.with_name("back box")
+							.with_name("back")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
-							.with_child_element_containers(
-								[
-									{
-										UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-											.containerize()
-											.with_name("back")
-											.with_fade_out(0.0)
-											.with_fade_in(1.0)
-									},
-									{
-										UiButton::new(
-											"ui-button_confirm_danger",
-											&Vector2::new(64.0, 64.0),
-										)
-										.containerize()
-										.with_name("back_confirm")
-										.with_tag("back_confirm/button")
-										.with_fade_out(0.0)
-										//.with_fade_in(1.0)
-									},
-								]
-								.into(),
-							)
+					},
+					{
+						UiButton::new("ui-button_confirm_danger", &Vector2::new(64.0, 64.0))
+							.containerize()
+							.with_name("back_confirm")
+							.with_tag("back_confirm/button")
+							.with_fade_out(0.0)
+						//.with_fade_in(1.0)
 					},
 				]
 				.into(),
@@ -78,18 +65,30 @@ impl IngamePauseDialog {
 			.with_name("Ingame Pause vBox")
 			.with_child_element_containers(
 				[
-					{
-						UiToggleButton::new(
-							"ui-button_play",
-							"ui-button_pause",
-							&Vector2::new(64.0, 64.0),
-						)
+					UiHbox::new()
+						.with_padding(16.0)
 						.containerize()
-						.with_name("playpause/toggle")
-						.with_tag("playpause/toggle")
-						.with_fade_out(0.0)
-						.with_fade_in(1.0)
-					},
+						.with_child_element_containers(
+							[
+								{
+									UiToggleButton::new(
+										"ui-button_play",
+										"ui-button_pause",
+										&Vector2::new(64.0, 64.0),
+									)
+									.containerize()
+									.with_name("playpause/toggle")
+									.with_tag("playpause/toggle")
+									.with_fade_out(0.0)
+									.with_fade_in(1.0)
+								},
+								{
+									UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white())
+										.containerize()
+								},
+							]
+							.into(),
+						),
 					self.create_paused_box(),
 				]
 				.into(),

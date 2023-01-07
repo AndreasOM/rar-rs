@@ -492,15 +492,16 @@ impl UiElementContainer {
 			debug_renderer.add_line(&bl, &br, 3.0, &color);
 			debug_renderer.add_line(&br, &tr, 3.0, &color);
 			debug_renderer.add_line(&tr, &tl, 3.0, &color);
-
-			let color = Color::from_rgba(0.2, 0.9, 0.2, 0.8);
-			debug_renderer.add_text(
-				&tr,
-				&format!("{}/{} - {}", offset.x, offset.y, self.name()),
-				20.0,
-				2.0,
-				&color,
-			)
+			/*
+						let color = Color::from_rgba(0.2, 0.9, 0.2, 0.8);
+						debug_renderer.add_text(
+							&tr,
+							&format!("{}/{} - {}", offset.x, offset.y, self.name()),
+							20.0,
+							2.0,
+							&color,
+						)
+			*/
 		}
 	}
 
