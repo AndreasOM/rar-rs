@@ -15,6 +15,7 @@ use crate::ui::{
 #[derive(Debug, Default)]
 pub struct UiElementContainerData {
 	pub name:       String,
+	pub tag:		Option<String>,
 	pub pos:        Vector2,
 	pub size:       Vector2,
 	pub fade_state: UiElementFadeState,
@@ -108,6 +109,32 @@ impl UiElementContainerData {
 					c.find_child_container_mut_then(&tail, f);
 				}
 			}
+		}
+	}
+
+	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
+		&mut self,
+		tag: &str,
+		f: &dyn Fn(&mut E),
+	) {
+		// brute force check the whole tree, and call for ALL elements that have the matching tag
+		for c in self.borrow_children_mut().iter_mut() {
+			if c.borrow().tag() == Some(tag) {
+				let mut c = c.borrow_mut();
+				let c = c.borrow_element_mut();
+				match c.as_any_mut().downcast_mut::<E>() {
+					Some(e) => {
+						f(e);
+					},
+					None => panic!(
+						"{:?} isn't a {:?} with tag {:#?}!",
+						&c,
+						std::any::type_name::<E>(),
+						&tag,
+					),
+				}
+			}
+			c.borrow_mut().find_child_by_tag_as_mut_element_then( tag, f );
 		}
 	}
 
@@ -580,6 +607,14 @@ impl UiElementContainer {
 		self
 	}
 
+	pub fn tag(&self) -> Option<&str> {
+		self.data.tag.as_ref().map(|x| &**x)
+	}
+	pub fn with_tag(mut self, tag: &str) -> Self {
+		self.data.tag = Some(tag.to_owned());
+		self
+	}
+
 	pub fn pos(&self) -> &Vector2 {
 		&self.data.pos
 	}
@@ -660,6 +695,14 @@ impl UiElementContainer {
 		let bl = Vector2::zero().sub(&hs);
 		let tr = Vector2::zero().add(&hs);
 		pos.x >= bl.x && pos.y >= bl.y && pos.x <= tr.x && pos.y <= tr.y
+	}
+
+	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
+		&mut self,
+		tag: &str,
+		f: &dyn Fn(&mut E),
+	) {
+		self.data.find_child_by_tag_as_mut_element_then( tag, f );
 	}
 
 	pub fn find_child_container_mut_then(

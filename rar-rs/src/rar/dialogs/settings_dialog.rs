@@ -82,6 +82,7 @@ impl SettingsDialog {
 				)
 				.containerize()
 				.with_name("music/toggle")
+				.with_tag("music/toggle")
 				.with_fade_out(0.0)
 				.with_fade_in(1.0)
 			},
@@ -93,6 +94,8 @@ impl SettingsDialog {
 				)
 				.containerize()
 				.with_name("sound/toggle")
+//				.with_tag("music/toggle")				
+				.with_tag("sound/toggle")				
 				.with_fade_out(0.0)
 				.with_fade_in(1.0)
 			},
@@ -132,6 +135,7 @@ impl SettingsDialog {
 		container: &mut UiElementContainerData,
 		is_on: bool,
 	) {
+		/*
 		container.find_child_mut_as_element_then::<UiToggleButton>(
 			&[
 				"Settings Dialog - vbox",
@@ -139,6 +143,9 @@ impl SettingsDialog {
 				"Settings hBox",
 				"music/toggle",
 			],
+		*/
+		container.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+			"music/toggle",
 			&|stb| {
 				// debug!("Found music/toggle");
 				if is_on {
@@ -156,6 +163,7 @@ impl SettingsDialog {
 		container: &mut UiElementContainerData,
 		is_on: bool,
 	) {
+		/*
 		container.find_child_mut_as_element_then::<UiToggleButton>(
 			&[
 				"Settings Dialog - vbox",
@@ -163,8 +171,11 @@ impl SettingsDialog {
 				"Settings hBox",
 				"sound/toggle",
 			],
+		*/
+		container.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+			"sound/toggle",
 			&|stb| {
-				// debug!("Found sound/toggle");
+				debug!("Found sound/toggle");
 				if is_on {
 					stb.goto_a();
 				} else {
