@@ -119,6 +119,15 @@ impl IngamePauseDialog {
 				}
 			},
 		);
+
+		if !is_paused {
+			container_data.find_child_container_by_tag_mut_then(
+				"back_confirm/button",
+				&mut |c| {
+					c.fade_out(1.0);
+				},
+			);			
+		}
 	}
 }
 
