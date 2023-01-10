@@ -76,7 +76,6 @@ impl UiElement for UiButton {
 		}
 		// self.image =    None; :TODO: handle reconfigure
 	}
-
 }
 
 #[derive(Debug, Deserialize)]

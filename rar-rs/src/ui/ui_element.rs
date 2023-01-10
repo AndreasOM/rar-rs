@@ -87,7 +87,10 @@ pub trait UiElement {
 	}
 
 	fn configure_from_yaml(&mut self, _yaml: &str) {
-		panic!("configure_from_yaml not implemented for {}", self.type_name() );
+		panic!(
+			"configure_from_yaml not implemented for {}",
+			self.type_name()
+		);
 	}
 
 	fn containerize(self) -> UiElementContainer

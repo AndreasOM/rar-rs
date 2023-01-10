@@ -22,7 +22,6 @@ impl IngamePauseDialog {
 		}
 	}
 	fn create_paused_box(&self) -> UiElementContainer {
-
 		UiElementContainer::from_yaml(
 			"
 type: UiGridBox
@@ -34,20 +33,11 @@ fade:
   - out 0.0
 ",
 		)
-		/*
-		UiGridBox::default()
-			.with_padding(16.0)
-			.with_column_count(2)
-			.containerize()
-			.with_name("Paused Buttons")
-			.with_tag("paused_buttons")
-			.with_fade_out(0.0)
-		*/
-			.with_child_element_containers(
-				[
-					{
-						UiElementContainer::from_yaml(
-							"
+		.with_child_element_containers(
+			[
+				{
+					UiElementContainer::from_yaml(
+						"
 type: UiButton
 name: settings
 image: ui-button_settings
@@ -56,19 +46,19 @@ fade:
   - out 0.0
   - in 1.0
 ",
-						)
-					},
-					{
-						UiElementContainer::from_yaml(
-							"
+					)
+				},
+				{
+					UiElementContainer::from_yaml(
+						"
 type: UiSpacer
 size: 64x64
 ",
-						)
-					},
-					{
-						UiElementContainer::from_yaml(
-							"
+					)
+				},
+				{
+					UiElementContainer::from_yaml(
+						"
 type: UiButton
 name: back
 image: ui-button_back
@@ -77,11 +67,11 @@ fade:
   - out 0.0
   - in 1.0
 ",
-						)
-					},
-					{
-						UiElementContainer::from_yaml(
-							"
+					)
+				},
+				{
+					UiElementContainer::from_yaml(
+						"
 type: UiButton
 name: back_confirm
 tag: back_confirm/button
@@ -90,11 +80,11 @@ size: 64x64
 fade:
   - out 0.0
 ",
-						)
-					},
-				]
-				.into(),
-			)
+					)
+				},
+			]
+			.into(),
+		)
 	}
 	/*
 		---
@@ -163,14 +153,17 @@ fade:
 		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		let found = container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
-			debug!("Found paused_buttons");
-			if is_paused {
-				container.fade_in(1.0);
-			} else {
-				container.fade_out(1.0);
-			}
-		});
+		let found = container_data.find_child_container_by_tag_mut_then(
+			"paused_buttons",
+			&mut |container| {
+				debug!("Found paused_buttons");
+				if is_paused {
+					container.fade_in(1.0);
+				} else {
+					container.fade_out(1.0);
+				}
+			},
+		);
 		if !found {
 			warn!("Could't find paused_buttons");
 			container_data.dump_info();

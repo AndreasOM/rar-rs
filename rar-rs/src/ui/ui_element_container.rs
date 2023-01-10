@@ -144,14 +144,16 @@ impl UiElementContainerData {
 	) -> bool {
 		// lookup in tag_map
 		let maybe_index = self.tag_map.get(tag);
-		let r = maybe_index.map(|i| {
-			let r = self.children[*i]
-				.borrow_mut()
-				.find_child_container_by_tag_mut_then(tag, f);
+		let r = maybe_index
+			.map(|i| {
+				let r = self.children[*i]
+					.borrow_mut()
+					.find_child_container_by_tag_mut_then(tag, f);
 
-			//debug!("{} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
-			r
-		}).unwrap_or( false );
+				//debug!("{} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
+				r
+			})
+			.unwrap_or(false);
 		//debug!("! {} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
 		r
 	}
@@ -227,7 +229,7 @@ impl UiElementContainerData {
 		self.dump_info_internal(&"", &Vector2::zero(), 0);
 	}
 	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2, depth: usize) {
-		debug!("{:?}", &self.tag_map );
+		debug!("{:?}", &self.tag_map);
 		let new_indent = format!("{}  ", indent);
 		for c in self.borrow_children().iter() {
 			//			let co = offset; //.add( c.pos() );
@@ -235,7 +237,7 @@ impl UiElementContainerData {
 			c.borrow()
 				.dump_info_internal(&new_indent, &co, depth.saturating_sub(1));
 		}
-	}	
+	}
 }
 
 #[derive(Debug, Clone)]
@@ -321,20 +323,20 @@ impl UiElementContainer {
 				panic!();
 			},
 		};
-		element.configure_from_yaml( yaml );
-		let mut container = UiElementContainer::new( element );
-/* other option, not finally decided yet
-		let mut container = match config.element_type.as_ref() {
-			"UiButton" => crate::ui::UiButton::from_yaml(yaml).containerize(),
-			"UiSpacer" => crate::ui::UiSpacer::from_yaml(yaml).containerize(),
-			//"UiGridBox" => crate::ui::UiGridBox::from_yaml(yaml).containerize(),
-			"UiGridBox" => { let mut e = crate::ui::UiGridBox::default(); e.configure_from_yaml( yaml ); e.containerize() },
-			o => {
-				error!("Creating from yaml not supported for {}", &o);
-				panic!();
-			},
-		};
-*/
+		element.configure_from_yaml(yaml);
+		let mut container = UiElementContainer::new(element);
+		/* other option, not finally decided yet
+				let mut container = match config.element_type.as_ref() {
+					"UiButton" => crate::ui::UiButton::from_yaml(yaml).containerize(),
+					"UiSpacer" => crate::ui::UiSpacer::from_yaml(yaml).containerize(),
+					//"UiGridBox" => crate::ui::UiGridBox::from_yaml(yaml).containerize(),
+					"UiGridBox" => { let mut e = crate::ui::UiGridBox::default(); e.configure_from_yaml( yaml ); e.containerize() },
+					o => {
+						error!("Creating from yaml not supported for {}", &o);
+						panic!();
+					},
+				};
+		*/
 		if let Some(tag) = &config.tag {
 			container = container.with_tag(tag);
 		}
