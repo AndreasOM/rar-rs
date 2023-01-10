@@ -4,6 +4,7 @@
 ## In Progress
 
 - [ ] Load ui layout from file
+    - [ ] Handle fade
 
 ## TODO
 

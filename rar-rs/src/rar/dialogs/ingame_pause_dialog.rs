@@ -32,29 +32,69 @@ impl IngamePauseDialog {
 			.with_child_element_containers(
 				[
 					{
+						/*
 						UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
 							.containerize()
 							.with_name("settings")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
+						*/
+						UiElementContainer::from_yaml("
+type: UiButton
+name: settings
+image: ui-button_settings
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+")
 					},
-					{ UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize() },
 					{
+						//UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize()
+						UiElementContainer::from_yaml("
+type: UiSpacer
+size: 64x64
+")
+					},
+					{
+						/*
 						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
 							.containerize()
 							.with_name("back")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
+							*/
+						UiElementContainer::from_yaml("
+type: UiButton
+name: back
+image: ui-button_back
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+")
 					},
 					{
-						UiButton::from_yaml("
+						UiElementContainer::from_yaml("
+type: UiButton
+name: back_confirm
+tag: back_confirm/button
 image: ui-button_confirm_danger
 size: 64x64
+fade:
+  - out 0.0
+")
+/*						
+						UiButton::from_yaml("
+type: UiButton
+name: back_confirm
+tag: back_confirm/button
+size: 64x64
+image: ui-button_confirm_danger
 ")
 							.containerize()
-							.with_name("back_confirm")
-							.with_tag("back_confirm/button")
-							.with_fade_out(0.0)
+*/
+//							.with_fade_out(0.0)
 /*						
 						UiButton::from_yaml("
 							type: UiButton

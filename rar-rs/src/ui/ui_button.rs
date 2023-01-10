@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::sync::mpsc::Sender;
 
 use serde::{Deserialize};
@@ -28,10 +27,7 @@ impl UiButton {
 	}
 
 	pub fn from_yaml( yaml: &str ) -> Self {
-		debug!("{:?}", &yaml);
 		let config: UiButtonConfig = serde_yaml::from_str(&yaml).unwrap();
-		//let size: Vec<f32> = config.size.split("x").map(|s| {f32::from_str(s).unwrap_or( 0.0 )}).collect();
-		//debug!("{:?}", &size);
 
 		Self {
 			imagesize: Vector2::from_x_str( &config.size ),
