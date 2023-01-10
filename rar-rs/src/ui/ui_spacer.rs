@@ -1,7 +1,6 @@
-use serde::{Deserialize};
-
 use oml_game::math::Vector2;
 use oml_game::renderer::Color;
+use serde::Deserialize;
 
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
@@ -18,11 +17,11 @@ impl UiSpacer {
 		}
 	}
 
-	pub fn from_yaml( yaml: &str ) -> Self {
+	pub fn from_yaml(yaml: &str) -> Self {
 		let config: UiSpacerConfig = serde_yaml::from_str(&yaml).unwrap();
 
 		Self {
-			size: Vector2::from_x_str( &config.size ),
+			size:  Vector2::from_x_str(&config.size),
 			color: Color::white(),
 		}
 	}
@@ -60,6 +59,5 @@ impl UiElement for UiSpacer {
 
 #[derive(Debug, Deserialize)]
 struct UiSpacerConfig {
-    size: String,
+	size: String,
 }
-

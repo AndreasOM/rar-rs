@@ -3,11 +3,10 @@ use std::collections::HashMap;
 use std::rc::{Rc, Weak};
 use std::sync::mpsc::Sender;
 
-use serde::{Deserialize};
-
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
+use serde::Deserialize;
 use tracing::*;
 
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
@@ -295,27 +294,23 @@ impl UiElementContainer {
 			handle: None,
 		}
 	}
-	pub fn from_yaml( yaml: &str ) -> Self {
+	pub fn from_yaml(yaml: &str) -> Self {
 		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
 
 		let mut container = match config.element_type.as_ref() {
-			"UiButton" => {
-				crate::ui::UiButton::from_yaml( yaml ).containerize()
-			},
-			"UiSpacer" => {
-				crate::ui::UiSpacer::from_yaml( yaml ).containerize()
-			},
+			"UiButton" => crate::ui::UiButton::from_yaml(yaml).containerize(),
+			"UiSpacer" => crate::ui::UiSpacer::from_yaml(yaml).containerize(),
 			o => {
 				error!("Creating from yaml not supported for {}", &o);
 				panic!();
-			}
+			},
 		};
-		if let Some( tag ) = &config.tag {
-			container = container.with_tag( tag );
-		} 
-		if let Some( name ) = &config.name {
-			container = container.with_name( name );
-		} 
+		if let Some(tag) = &config.tag {
+			container = container.with_tag(tag);
+		}
+		if let Some(name) = &config.name {
+			container = container.with_name(name);
+		}
 		container
 	}
 
@@ -854,6 +849,6 @@ impl UiElementContainer {
 struct UiElementContainerConfig {
 	#[serde(rename = "type")]
 	element_type: String,
-    name: Option<String>,
-    tag: Option<String>,
+	name:         Option<String>,
+	tag:          Option<String>,
 }
