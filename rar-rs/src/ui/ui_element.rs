@@ -85,10 +85,14 @@ pub trait UiElement {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		None
 	}
+	fn configure_from_yaml(&mut self, yaml: &str) {
+		let value: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
+		self.configure_from_yaml_value(value)
+	}
 
-	fn configure_from_yaml(&mut self, _yaml: &str) {
+	fn configure_from_yaml_value(&mut self, _yaml_value: serde_yaml::Value) {
 		panic!(
-			"configure_from_yaml not implemented for {}",
+			"configure_from_yaml_value not implemented for {}",
 			self.type_name()
 		);
 	}

@@ -1,18 +1,18 @@
-use serde::de::IgnoredAny;
-use std::marker::PhantomData;
-use serde::de::MapAccess;
-use serde::de::{self, Visitor};
-
-use serde::Deserializer;
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
+use std::marker::PhantomData;
 use std::rc::{Rc, Weak};
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
+use serde::de::Error;
+use serde::de::IgnoredAny;
+use serde::de::MapAccess;
+use serde::de::{self, Visitor};
 use serde::Deserialize;
+use serde::Deserializer;
 use tracing::*;
 
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
@@ -318,7 +318,14 @@ impl UiElementContainer {
 		}
 	}
 	pub fn from_yaml(yaml: &str) -> Self {
-		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
+		let value: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
+		//		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
+		//		let s: String = serde_yaml::from_value(val).unwrap();
+		UiElementContainer::from_yaml_value(value)
+	}
+
+	pub fn from_yaml_value(yaml_value: serde_yaml::Value) -> Self {
+		let config: UiElementContainerConfig = serde_yaml::from_value(yaml_value.clone()).unwrap();
 
 		let mut element: Box<dyn UiElement> = match config.element_type.as_ref() {
 			"UiButton" => Box::new(crate::ui::UiButton::default()),
@@ -329,7 +336,7 @@ impl UiElementContainer {
 				panic!();
 			},
 		};
-		element.configure_from_yaml(yaml);
+		element.configure_from_yaml_value(yaml_value.clone());
 		let mut container = UiElementContainer::new(element);
 		/* other option, not finally decided yet
 				let mut container = match config.element_type.as_ref() {
@@ -349,12 +356,14 @@ impl UiElementContainer {
 		if let Some(name) = &config.name {
 			container = container.with_name(name);
 		}
-		config.children.map(|children|{
+		config.children.map(|children| {
 			for c in children.iter() {
-				debug!("Child: {:?}", &c);	
+				debug!("Child: {:?}", &c);
+				let child_container = UiElementContainer::from_yaml_value(c.clone());
+				container.add_child(child_container);
 			}
 		});
-		todo!();
+		//todo!();
 		container
 	}
 
@@ -899,195 +908,70 @@ struct UiElementContainerConfig {
 	element_type: String,
 	name:         Option<String>,
 	tag:          Option<String>,
-	children:		Option<Vec<MyMap<IgnoredAny, IgnoredAny>>>,
-	//children:		Option<Vec<UiElementContainerChildConfig>>,
-}
-
-//#[derive(Debug, Deserialize)]
-#[derive(Debug, Default)]
-pub struct UiElementContainerChildConfig {
+	//	children:     Option<Vec<UiElementContainerChildConfig>>,
+	children:     Option<Vec<serde_yaml::Value>>,
 }
 /*
-impl Deserialize<'_> for UiElementContainerChildConfig {
-
-fn deserialize<'de, D>(
-        deserializer: D,
-    ) -> Result<Option<Vec<UiElementContainerChildConfig>>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-    	Ok(None)
-    	//Ok(UiElementContainerChildConfig::default())
-	}
-}
-*/
-#[derive(Debug,Default)]
-struct UiElementContainerChildConfigVisitor;
-
-impl UiElementContainerChildConfig {
-
-}
-/*
-impl<'de, K, V> Visitor<'de> for UiElementContainerChildConfigVisitor
-	where
-		K: Deserialize<'de>,
-    	V: Deserialize<'de>,
-{
-    type Value = UiElementContainerChildConfig;
-
-    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
-        formatter.write_str("a !!! map")
-    }
-    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
-    where
-		A: MapAccess<'de>,
-    {
-    	let mut map = MyMap::with_capacity(access.size_hint().unwrap_or(0));
-    	//debug!("{:?}", map);
-    	//let e = map.next_entry::<K, V>();
-    	while let Some((key, value)) = map.next_entry::<K, V>()? {
-    		map.insert(key, value);
-        }
-    	Ok( UiElementContainerChildConfig::default() )
-    }
-/*
-    fn visit_i8<E>(self, value: i8) -> Result<Self::Value, E>
-    where
-        E: de::Error,
-    {
-        //Ok(i32::from(value))
-        Ok(UiElementContainerChildConfig::default())
-    }
-*/
-/*
-    fn visit_i32<E>(self, value: i32) -> Result<Self::Value, E>
-    where
-        E: de::Error,
-    {
-        Ok(value)
-    }
-
-    fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
-    where
-        E: de::Error,
-    {
-        use std::i32;
-        if value >= i64::from(i32::MIN) && value <= i64::from(i32::MAX) {
-            Ok(value as i32)
-        } else {
-            Err(E::custom(format!("i32 out of range: {}", value)))
-        }
-    }
-*/
-    // Similar for other methods:
-    //   - visit_i16
-    //   - visit_u8
-    //   - visit_u16
-    //   - visit_u32
-    //   - visit_u64
-}
-
-impl<'de> Deserialize<'de> for UiElementContainerChildConfig {
-    fn deserialize<D>(deserializer: D) -> Result<UiElementContainerChildConfig, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(UiElementContainerChildConfigVisitor)
-        //deserializer.deserialize_ignored_any(UiElementContainerChildConfigVisitor)
-        //Ok(UiElementContainerChildConfig::default())
-    }
-}
-*/
 use std::fmt;
 
-#[derive(Debug)]
-struct MyMap<K, V> {
-    marker: PhantomData<K>,
-    marker_v: PhantomData<V>,
+#[derive(Debug, Default)]
+struct UiElementContainerChildConfig {
+	entries: Vec<String>,
 }
 
-impl<K,V> MyMap<K, V> {
-	pub fn with_capacity() -> Self {
-		Self {
-			marker: PhantomData::default(),
-			marker_v: PhantomData::default(),
+impl UiElementContainerChildConfig {
+	pub fn add(&mut self, v: &str) {
+		self.entries.push(v.to_owned())
+	}
+}
+
+struct UiElementContainerChildConfigVisitor {}
+
+impl UiElementContainerChildConfigVisitor {
+	fn new() -> Self {
+		UiElementContainerChildConfigVisitor {}
+	}
+}
+
+impl<'de> Visitor<'de> for UiElementContainerChildConfigVisitor {
+	type Value = UiElementContainerChildConfig;
+
+	fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+		formatter.write_str("a very special map")
+	}
+	fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+	where
+		A: MapAccess<'de>,
+	{
+		let mut my_map = UiElementContainerChildConfig::default();
+		while let Some((a, IgnoredAny)) = map.next_entry::<IgnoredAny, IgnoredAny>()? {
+			debug!("{:?}", a);
+			// would be lovely to access the underlying strings here :(
+			my_map.add("...");
 		}
+		Ok(my_map)
 	}
-
-	pub fn insert( &mut self, _k: K, _v: V ) {
-
+	/*
+	fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+	where
+		E: Error,
+	{
+		debug!("{}", v);
+		let mut my_map = MyMap::default();
+		Ok(my_map)
 	}
-}
-/*
-impl<K,V> core::fmt::Debug for MyMapVisitor<K, V> {
-
-	fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { todo!() }
-}
-*/
-struct MyMapVisitor<K, V> {
-    marker: PhantomData<fn() -> MyMap<K, V>>
-}
-
-
-impl<K, V> MyMapVisitor<K, V> {
-    fn new() -> Self {
-        MyMapVisitor {
-            marker: PhantomData
-        }
-    }
-}
-
-// This is the trait that Deserializers are going to be driving. There
-// is one method for each type of data that our type knows how to
-// deserialize from. There are many other methods that are not
-// implemented here, for example deserializing from integers or strings.
-// By default those methods will return an error, which makes sense
-// because we cannot deserialize a MyMap from an integer or string.
-impl<'de, K, V> Visitor<'de> for MyMapVisitor<K, V>
-where
-    K: Deserialize<'de>,
-    V: Deserialize<'de>,
-{
-    // The type that our Visitor is going to produce.
-    type Value = MyMap<K, V>;
-
-    // Format a message stating what data this Visitor expects to receive.
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a very special map")
-    }
-
-    // Deserialize MyMap from an abstract "map" provided by the
-    // Deserializer. The MapAccess input is a callback provided by
-    // the Deserializer to let us see each entry in the map.
-    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-    where
-        M: MapAccess<'de>,
-    {
-        let mut map = MyMap::with_capacity();
-        //let mut map = MyMap::with_capacity(access.size_hint().unwrap_or(0));
-
-        // While there are entries remaining in the input, add them
-        // into our map.
-        while let Some((key, value)) = access.next_entry()? {
-            map.insert(key, value);
-        }
-
-        Ok(map)
-    }
+	*/
 }
 
 // This is the trait that informs Serde how to deserialize MyMap.
-impl<'de, K, V> Deserialize<'de> for MyMap<K, V>
-where
-    K: Deserialize<'de>,
-    V: Deserialize<'de>,
-{
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        // Instantiate our Visitor and ask the Deserializer to drive
-        // it over the input data, resulting in an instance of MyMap.
-        deserializer.deserialize_map(MyMapVisitor::new())
-    }
+impl<'de> Deserialize<'de> for UiElementContainerChildConfig {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+		D: Deserializer<'de>,
+	{
+		// Instantiate our Visitor and ask the Deserializer to drive
+		// it over the input data, resulting in an instance of UiElementContainerChildConfig.
+		deserializer.deserialize_map(UiElementContainerChildConfigVisitor::new())
+	}
 }
+*/

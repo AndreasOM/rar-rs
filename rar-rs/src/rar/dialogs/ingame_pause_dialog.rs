@@ -33,23 +33,33 @@ fade:
   - out 0.0
 children:
   - type: UiButton
-    name: test_1
+    name: settings
     image: ui-button_settings
-    size: 256x256
+    size: 64x64
+    fade:
+      - out 0.0
+      - in 1.0
+  - type: UiSpacer
+    size: 64x64
+  - type: UiButton
+    name: back
+    image: ui-button_back
+    size: 64x64
     fade:
       - out 0.0
       - in 1.0
   - type: UiButton
-    name: test_1
-    image: ui-button_settings
-    size: 256x256
+    name: back_confirm
+    tag: back_confirm/button
+    image: ui-button_confirm_danger
+    size: 64x64
     fade:
       - out 0.0
-      - in 1.0
 ",
 		)
 		.with_child_element_containers(
 			[
+					/*
 				{
 					UiElementContainer::from_yaml(
 						"
@@ -63,6 +73,8 @@ fade:
 ",
 					)
 				},
+				*/
+				/*
 				{
 					UiElementContainer::from_yaml(
 						"
@@ -71,6 +83,8 @@ size: 64x64
 ",
 					)
 				},
+				*/
+				/*
 				{
 					UiElementContainer::from_yaml(
 						"
@@ -97,6 +111,7 @@ fade:
 ",
 					)
 				},
+				*/
 			]
 			.into(),
 		)

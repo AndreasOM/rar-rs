@@ -56,11 +56,19 @@ impl UiElement for UiSpacer {
 			}
 		}
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiSpacerConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.size = Vector2::from_x_str(&config.size);
+		self.color = Color::default(); // :TODO:
+	}
+	/*
 	fn configure_from_yaml(&mut self, yaml: &str) {
 		let config: UiSpacerConfig = serde_yaml::from_str(&yaml).unwrap();
 		self.size = Vector2::from_x_str(&config.size);
 		self.color = Color::default(); // :TODO:
 	}
+	*/
 }
 
 #[derive(Debug, Deserialize)]

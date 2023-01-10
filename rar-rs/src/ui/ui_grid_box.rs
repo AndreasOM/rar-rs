@@ -158,11 +158,18 @@ impl UiElement for UiGridBox {
 		}
 		container.set_pos(pos);
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiGridBoxConfig = serde_yaml::from_value(yaml_value).unwrap();
+		self.padding = config.padding.unwrap_or(0.0);
+		self.column_count = config.column_count;
+	}
+	/*
 	fn configure_from_yaml(&mut self, yaml: &str) {
 		let config: UiGridBoxConfig = serde_yaml::from_str(&yaml).unwrap();
 		self.padding = config.padding.unwrap_or(0.0);
 		self.column_count = config.column_count;
 	}
+	*/
 }
 
 #[derive(Debug, Deserialize)]

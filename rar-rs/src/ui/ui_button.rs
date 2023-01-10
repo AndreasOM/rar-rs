@@ -66,6 +66,17 @@ impl UiElement for UiButton {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiButtonConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.imagesize = Vector2::from_x_str(&config.size);
+		self.imagename = config.image;
+		if self.image.is_some() {
+			panic!("Can not reconfigure {}", self.type_name());
+		}
+		// self.image =    None; :TODO: handle reconfigure
+	}
+	/*
 	fn configure_from_yaml(&mut self, yaml: &str) {
 		let config: UiButtonConfig = serde_yaml::from_str(&yaml).unwrap();
 
@@ -76,6 +87,7 @@ impl UiElement for UiButton {
 		}
 		// self.image =    None; :TODO: handle reconfigure
 	}
+	*/
 }
 
 #[derive(Debug, Deserialize)]
