@@ -21,52 +21,15 @@ impl IngamePauseDialog {
 			data: system.data().as_ref().map(|data| Arc::clone(data)),
 		}
 	}
-	fn create_paused_box(&self) -> UiElementContainer {
-		UiElementContainer::from_yaml(
-			"
-type: UiGridBox
-padding: 16.0
-column_count: 2
-name: Paused Buttons
-tag: paused_buttons
-fade:
-  - out 0.0
-children:
-  - type: UiButton
-    name: settings
-    image: ui-button_settings
-    size: 64x64
-    fade:
-      - out 0.0
-      - in 1.0
-  - type: UiSpacer
-    size: 64x64
-  - type: UiButton
-    name: back
-    image: ui-button_back
-    size: 64x64
-    fade:
-      - out 0.0
-      - in 1.0
-  - type: UiButton
-    name: back_confirm
-    tag: back_confirm/button
-    image: ui-button_confirm_danger
-    size: 64x64
-    fade:
-      - out 0.0
-",
-		)
-	}
 	fn create_children(&self) -> UiElementContainer {
 		UiElementContainer::from_yaml(
 			"
 type: UiGridBox
-padding: 0.0
+padding: 0
 column_count: 1
 children:
   - type: UiGridBox
-    padding: 16.0
+    padding: 16
     column_count: 2
     fade:
       - out 0.0
@@ -74,17 +37,48 @@ children:
       - type: UiToggleButton
         name: playpause/toggle
         tag: playpause/toggle
-        images: [ui-button_play,ui-button_pause]
+        images:
+          - ui-button_play
+          - ui-button_pause
         size: 64x64
         fade:
           - out 0.0
           - in 1.0
       - type: UiSpacer
         size: 64x64
+  - type: UiGridBox
+    padding: 16
+    column_count: 2
+    name: Paused Buttons
+    tag: paused_buttons
+    fade:
+      - out 0.0
+    children:
+      - type: UiButton
+        name: settings
+        image: ui-button_settings
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiSpacer
+        size: 64x64
+      - type: UiButton
+        name: back
+        image: ui-button_back
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiButton
+        name: back_confirm
+        tag: back_confirm/button
+        image: ui-button_confirm_danger
+        size: 64x64
+        fade:
+          - out 0.0    
 ",
-			//children:
 		)
-		.with_child_element_containers([self.create_paused_box()].into())
 	}
 
 	fn update_playpause(
