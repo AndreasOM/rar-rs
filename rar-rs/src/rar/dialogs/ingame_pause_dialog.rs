@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use oml_game::math::Vector2;
+use oml_game::renderer::Color;
 use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
@@ -21,10 +22,12 @@ impl IngamePauseDialog {
 		}
 	}
 	fn create_paused_box(&self) -> UiElementContainer {
-		UiVbox::new()
+		UiGridBox::default()
 			.with_padding(16.0)
+			.with_column_count(2)
 			.containerize()
 			.with_name("Paused Buttons")
+			.with_tag("paused_buttons")
 			.with_fade_out(0.0)
 			.with_child_element_containers(
 				[
@@ -35,35 +38,21 @@ impl IngamePauseDialog {
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
 					},
+					{ UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize() },
 					{
-						UiHbox::new()
-							.with_padding(16.0)
+						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
 							.containerize()
-							.with_name("back box")
+							.with_name("back")
 							.with_fade_out(0.0)
 							.with_fade_in(1.0)
-							.with_child_element_containers(
-								[
-									{
-										UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-											.containerize()
-											.with_name("back")
-											.with_fade_out(0.0)
-											.with_fade_in(1.0)
-									},
-									{
-										UiButton::new(
-											"ui-button_confirm_danger",
-											&Vector2::new(64.0, 64.0),
-										)
-										.containerize()
-										.with_name("back_confirm")
-										.with_fade_out(0.0)
-										//.with_fade_in(1.0)
-									},
-								]
-								.into(),
-							)
+					},
+					{
+						UiButton::new("ui-button_confirm_danger", &Vector2::new(64.0, 64.0))
+							.containerize()
+							.with_name("back_confirm")
+							.with_tag("back_confirm/button")
+							.with_fade_out(0.0)
+						//.with_fade_in(1.0)
 					},
 				]
 				.into(),
@@ -76,17 +65,30 @@ impl IngamePauseDialog {
 			.with_name("Ingame Pause vBox")
 			.with_child_element_containers(
 				[
-					{
-						UiToggleButton::new(
-							"ui-button_play",
-							"ui-button_pause",
-							&Vector2::new(64.0, 64.0),
-						)
+					UiHbox::new()
+						.with_padding(16.0)
 						.containerize()
-						.with_name("playpause/toggle")
-						.with_fade_out(0.0)
-						.with_fade_in(1.0)
-					},
+						.with_child_element_containers(
+							[
+								{
+									UiToggleButton::new(
+										"ui-button_play",
+										"ui-button_pause",
+										&Vector2::new(64.0, 64.0),
+									)
+									.containerize()
+									.with_name("playpause/toggle")
+									.with_tag("playpause/toggle")
+									.with_fade_out(0.0)
+									.with_fade_in(1.0)
+								},
+								{
+									UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white())
+										.containerize()
+								},
+							]
+							.into(),
+						),
 					self.create_paused_box(),
 				]
 				.into(),
@@ -96,21 +98,18 @@ impl IngamePauseDialog {
 	fn update_playpause(
 		&self,
 		_uielement: &dyn UiElement,
-		container: &mut UiElementContainerData,
+		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		container.find_child_container_mut_then(
-			&["Ingame Pause vBox", "Paused Buttons"],
-			&mut |container| {
-				if is_paused {
-					container.fade_in(1.0);
-				} else {
-					container.fade_out(1.0);
-				}
-			},
-		);
-		container.find_child_mut_as_element_then::<UiToggleButton>(
-			&["Ingame Pause vBox", "playpause/toggle"],
+		container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
+			if is_paused {
+				container.fade_in(1.0);
+			} else {
+				container.fade_out(1.0);
+			}
+		});
+		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
+			"playpause/toggle",
 			&|pptb| {
 				//dbg!(&pptb);
 				if is_paused {
@@ -120,6 +119,15 @@ impl IngamePauseDialog {
 				}
 			},
 		);
+
+		if !is_paused {
+			container_data.find_child_container_by_tag_mut_then(
+				"back_confirm/button",
+				&mut |c| {
+					c.fade_out(1.0);
+				},
+			);			
+		}
 	}
 }
 
@@ -156,7 +164,7 @@ impl UiElement for IngamePauseDialog {
 	}
 	fn handle_ui_event_response(
 		&mut self,
-		container_data: &mut UiElementContainerData,		
+		container_data: &mut UiElementContainerData,
 		response: Box<dyn UiEventResponse>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		match response
@@ -178,21 +186,12 @@ impl UiElement for IngamePauseDialog {
 				},
 				"back" => {
 					debug!("back button clicked");
-					self.dump_info();
-					container_data.find_child_container_mut_then(
-						&["Ingame Pause vBox", "Paused Buttons","back box","back_confirm"],
+					container_data.find_child_container_by_tag_mut_then(
+						"back_confirm/button",
 						&mut |c| {
 							c.toggle_fade(1.0);
 						},
 					);
-					/*
-					container_data.find_child_mut_as_element_then::<UiToggleButton>(
-						&["Ingame Pause vBox", "Paused Buttons","back box","back"],
-						&|bcb| {
-							bcb.toggle_fade(3.0);
-						},
-					);
-					*/
 				},
 				"back_confirm" => {
 					debug!("back confirm button clicked");

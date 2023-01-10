@@ -22,6 +22,8 @@ mod ui_button;
 pub use ui_button::UiButton;
 mod ui_gravity_box;
 pub use ui_gravity_box::UiGravityBox;
+mod ui_grid_box;
+pub use ui_grid_box::UiGridBox;
 mod ui_hbox;
 pub use ui_hbox::UiHbox;
 mod ui_image;

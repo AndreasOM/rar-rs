@@ -4,12 +4,12 @@
 ## In Progress
 
 - [ ] Add confirmation when leaving game
-    - [ ] Fix alignment of ingame pause buttons
+    - [ ] Fix alignment of ingame pause buttons using grid box
+        - [ ] Fix padding for hbox & vbox
 
 
 ## TODO
 
-- [ ] Add support for tagging ui element instances, and finding them
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
 
@@ -49,10 +49,11 @@
 
 
 - [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
-- [ ] Create UiGridBox
 
 ## TODO - Later
 - [ ] Refactor button click handling
+- [ ] Get rid of pointers/handles in UI element/container
+- [ ] Reconsider how padding works in the UI
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
@@ -64,6 +65,17 @@
 - [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
 
 ## Done
+
+### Episode 0028 - 5.0h + ...
+- [x] Improve layout of settings dialog
+- [x] Add support for tagging ui element instances, and finding them
+- [x] Add UI tags for easier access of UI elements
+- [x] Replace all UI path usage by UI tags
+- [x] Create UiGridBox
+- [x] Use grid box for settings dialog
+
+### Episode 0027 - special
+In episode 0027 we only caught up with the work done over the new years break
 
 ### Epsiode 0026 - 2.0h + 6.0h  ->  57.0h   + 46.0h     -> 103.0h
 - [x] Add mystic mountain (tiles, tilset, and map) with automapping rules

@@ -1,4 +1,5 @@
 use std::cell::{Ref, RefCell, RefMut};
+use std::collections::HashMap;
 use std::rc::{Rc, Weak};
 use std::sync::mpsc::Sender;
 
@@ -15,10 +16,12 @@ use crate::ui::{
 #[derive(Debug, Default)]
 pub struct UiElementContainerData {
 	pub name:       String,
+	pub tag:        Option<String>,
 	pub pos:        Vector2,
 	pub size:       Vector2,
 	pub fade_state: UiElementFadeState,
 	pub children:   Vec<UiElementContainerHandle>,
+	tag_map:        HashMap<String, usize>,
 }
 
 impl UiElementContainerData {
@@ -27,6 +30,17 @@ impl UiElementContainerData {
 	}
 	pub fn name(&self) -> &str {
 		&self.name
+	}
+
+	pub fn tags(&self) -> Vec<String> {
+		// :TODO: we probably could just use the tag map here
+		let mut tags = Vec::new();
+		self.tag.as_ref().map(|t| tags.push(t.to_owned()));
+		for c in self.children.iter() {
+			let mut ct = c.borrow().data.tags();
+			tags.append(&mut ct);
+		}
+		tags
 	}
 	pub fn set_size(&mut self, size: &Vector2) {
 		self.size = *size;
@@ -63,9 +77,20 @@ impl UiElementContainerData {
 	}
 
 	pub fn add_child(&mut self, child: UiElementContainer) -> UiElementContainerHandle {
+		let ct = child.data.tags();
+		for tag in ct.iter() {
+			if self.tag_map.get(tag).is_some() {
+				warn!("Duplicated tag: {} -> {:#?}", &tag, &self.tag_map);
+				todo!(); // :TODO: panic? or ignore?
+			} else {
+				let p = self.children.len();
+				self.tag_map.insert(tag.to_owned(), p);
+			}
+		}
 		let mut handle = UiElementContainerHandle::new(child);
 		let mut handle2 = handle.clone();
 		handle.borrow_mut().set_handle(&mut handle2);
+
 		self.children.push(handle);
 		let last = self.children.len() - 1;
 		self.children[last].clone()
@@ -84,85 +109,114 @@ impl UiElementContainerData {
 	) -> UiElementContainerHandle {
 		self.add_child(element_container)
 	}
+	/*
+		pub fn find_child_container_mut_then(
+			&mut self,
+			path: &[&str],
+			f: &mut dyn FnMut(&mut UiElementContainer),
+		) {
+			if path.is_empty() {
+				return;
+			}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
 
-	pub fn find_child_container_mut_then(
-		&mut self,
-		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer),
-	) {
-		if path.is_empty() {
-			return;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		// find a child that matches
-		for c in self.children.iter_mut() {
-			let mut c = c.borrow_mut();
-			if c.name() == head {
-				if tail.is_empty() {
-					// found -> run f with container
-					f(&mut c);
-				} else {
-					// path matches so far, go deeper
-					c.find_child_container_mut_then(&tail, f);
+			// find a child that matches
+			for c in self.children.iter_mut() {
+				let mut c = c.borrow_mut();
+				if c.name() == head {
+					if tail.is_empty() {
+						// found -> run f with container
+						f(&mut c);
+					} else {
+						// path matches so far, go deeper
+						c.find_child_container_mut_then(&tail, f);
+					}
 				}
 			}
 		}
+	*/
+	pub fn find_child_container_by_tag_mut_then(
+		&mut self,
+		tag: &str,
+		f: &dyn Fn(&mut UiElementContainer),
+	) {
+		// lookup in tag_map
+		let maybe_index = self.tag_map.get(tag);
+		maybe_index.map(|i| {
+			self.children[*i]
+				.borrow_mut()
+				.find_child_container_by_tag_mut_then(tag, f)
+		});
 	}
 
-	pub fn find_child_mut_as_element_then<E: 'static>(
+	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
 		&mut self,
-		path: &[&str],
+		tag: &str,
 		f: &dyn Fn(&mut E),
 	) {
-		if let Some(mut c) = self.find_child_mut(path) {
-			let mut c = c.borrow_mut();
-			let c = c.borrow_element_mut();
-			match c.as_any_mut().downcast_mut::<E>() {
-				Some(e) => {
-					f(e);
-				},
-				None => panic!(
-					"{:?} isn't a {:?} at {:#?}!",
-					&c,
+		// lookup in tag_map
+		let maybe_index = self.tag_map.get(tag);
+		maybe_index.map(|i| {
+			self.children[*i]
+				.borrow_mut()
+				.find_child_by_tag_as_mut_element_then(tag, f)
+		});
+	}
+	/*
+		pub fn find_child_mut_as_element_then<E: 'static>(
+			&mut self,
+			path: &[&str],
+			f: &dyn Fn(&mut E),
+		) {
+			if let Some(mut c) = self.find_child_mut(path) {
+				let mut c = c.borrow_mut();
+				let c = c.borrow_element_mut();
+				match c.as_any_mut().downcast_mut::<E>() {
+					Some(e) => {
+						f(e);
+					},
+					None => panic!(
+						"{:?} isn't a {:?} at {:#?}!",
+						&c,
+						std::any::type_name::<E>(),
+						&path
+					),
+				}
+			} else {
+				warn!(
+					"Cannot find {:?} at path {:#?}",
 					std::any::type_name::<E>(),
 					&path
-				),
-			}
-		} else {
-			warn!(
-				"Cannot find {:?} at path {:#?}",
-				std::any::type_name::<E>(),
-				&path
-			);
-		}
-	}
-
-	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
-		if path.len() == 0 {
-			// nothing left to check
-			return None;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		if head == self.name() {
-			if tail.len() == 0 {
-				todo!("Is searching for yourself in yourself actually a valid use case?");
-			} else {
-				return self.find_child_mut(tail);
+				);
 			}
 		}
-
-		for c in self.borrow_children_mut().iter_mut() {
-			if let Some(r) = c.borrow_mut().find_child_mut(path) {
-				return Some(r);
+	*/
+	/*
+		pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
+			if path.len() == 0 {
+				// nothing left to check
+				return None;
 			}
-		}
-		None
-	}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
 
+			if head == self.name() {
+				if tail.len() == 0 {
+					todo!("Is searching for yourself in yourself actually a valid use case?");
+				} else {
+					return self.find_child_mut(tail);
+				}
+			}
+
+			for c in self.borrow_children_mut().iter_mut() {
+				if let Some(r) = c.borrow_mut().find_child_mut(path) {
+					return Some(r);
+				}
+			}
+			None
+		}
+	*/
 	pub fn dump_info(&self) {
 		todo!("dump_info");
 	}
@@ -350,14 +404,13 @@ impl UiElementContainer {
 	pub fn toggle_fade(&mut self, duration: f32) {
 		let fs = self.fade_state();
 		match fs {
-			UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_)=> {
-				self.fade_in( duration );
+			UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
+				self.fade_in(duration);
 			},
-			UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_)=> {
-				self.fade_out( duration );
+			UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
+				self.fade_out(duration);
 			},
 		}
-
 	}
 	fn update_fade_state(&mut self, time_step: f64) {
 		let fs = self.data.fade_state;
@@ -439,15 +492,16 @@ impl UiElementContainer {
 			debug_renderer.add_line(&bl, &br, 3.0, &color);
 			debug_renderer.add_line(&br, &tr, 3.0, &color);
 			debug_renderer.add_line(&tr, &tl, 3.0, &color);
-
-			let color = Color::from_rgba(0.2, 0.9, 0.2, 0.8);
-			debug_renderer.add_text(
-				&tr,
-				&format!("{}/{} - {}", offset.x, offset.y, self.name()),
-				20.0,
-				2.0,
-				&color,
-			)
+			/*
+						let color = Color::from_rgba(0.2, 0.9, 0.2, 0.8);
+						debug_renderer.add_text(
+							&tr,
+							&format!("{}/{} - {}", offset.x, offset.y, self.name()),
+							20.0,
+							2.0,
+							&color,
+						)
+			*/
 		}
 	}
 
@@ -580,6 +634,14 @@ impl UiElementContainer {
 		self
 	}
 
+	pub fn tag(&self) -> Option<&str> {
+		self.data.tag.as_ref().map(|x| &**x)
+	}
+	pub fn with_tag(mut self, tag: &str) -> Self {
+		self.data.tag = Some(tag.to_owned());
+		self
+	}
+
 	pub fn pos(&self) -> &Vector2 {
 		&self.data.pos
 	}
@@ -613,7 +675,7 @@ impl UiElementContainer {
 					};
 					if let Some(r) = c.handle_ui_event(&ev, event_sender) {
 						//return self.element.handle_ui_event_response(r);
-						return Some( r );
+						return Some(r);
 					}
 				} else {
 					debug!("Child >{}< NOT hit ({:?})", &c.name(), &c.size());
@@ -651,7 +713,8 @@ impl UiElementContainer {
 		&mut self,
 		response: Box<dyn UiEventResponse>,
 	) -> Option<Box<dyn UiEventResponse>> {
-		self.element.handle_ui_event_response(&mut self.data, response)
+		self.element
+			.handle_ui_event_response(&mut self.data, response)
 	}
 
 	// local coordinates!
@@ -662,32 +725,68 @@ impl UiElementContainer {
 		pos.x >= bl.x && pos.y >= bl.y && pos.x <= tr.x && pos.y <= tr.y
 	}
 
-	pub fn find_child_container_mut_then(
+	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
 		&mut self,
-		path: &[&str],
-		f: &mut dyn FnMut(&mut UiElementContainer),
+		tag: &str,
+		f: &dyn Fn(&mut E),
 	) {
-		if path.is_empty() {
-			return;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		// find a child that matches
-		for c in self.data.borrow_children_mut().iter_mut() {
-			let mut c = c.borrow_mut();
-			if c.name() == head {
-				if tail.is_empty() {
-					// found -> run f with container
-					f(&mut c);
-				} else {
-					// path matches so far, go deeper
-					c.find_child_container_mut_then(&tail, f);
-				}
+		if self.data.tag == Some(tag.to_string()) {
+			let c = &mut self.element;
+			match c.as_any_mut().downcast_mut::<E>() {
+				Some(e) => {
+					f(e);
+				},
+				None => panic!(
+					"{:?} isn't a {:?} with tag {:#?}!",
+					&c,
+					std::any::type_name::<E>(),
+					&tag,
+				),
 			}
+		} else {
+			self.data.find_child_by_tag_as_mut_element_then(tag, f);
 		}
 	}
 
+	pub fn find_child_container_by_tag_mut_then(
+		&mut self,
+		tag: &str,
+		f: &dyn Fn(&mut UiElementContainer),
+	) {
+		if self.data.tag == Some(tag.to_string()) {
+			f(self);
+		} else {
+			self.data.find_child_container_by_tag_mut_then(tag, f);
+		}
+	}
+	/*
+		pub fn find_child_container_mut_then(
+			&mut self,
+			path: &[&str],
+			f: &mut dyn FnMut(&mut UiElementContainer),
+		) {
+			if path.is_empty() {
+				return;
+			}
+			let (head, tail) = path.split_at(1);
+			let head = head[0];
+
+			// find a child that matches
+			for c in self.data.borrow_children_mut().iter_mut() {
+				let mut c = c.borrow_mut();
+				if c.name() == head {
+					if tail.is_empty() {
+						// found -> run f with container
+						f(&mut c);
+					} else {
+						// path matches so far, go deeper
+						c.find_child_container_mut_then(&tail, f);
+					}
+				}
+			}
+		}
+	*/
+	/*
 	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
 		if path.len() == 0 {
 			// nothing left to check
@@ -723,4 +822,5 @@ impl UiElementContainer {
 		}
 		None
 	}
+	*/
 }

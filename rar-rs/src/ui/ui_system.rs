@@ -61,23 +61,39 @@ impl UiSystem {
 		}
 	}
 
-	pub fn toggle_child_fade(&mut self, path: &[&str]) -> bool {
-		let mut was_on = false;
+	pub fn toggle_child_fade_by_tag(&mut self, tag: &str) {
 		if let Some(root) = &mut self.root {
-			root.find_child_container_mut_then(path, &mut |dialog| match dialog.fade_state() {
-				UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
-					dialog.fade_in(1.0);
-					was_on = false
+			root.find_child_container_by_tag_mut_then(
+				tag,
+				&mut |dialog| match dialog.fade_state() {
+					UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
+						dialog.fade_in(1.0);
+					},
+					UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
+						dialog.fade_out(1.0);
+					},
 				},
-				UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
-					dialog.fade_out(1.0);
-					was_on = true;
-				},
-			});
+			)
 		}
-		was_on
 	}
-
+	/*
+		pub fn toggle_child_fade(&mut self, path: &[&str]) -> bool {
+			let mut was_on = false;
+			if let Some(root) = &mut self.root {
+				root.find_child_container_mut_then(path, &mut |dialog| match dialog.fade_state() {
+					UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
+						dialog.fade_in(1.0);
+						was_on = false
+					},
+					UiElementFadeState::FadedIn | UiElementFadeState::FadingIn(_) => {
+						dialog.fade_out(1.0);
+						was_on = true;
+					},
+				});
+			}
+			was_on
+		}
+	*/
 	pub fn set_size(&mut self, size: &Vector2) {
 		// :TODO-UI: should probably use parent_size_changed instead
 		if let Some(root) = &mut self.root {
