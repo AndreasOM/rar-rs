@@ -70,22 +70,24 @@ children:
 						.containerize()
 						.with_child_element_containers(
 							[
-								{
-									UiToggleButton::new(
-										"ui-button_play",
-										"ui-button_pause",
-										&Vector2::new(64.0, 64.0),
-									)
-									.containerize()
-									.with_name("playpause/toggle")
-									.with_tag("playpause/toggle")
-									.with_fade_out(0.0)
-									.with_fade_in(1.0)
-								},
-								{
-									UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white())
-										.containerize()
-								},
+								UiElementContainer::from_yaml(
+									"
+type: UiToggleButton
+name: playpause/toggle
+tag: playpause/toggle
+images: [ui-button_play,ui-button_pause]
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+",
+								),
+								UiElementContainer::from_yaml(
+									"
+type: UiSpacer
+size: 64x64
+",
+								),
 							]
 							.into(),
 						),

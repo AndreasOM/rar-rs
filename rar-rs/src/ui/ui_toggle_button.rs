@@ -1,6 +1,7 @@
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
+use serde::Deserialize;
 use tracing::*;
 
 use crate::ui::{
@@ -8,7 +9,7 @@ use crate::ui::{
 	UiEventResponseButtonClicked, UiImage,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UiToggleButton {
 	imagesize:   Vector2,
 	imagename_a: String,
@@ -92,4 +93,21 @@ impl UiElement for UiToggleButton {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiToggleButtonConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.imagesize = Vector2::from_x_str(&config.size);
+		self.imagename_a = config.images[0].clone();
+		self.imagename_b = config.images[1].clone();
+		if self.image_a.is_some() || self.image_b.is_some() {
+			panic!("Can not reconfigure {}", self.type_name());
+		}
+		// self.image =    None; :TODO: handle reconfigure
+	}
+}
+
+#[derive(Debug, Deserialize)]
+struct UiToggleButtonConfig {
+	images: [String; 2],
+	size:   String,
 }

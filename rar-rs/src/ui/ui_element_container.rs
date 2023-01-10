@@ -329,6 +329,7 @@ impl UiElementContainer {
 
 		let mut element: Box<dyn UiElement> = match config.element_type.as_ref() {
 			"UiButton" => Box::new(crate::ui::UiButton::default()),
+			"UiToggleButton" => Box::new(crate::ui::UiToggleButton::default()),
 			"UiSpacer" => Box::new(crate::ui::UiSpacer::default()),
 			"UiGridBox" => Box::new(crate::ui::UiGridBox::default()),
 			o => {
