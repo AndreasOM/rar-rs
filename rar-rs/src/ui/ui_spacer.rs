@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
+#[derive(Default)]
 pub struct UiSpacer {
 	size:  Vector2,
 	color: Color,
@@ -54,6 +55,11 @@ impl UiElement for UiSpacer {
 				ui_renderer.pop_color();
 			}
 		}
+	}
+	fn configure_from_yaml(&mut self, yaml: &str) {
+		let config: UiSpacerConfig = serde_yaml::from_str(&yaml).unwrap();
+		self.size = Vector2::from_x_str(&config.size);
+		self.color = Color::default(); // :TODO:
 	}
 }
 

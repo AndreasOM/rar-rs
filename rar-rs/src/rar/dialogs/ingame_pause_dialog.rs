@@ -22,6 +22,19 @@ impl IngamePauseDialog {
 		}
 	}
 	fn create_paused_box(&self) -> UiElementContainer {
+
+		UiElementContainer::from_yaml(
+			"
+type: UiGridBox
+padding: 16.0
+column_count: 2
+name: Paused Buttons
+tag: paused_buttons
+fade:
+  - out 0.0
+",
+		)
+		/*
 		UiGridBox::default()
 			.with_padding(16.0)
 			.with_column_count(2)
@@ -29,6 +42,7 @@ impl IngamePauseDialog {
 			.with_name("Paused Buttons")
 			.with_tag("paused_buttons")
 			.with_fade_out(0.0)
+		*/
 			.with_child_element_containers(
 				[
 					{
@@ -149,13 +163,19 @@ fade:
 		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
+		let found = container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
+			debug!("Found paused_buttons");
 			if is_paused {
 				container.fade_in(1.0);
 			} else {
 				container.fade_out(1.0);
 			}
 		});
+		if !found {
+			warn!("Could't find paused_buttons");
+			container_data.dump_info();
+			panic!();
+		}
 		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"playpause/toggle",
 			&|pptb| {

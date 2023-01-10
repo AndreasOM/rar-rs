@@ -63,7 +63,7 @@ impl UiSystem {
 
 	pub fn toggle_child_fade_by_tag(&mut self, tag: &str) {
 		if let Some(root) = &mut self.root {
-			root.find_child_container_by_tag_mut_then(
+			let found = root.find_child_container_by_tag_mut_then(
 				tag,
 				&mut |dialog| match dialog.fade_state() {
 					UiElementFadeState::FadedOut | UiElementFadeState::FadingOut(_) => {
@@ -73,7 +73,10 @@ impl UiSystem {
 						dialog.fade_out(1.0);
 					},
 				},
-			)
+			);
+			if !found {
+				warn!("Could toggle child for tag {}", &tag);
+			}
 		}
 	}
 	/*
