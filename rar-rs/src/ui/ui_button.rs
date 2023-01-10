@@ -1,4 +1,7 @@
+use std::str::FromStr;
 use std::sync::mpsc::Sender;
+
+use serde::{Deserialize};
 
 use oml_game::math::Vector2;
 use tracing::*;
@@ -21,6 +24,19 @@ impl UiButton {
 			imagesize: *imagesize,
 			imagename: imagename.to_owned(),
 			image:     None,
+		}
+	}
+
+	pub fn from_yaml( yaml: &str ) -> Self {
+		debug!("{:?}", &yaml);
+		let config: UiButtonConfig = serde_yaml::from_str(&yaml).unwrap();
+		//let size: Vec<f32> = config.size.split("x").map(|s| {f32::from_str(s).unwrap_or( 0.0 )}).collect();
+		//debug!("{:?}", &size);
+
+		Self {
+			imagesize: Vector2::from_x_str( &config.size ),
+			imagename: config.image,
+			image: None,
 		}
 	}
 }
@@ -55,4 +71,10 @@ impl UiElement for UiButton {
 	fn preferred_size(&self) -> Option<&Vector2> {
 		Some(&self.imagesize)
 	}
+}
+
+#[derive(Debug, Deserialize)]
+struct UiButtonConfig {
+    image: String,
+    size: String,
 }

@@ -3,12 +3,13 @@
 
 ## In Progress
 
+- [ ] Load ui layout from file
+
+## TODO
+
 - [ ] Add confirmation when leaving game
     - [ ] Fix alignment of ingame pause buttons using grid box
         - [ ] Fix padding for hbox & vbox
-
-
-## TODO
 
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
@@ -66,7 +67,10 @@
 
 ## Done
 
-### Episode 0028 - 5.0h + ...
+### Episode 0029
+
+
+### Episode 0028 - 5.0h + 0.5h  ->  62.0h   + 46.5h     -> 108.5h
 - [x] Improve layout of settings dialog
 - [x] Add support for tagging ui element instances, and finding them
 - [x] Add UI tags for easier access of UI elements

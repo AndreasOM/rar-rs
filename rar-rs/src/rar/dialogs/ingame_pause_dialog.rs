@@ -47,17 +47,58 @@ impl IngamePauseDialog {
 							.with_fade_in(1.0)
 					},
 					{
+						UiButton::from_yaml("
+image: ui-button_confirm_danger
+size: 64x64
+")
+							.containerize()
+							.with_name("back_confirm")
+							.with_tag("back_confirm/button")
+							.with_fade_out(0.0)
+/*						
+						UiButton::from_yaml("
+							type: UiButton
+							name: back_confirm
+							tag: back_confirm/button
+							size: 64x64
+							image: ui-button_confirm_danger
+						");
 						UiButton::new("ui-button_confirm_danger", &Vector2::new(64.0, 64.0))
 							.containerize()
 							.with_name("back_confirm")
 							.with_tag("back_confirm/button")
 							.with_fade_out(0.0)
 						//.with_fade_in(1.0)
+*/
 					},
 				]
 				.into(),
 			)
 	}
+	/*
+	---
+- type: UiGridBox
+  padding: 16
+  name: Paused Buttons
+  tag: paused_buttons
+  children:
+    - type: UiButton
+      name: Settings
+      size: 64x64
+      image: ui-button_settings
+    - type: UiSpacer
+      size: 64x64
+      color: White
+    - type: UiButton
+      name: back
+      size: 64x64
+      image: ui-button_back
+    - type: UiButton
+      name: back_confirm
+      tag: back_confirm/button
+      size: 64x64
+      image: ui-button_confirm_danger
+*/
 	fn create_children(&self) -> UiElementContainer {
 		UiVbox::new()
 			.with_padding(16.0)
