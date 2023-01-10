@@ -59,42 +59,32 @@ children:
 		)
 	}
 	fn create_children(&self) -> UiElementContainer {
-		UiVbox::new()
-			.with_padding(16.0)
-			.containerize()
-			.with_name("Ingame Pause vBox")
-			.with_child_element_containers(
-				[
-					UiHbox::new()
-						.with_padding(16.0)
-						.containerize()
-						.with_child_element_containers(
-							[
-								UiElementContainer::from_yaml(
-									"
-type: UiToggleButton
-name: playpause/toggle
-tag: playpause/toggle
-images: [ui-button_play,ui-button_pause]
-size: 64x64
-fade:
-  - out 0.0
-  - in 1.0
+		UiElementContainer::from_yaml(
+			"
+type: UiGridBox
+padding: 0.0
+column_count: 1
+children:
+  - type: UiGridBox
+    padding: 16.0
+    column_count: 2
+    fade:
+      - out 0.0
+    children:
+      - type: UiToggleButton
+        name: playpause/toggle
+        tag: playpause/toggle
+        images: [ui-button_play,ui-button_pause]
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiSpacer
+        size: 64x64
 ",
-								),
-								UiElementContainer::from_yaml(
-									"
-type: UiSpacer
-size: 64x64
-",
-								),
-							]
-							.into(),
-						),
-					self.create_paused_box(),
-				]
-				.into(),
-			)
+			//children:
+		)
+		.with_child_element_containers([self.create_paused_box()].into())
 	}
 
 	fn update_playpause(
