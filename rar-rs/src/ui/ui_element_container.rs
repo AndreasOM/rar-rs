@@ -1,3 +1,9 @@
+use serde::de::IgnoredAny;
+use std::marker::PhantomData;
+use serde::de::MapAccess;
+use serde::de::{self, Visitor};
+
+use serde::Deserializer;
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::{Rc, Weak};
@@ -343,6 +349,12 @@ impl UiElementContainer {
 		if let Some(name) = &config.name {
 			container = container.with_name(name);
 		}
+		config.children.map(|children|{
+			for c in children.iter() {
+				debug!("Child: {:?}", &c);	
+			}
+		});
+		todo!();
 		container
 	}
 
@@ -887,4 +899,195 @@ struct UiElementContainerConfig {
 	element_type: String,
 	name:         Option<String>,
 	tag:          Option<String>,
+	children:		Option<Vec<MyMap<IgnoredAny, IgnoredAny>>>,
+	//children:		Option<Vec<UiElementContainerChildConfig>>,
+}
+
+//#[derive(Debug, Deserialize)]
+#[derive(Debug, Default)]
+pub struct UiElementContainerChildConfig {
+}
+/*
+impl Deserialize<'_> for UiElementContainerChildConfig {
+
+fn deserialize<'de, D>(
+        deserializer: D,
+    ) -> Result<Option<Vec<UiElementContainerChildConfig>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+    	Ok(None)
+    	//Ok(UiElementContainerChildConfig::default())
+	}
+}
+*/
+#[derive(Debug,Default)]
+struct UiElementContainerChildConfigVisitor;
+
+impl UiElementContainerChildConfig {
+
+}
+/*
+impl<'de, K, V> Visitor<'de> for UiElementContainerChildConfigVisitor
+	where
+		K: Deserialize<'de>,
+    	V: Deserialize<'de>,
+{
+    type Value = UiElementContainerChildConfig;
+
+    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
+        formatter.write_str("a !!! map")
+    }
+    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+    where
+		A: MapAccess<'de>,
+    {
+    	let mut map = MyMap::with_capacity(access.size_hint().unwrap_or(0));
+    	//debug!("{:?}", map);
+    	//let e = map.next_entry::<K, V>();
+    	while let Some((key, value)) = map.next_entry::<K, V>()? {
+    		map.insert(key, value);
+        }
+    	Ok( UiElementContainerChildConfig::default() )
+    }
+/*
+    fn visit_i8<E>(self, value: i8) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        //Ok(i32::from(value))
+        Ok(UiElementContainerChildConfig::default())
+    }
+*/
+/*
+    fn visit_i32<E>(self, value: i32) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        Ok(value)
+    }
+
+    fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        use std::i32;
+        if value >= i64::from(i32::MIN) && value <= i64::from(i32::MAX) {
+            Ok(value as i32)
+        } else {
+            Err(E::custom(format!("i32 out of range: {}", value)))
+        }
+    }
+*/
+    // Similar for other methods:
+    //   - visit_i16
+    //   - visit_u8
+    //   - visit_u16
+    //   - visit_u32
+    //   - visit_u64
+}
+
+impl<'de> Deserialize<'de> for UiElementContainerChildConfig {
+    fn deserialize<D>(deserializer: D) -> Result<UiElementContainerChildConfig, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_map(UiElementContainerChildConfigVisitor)
+        //deserializer.deserialize_ignored_any(UiElementContainerChildConfigVisitor)
+        //Ok(UiElementContainerChildConfig::default())
+    }
+}
+*/
+use std::fmt;
+
+#[derive(Debug)]
+struct MyMap<K, V> {
+    marker: PhantomData<K>,
+    marker_v: PhantomData<V>,
+}
+
+impl<K,V> MyMap<K, V> {
+	pub fn with_capacity() -> Self {
+		Self {
+			marker: PhantomData::default(),
+			marker_v: PhantomData::default(),
+		}
+	}
+
+	pub fn insert( &mut self, _k: K, _v: V ) {
+
+	}
+}
+/*
+impl<K,V> core::fmt::Debug for MyMapVisitor<K, V> {
+
+	fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { todo!() }
+}
+*/
+struct MyMapVisitor<K, V> {
+    marker: PhantomData<fn() -> MyMap<K, V>>
+}
+
+
+impl<K, V> MyMapVisitor<K, V> {
+    fn new() -> Self {
+        MyMapVisitor {
+            marker: PhantomData
+        }
+    }
+}
+
+// This is the trait that Deserializers are going to be driving. There
+// is one method for each type of data that our type knows how to
+// deserialize from. There are many other methods that are not
+// implemented here, for example deserializing from integers or strings.
+// By default those methods will return an error, which makes sense
+// because we cannot deserialize a MyMap from an integer or string.
+impl<'de, K, V> Visitor<'de> for MyMapVisitor<K, V>
+where
+    K: Deserialize<'de>,
+    V: Deserialize<'de>,
+{
+    // The type that our Visitor is going to produce.
+    type Value = MyMap<K, V>;
+
+    // Format a message stating what data this Visitor expects to receive.
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a very special map")
+    }
+
+    // Deserialize MyMap from an abstract "map" provided by the
+    // Deserializer. The MapAccess input is a callback provided by
+    // the Deserializer to let us see each entry in the map.
+    fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+    where
+        M: MapAccess<'de>,
+    {
+        let mut map = MyMap::with_capacity();
+        //let mut map = MyMap::with_capacity(access.size_hint().unwrap_or(0));
+
+        // While there are entries remaining in the input, add them
+        // into our map.
+        while let Some((key, value)) = access.next_entry()? {
+            map.insert(key, value);
+        }
+
+        Ok(map)
+    }
+}
+
+// This is the trait that informs Serde how to deserialize MyMap.
+impl<'de, K, V> Deserialize<'de> for MyMap<K, V>
+where
+    K: Deserialize<'de>,
+    V: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // Instantiate our Visitor and ask the Deserializer to drive
+        // it over the input data, resulting in an instance of MyMap.
+        deserializer.deserialize_map(MyMapVisitor::new())
+    }
 }

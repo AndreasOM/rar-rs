@@ -31,6 +31,21 @@ name: Paused Buttons
 tag: paused_buttons
 fade:
   - out 0.0
+children:
+  - type: UiButton
+    name: test_1
+    image: ui-button_settings
+    size: 256x256
+    fade:
+      - out 0.0
+      - in 1.0
+  - type: UiButton
+    name: test_1
+    image: ui-button_settings
+    size: 256x256
+    fade:
+      - out 0.0
+      - in 1.0
 ",
 		)
 		.with_child_element_containers(
