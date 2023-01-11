@@ -3,7 +3,8 @@
 
 ## In Progress
 
-- [ ] Load ui layout from file
+- [x] Load ui layout from file
+    - [ ] Add fallback with error message
 
 ## TODO
 
@@ -66,7 +67,7 @@
 
 ## Done
 
-### Episode 0029 - 3.5h + 1.5h  ->  65.5h   +
+### Episode 0029 - 3.5h + 2.0h  ->  65.5h   +
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box

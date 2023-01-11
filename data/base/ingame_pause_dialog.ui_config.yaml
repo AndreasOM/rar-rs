@@ -1,0 +1,54 @@
+type: UiGridBox
+padding: 0
+column_count: 1
+children:
+  - type: UiGridBox
+    padding: 16
+    column_count: 2
+    fade:
+      - out 0.0
+      - in 0.001
+    children:
+      - type: UiToggleButton
+        name: playpause/toggle
+        tag: playpause/toggle
+        images:
+          - ui-button_play
+          - ui-button_pause
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiSpacer
+        size: 64x64
+  - type: UiGridBox
+    padding: 16
+    column_count: 2
+    name: Paused Buttons
+    tag: paused_buttons
+    fade:
+      - out 0.0
+    children:
+      - type: UiButton
+        name: settings
+        image: ui-button_settings
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiSpacer
+        size: 64x64
+      - type: UiButton
+        name: back
+        image: ui-button_back
+        size: 64x64
+        fade:
+          - out 0.0
+          - in 1.0
+      - type: UiButton
+        name: back_confirm
+        tag: back_confirm/button
+        image: ui-button_confirm_danger
+        size: 64x64
+        fade:
+          - out 0.0

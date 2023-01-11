@@ -10,13 +10,16 @@ use crate::ui::*;
 
 #[derive(Debug)]
 pub struct IngamePauseDialog {
-	data: Option<Arc<dyn Data>>,
+	data:      Option<Arc<dyn Data>>,
+	container: Option<UiElementContainer>,
 }
 
 impl IngamePauseDialog {
 	pub fn new(system: &mut System) -> Self {
+		let container = UiElementContainer::from_config_asset(system, "ingame_pause_dialog");
 		Self {
 			data: system.data().as_ref().map(|data| Arc::clone(data)),
+			container,
 		}
 	}
 	fn create_children(&self) -> UiElementContainer {
@@ -100,7 +103,7 @@ children:
 		if !found {
 			warn!("Could't find paused_buttons");
 			container_data.dump_info();
-			panic!();
+			//panic!();
 		}
 		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"playpause/toggle",
@@ -130,8 +133,13 @@ impl UiElement for IngamePauseDialog {
 		self
 	}
 
-	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		container.add_child_element_container(self.create_children());
+	fn setup_within_container(&mut self, container_data: &mut UiElementContainerData) {
+		let container = if let Some(container) = self.container.take() {
+			container
+		} else {
+			self.create_children()
+		};
+		container_data.add_child_element_container(container);
 	}
 	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
 		if let Some(data) = &self.data {

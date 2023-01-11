@@ -7,6 +7,7 @@ use std::sync::mpsc::Sender;
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
+use oml_game::system::System;
 use serde::Deserialize;
 use tracing::*;
 
@@ -312,6 +313,20 @@ impl UiElementContainer {
 			handle: None,
 		}
 	}
+	pub fn from_config_asset(system: &mut System, name: &str) -> Option<Self> {
+		let dfs = system.default_filesystem_mut();
+		// try yaml
+		let name_yaml = format!("{}.ui_config.yaml", &name);
+		if dfs.exists(&name_yaml) {
+			let mut f = dfs.open(&name_yaml);
+			// :TODO: check is_valid ?
+			let yaml = f.read_as_string();
+			Some(Self::from_yaml(&yaml))
+		} else {
+			None
+		}
+	}
+
 	pub fn from_yaml(yaml: &str) -> Self {
 		let value: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
 		//		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
