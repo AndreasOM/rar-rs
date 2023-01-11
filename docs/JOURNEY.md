@@ -2,6 +2,34 @@
 
 ## v0.x
 
+### Episode 0000
+![Episode 0000](journey/episode-0000.png "Episode 0000")
+
+In episode 0000 we created the basic project setup,
+splitting some common boilerplate game code into oml-game,
+and adding the app specific (dummy) code to rar-rs.
+
+All of this was heavily based on the previous project [fiiish-rs](https://github.com/andreasOM/fiiish-rs).
+
+In the end we had a black window, that could be closed by pressing Escape.
+
+About 700 lines-of-code (LOC) created/copied in about 1.5h (on stream) + 0h (off stream).
+Estimated Cost to Develop $300-$18,158 (lower number actual h * $100, higher number from scc)
+
+
+### Episode 0001
+![Episode 0001](journey/episode-0001.png "Episode 0001")
+
+In episode 0001 we actually got something rendering on the screen.
+The input-update-render logic is driven by oml-game.
+rar-rs is using the debug renderer to draw a line over the color cycling, clear background. The debug renderer can be toggled by pressing `i`.
+
+Time: 2.0h+0.0h => 3.5h
+LOC: 4000
+Cost: $350-$102,384
+
+**:TODO:**
+
 ### Episode 0028
 ![Episode 0028](journey/episode-0028.png "Episode 0028")
 
@@ -13,3 +41,11 @@ We also created a UiGridBox, to allow easier layouts for UI, and used it for the
 ![Episode 0028 Settings](journey/episode-0028-settings.png "Episode 0028 - Settings")
 
 The screenshot shows the SettingsDialog with the debug overlay enabled to show the underlying structure.
+
+### Episode 0029
+
+**:TODO:**
+
+Time: 3.5h+2.5h (ongoing) => 114.5h
+LOC: 4000
+Cost: $14,450-$360,000
