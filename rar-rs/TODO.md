@@ -4,7 +4,6 @@
 ## In Progress
 
 - [ ] Load ui layout from file
-    - [ ] Handle fade
 
 ## TODO
 
@@ -67,10 +66,11 @@
 
 ## Done
 
-### Episode 0029 - 3.5h + 1.0h  ->  65.5h   +
+### Episode 0029 - 3.5h + 1.5h  ->  65.5h   +
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box
+- [x] Handle UI fade when creating from config
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 

@@ -31,6 +31,7 @@ children:
     column_count: 2
     fade:
       - out 0.0
+      - in 0.001
     children:
       - type: UiToggleButton
         name: playpause/toggle
