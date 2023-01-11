@@ -8,9 +8,7 @@
 
 ## TODO
 
-- [ ] Add confirmation when leaving game
-    - [ ] Fix alignment of ingame pause buttons using grid box
-        - [ ] Fix padding for hbox & vbox
+
 
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
@@ -56,11 +54,12 @@
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
 - [ ] Reconsider how padding works in the UI
+- [ ] Fix padding for hbox & vbox (Note: we might not use these anymore)
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
-- [ ] Understand how to organise tiled worlds
+- [x] Understand how to organise tiled worlds -> see first part of Episode 0026
 
 
 ## Obsolete
@@ -68,8 +67,12 @@
 
 ## Done
 
-### Episode 0029
+### Episode 0029 - 3.5h + 1.0h  ->  65.5h   +
+- [x] Load UI config from yaml string
+- [x] Add confirmation when leaving game
+- [x] Fix alignment of ingame pause buttons using grid box
 
+## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
 ### Episode 0028 - 5.0h + 0.5h  ->  62.0h   + 46.5h     -> 108.5h
 - [x] Improve layout of settings dialog
@@ -244,7 +247,6 @@ Note: We didn't track progress cleanly before this.
 ### Episode 0000 - 1.5h + 0h    -> 1.5h + 0.0h          ->  1.5h
 
 
-## Released
 
-Note:
-Nothing released yet, but you can run the current version by building the source yourself.
+~~Note:~~
+~~Nothing released yet, but you can run the current version by building the source yourself.~~
