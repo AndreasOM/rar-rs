@@ -33,7 +33,7 @@ impl SettingsDialog {
 	}
 	fn create_info_labels(&self) -> Vec<UiElementContainer> {
 		let label_size = Vector2::new(256.0 + 64.0 + 32.0, 48.0);
-		let value_size = Vector2::new(512.0, 48.0);
+		let _value_size = Vector2::new(512.0, 48.0);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
@@ -116,7 +116,7 @@ impl SettingsDialog {
 
 	fn update_music(
 		&self,
-		uielement: &dyn UiElement,
+		_uielement: &dyn UiElement,
 		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {
@@ -135,7 +135,7 @@ impl SettingsDialog {
 
 	fn update_sound(
 		&self,
-		uielement: &dyn UiElement,
+		_uielement: &dyn UiElement,
 		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {

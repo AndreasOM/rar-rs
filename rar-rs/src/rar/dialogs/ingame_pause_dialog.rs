@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-use oml_game::math::Vector2;
-use oml_game::renderer::Color;
 use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
