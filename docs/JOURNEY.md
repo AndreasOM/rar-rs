@@ -1,5 +1,9 @@
 # The journey so far
 
+
+## Notes
+- Please take the LOC, time spent, and estimated costs with a grain of salt, they are just very rough estimates, and may be vastly wrong!
+ 
 ## v0.x
 
 ### Episode 0000
@@ -13,8 +17,9 @@ All of this was heavily based on the previous project [fiiish-rs](https://github
 
 In the end we had a black window, that could be closed by pressing Escape.
 
-About 700 lines-of-code (LOC) created/copied in about 1.5h (on stream) + 0h (off stream).
-Estimated Cost to Develop $300-$18,158 (lower number actual h * $100, higher number from scc)
+- About 700 lines-of-code (LOC) created/copied 
+- in about 1.5h (on stream) + 0h (off stream).
+- Estimated Cost to Develop $300-$18,158 (lower number actual h * $100, higher number from scc)
 
 
 ### Episode 0001
@@ -24,9 +29,9 @@ In episode 0001 we actually got something rendering on the screen.
 The input-update-render logic is driven by oml-game.
 rar-rs is using the debug renderer to draw a line over the color cycling, clear background. The debug renderer can be toggled by pressing `i`.
 
-Time: 2.0h+0.0h => 3.5h
-LOC: 4000
-Cost: $350-$102,384
+- LOC: 4000
+- Time: 2.0h+0.0h => 3.5h
+- Cost: $350-$102,384
 
 **:TODO:**
 
@@ -42,10 +47,14 @@ We also created a UiGridBox, to allow easier layouts for UI, and used it for the
 
 The screenshot shows the SettingsDialog with the debug overlay enabled to show the underlying structure.
 
+- LOC: 8000
+- Time: 5.0h + 0.5h => 108.5h
+- Cost: $14,450-$270,000
+
 ### Episode 0029
 
 **:TODO:**
 
-Time: 3.5h+2.5h (ongoing) => 114.5h
-LOC: 4000
-Cost: $14,450-$360,000
+- LOC: 14000
+- Time: 3.5h+2.5h (ongoing) => 114.5h
+- Cost: $14,450-$360,000
