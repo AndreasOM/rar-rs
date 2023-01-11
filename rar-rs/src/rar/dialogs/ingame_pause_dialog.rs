@@ -16,71 +16,11 @@ pub struct IngamePauseDialog {
 
 impl IngamePauseDialog {
 	pub fn new(system: &mut System) -> Self {
-		let container = UiElementContainer::from_config_asset(system, "ingame_pause_dialog");
+		let container = UiElementContainer::from_config_asset(system, "TYPO-ingame_pause_dialog");
 		Self {
 			data: system.data().as_ref().map(|data| Arc::clone(data)),
 			container,
 		}
-	}
-	fn create_children(&self) -> UiElementContainer {
-		UiElementContainer::from_yaml(
-			"
-type: UiGridBox
-padding: 0
-column_count: 1
-children:
-  - type: UiGridBox
-    padding: 16
-    column_count: 2
-    fade:
-      - out 0.0
-      - in 0.001
-    children:
-      - type: UiToggleButton
-        name: playpause/toggle
-        tag: playpause/toggle
-        images:
-          - ui-button_play
-          - ui-button_pause
-        size: 64x64
-        fade:
-          - out 0.0
-          - in 1.0
-      - type: UiSpacer
-        size: 64x64
-  - type: UiGridBox
-    padding: 16
-    column_count: 2
-    name: Paused Buttons
-    tag: paused_buttons
-    fade:
-      - out 0.0
-    children:
-      - type: UiButton
-        name: settings
-        image: ui-button_settings
-        size: 64x64
-        fade:
-          - out 0.0
-          - in 1.0
-      - type: UiSpacer
-        size: 64x64
-      - type: UiButton
-        name: back
-        image: ui-button_back
-        size: 64x64
-        fade:
-          - out 0.0
-          - in 1.0
-      - type: UiButton
-        name: back_confirm
-        tag: back_confirm/button
-        image: ui-button_confirm_danger
-        size: 64x64
-        fade:
-          - out 0.0    
-",
-		)
 	}
 
 	fn update_playpause(
@@ -134,12 +74,11 @@ impl UiElement for IngamePauseDialog {
 	}
 
 	fn setup_within_container(&mut self, container_data: &mut UiElementContainerData) {
-		let container = if let Some(container) = self.container.take() {
-			container
+		if let Some(container) = self.container.take() {
+			container_data.add_child_element_container(container);
 		} else {
-			self.create_children()
+			panic!("No container for IngamePauseDialog");
 		};
-		container_data.add_child_element_container(container);
 	}
 	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
 		if let Some(data) = &self.data {

@@ -1,9 +1,11 @@
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
+use serde::Deserialize;
 use tracing::*;
 
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
+#[derive(Debug, Default)]
 pub struct UiImage {
 	imagename: String,
 	imagesize: Vector2,
@@ -40,4 +42,16 @@ impl UiElement for UiImage {
 			ui_renderer.pop_opacity();
 		}
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiImageConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.imagesize = Vector2::from_x_str(&config.size);
+		self.imagename = config.image;
+	}
+}
+
+#[derive(Debug, Deserialize)]
+struct UiImageConfig {
+	image: String,
+	size:  String,
 }

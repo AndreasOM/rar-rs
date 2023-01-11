@@ -1,8 +1,10 @@
 use oml_game::math::Vector2;
 use oml_game::renderer::Color;
+use serde::Deserialize;
 
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
+#[derive(Debug, Default)]
 pub struct UiLabel {
 	size:      Vector2,
 	color:     Color,
@@ -57,4 +59,22 @@ impl UiElement for UiLabel {
 			ui_renderer.pop_color();
 		}
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiLabelConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.size = Vector2::from_x_str(&config.size);
+		self.text = config.text;
+		if let Some(_color) = config.color {
+			// :TODO:
+		}
+	}
+}
+
+#[derive(Debug, Deserialize)]
+struct UiLabelConfig {
+	size:  String,
+	#[serde(default)]
+	text:  String,
+	color: Option<String>,
+	//alignment: Vector2, // :TODO:
 }

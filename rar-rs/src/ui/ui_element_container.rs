@@ -323,7 +323,34 @@ impl UiElementContainer {
 			let yaml = f.read_as_string();
 			Some(Self::from_yaml(&yaml))
 		} else {
-			None
+			// create fallback
+			let mut container = Self::from_yaml(
+				"
+type: UiImage
+name: fallback
+image: ui-button_confirm_danger
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+children:
+  - type: UiLabel
+    tag: fallback_label
+    size: 128x32
+    text: Unable to load ui config from asset
+    fade:
+      - out 0.0
+      - in 1.0
+",
+			);
+			container.set_name(&format!("Fallback for {}", &name));
+			container.find_child_by_tag_as_mut_element_then::<crate::ui::UiLabel>(
+				"fallback_label",
+				&|l| {
+					l.set_text(&format!("UI config not found {}", &name));
+				},
+			);
+			Some(container)
 		}
 	}
 
@@ -342,6 +369,8 @@ impl UiElementContainer {
 			"UiToggleButton" => Box::new(crate::ui::UiToggleButton::default()),
 			"UiSpacer" => Box::new(crate::ui::UiSpacer::default()),
 			"UiGridBox" => Box::new(crate::ui::UiGridBox::default()),
+			"UiLabel" => Box::new(crate::ui::UiLabel::default()),
+			"UiImage" => Box::new(crate::ui::UiImage::default()),
 			o => {
 				error!("Creating from yaml not supported for {}", &o);
 				panic!();

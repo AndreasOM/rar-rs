@@ -3,12 +3,8 @@
 
 ## In Progress
 
-- [x] Load ui layout from file
-    - [ ] Add fallback with error message
 
 ## TODO
-
-
 
 - [ ] Add support for multiple fonts
 - [ ] Trigger sound effects from ui button
@@ -67,11 +63,12 @@
 
 ## Done
 
-### Episode 0029 - 3.5h + 2.0h  ->  65.5h   +
+### Episode 0029 - 3.5h + 2.5h  ->  65.5h   +
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box
 - [x] Handle UI fade when creating from config
+- [x] Load ui layout from file, including fallback with error message
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
