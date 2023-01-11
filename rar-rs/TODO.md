@@ -9,6 +9,8 @@
 
 - [ ] Fix font rendering
 
+- [ ] Add clean quit game (with confirmation)
+
 - [ ] Add support for parallax in map layers
 - [ ] Add debug camera with zoom
 
