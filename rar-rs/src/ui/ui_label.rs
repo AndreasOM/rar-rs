@@ -10,6 +10,7 @@ pub struct UiLabel {
 	color:     Color,
 	text:      String,
 	alignment: Vector2,
+	font_id:   u8,
 }
 
 impl UiLabel {
@@ -19,6 +20,7 @@ impl UiLabel {
 			color:     Color::from_rgba(0.8, 0.8, 0.8, 0.8),
 			text:      text.to_owned(),
 			alignment: Vector2::new(-1.0, 0.0),
+			font_id:   0,
 		}
 	}
 
@@ -32,6 +34,15 @@ impl UiLabel {
 
 	pub fn set_color(&mut self, color: &Color) {
 		self.color = *color;
+	}
+
+	pub fn set_font_id(&mut self, font_id: u8) {
+		self.font_id = font_id;
+	}
+
+	pub fn with_font_id(mut self, font_id: u8) -> Self {
+		self.font_id = font_id;
+		self
 	}
 }
 
@@ -53,8 +64,10 @@ impl UiElement for UiLabel {
 			let l = container.get_fade_level();
 			ui_renderer.push_color(&self.color);
 			ui_renderer.push_opacity(l);
+			ui_renderer.push_font_id(self.font_id);
 			ui_renderer.print(&container.pos, &container.size, &self.alignment, &self.text);
 
+			ui_renderer.pop_font_id();
 			ui_renderer.pop_opacity();
 			ui_renderer.pop_color();
 		}

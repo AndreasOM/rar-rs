@@ -300,6 +300,7 @@ impl App for RarApp {
 
 		//		renderer.load_font(&mut self.system, FontId::Default as u8, "c64");
 		renderer.load_font(&mut self.system, FontId::Default as u8, "vegur");
+		renderer.load_font(&mut self.system, FontId::Mono as u8, "inconsolata");
 
 		self.renderer = Some(renderer);
 
@@ -536,6 +537,13 @@ impl App for RarApp {
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
 			debug_renderer.add_line(&self.cursor_pos, &Vector2::zero(), 3.0, &Color::white());
+			debug_renderer.add_text(
+				&self.cursor_pos.add(&Vector2::new(0.0, 20.0)),
+				&format!("{:.0} {:.0}", &self.cursor_pos.x, &self.cursor_pos.y),
+				16.0,
+				3.0,
+				&Color::white(),
+			);
 		}
 
 		if let Some(debug_renderer) = &*self.debug_renderer {

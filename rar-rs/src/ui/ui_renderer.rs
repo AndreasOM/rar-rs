@@ -11,6 +11,8 @@ pub struct UiRenderer<'a> {
 	opacity_stack:               Vec<f32>,
 	opacity:                     f32,
 	color_stack:                 StateStack<Color>,
+	font_id:                     u8,
+	font_id_stack:               StateStack<u8>,
 	textured_render_effect_id:   u16,
 	untextured_render_effect_id: u16,
 	font_render_effect_id:       u16,
@@ -36,6 +38,8 @@ impl<'a> UiRenderer<'a> {
 			opacity_stack: Vec::new(),
 			opacity: 1.0,
 			color_stack: StateStack::new(Color::white()),
+			font_id: 0,
+			font_id_stack: StateStack::new(0),
 			textured_render_effect_id,
 			untextured_render_effect_id,
 			font_render_effect_id,
@@ -81,6 +85,14 @@ impl<'a> UiRenderer<'a> {
 		self.color_stack.pop();
 	}
 
+	pub fn push_font_id(&mut self, font_id: u8) {
+		self.font_id_stack.push(font_id);
+	}
+
+	pub fn pop_font_id(&mut self) {
+		self.font_id_stack.pop();
+	}
+
 	pub fn use_texture(&mut self, name: &str) {
 		self.renderer.use_texture(name);
 	}
@@ -106,14 +118,19 @@ impl<'a> UiRenderer<'a> {
 		self.renderer.use_effect(self.untextured_render_effect_id);
 		self.renderer.render_quad(&transformed_pos, size);
 	}
+	/*
 	pub fn use_font(&mut self, font_id: u8) {
 		self.renderer.use_font(font_id);
 	}
+	*/
 	pub fn print(&mut self, pos: &Vector2, size: &Vector2, alignment: &Vector2, text: &str) {
 		let transformed_pos = self.transform_mtx.mul_vector2(&pos);
 		let mut color = *self.color_stack.top();
 		color.a *= self.opacity;
 		self.renderer.set_color(&color);
+		let font_id = *self.font_id_stack.top();
+		tracing::debug!("FontId: {}", font_id);
+		self.renderer.use_font(font_id);
 		self.renderer.use_layer(self.front_layer_id);
 		self.renderer.use_effect(self.font_render_effect_id);
 		self.renderer
