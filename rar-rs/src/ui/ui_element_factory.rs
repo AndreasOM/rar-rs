@@ -11,6 +11,10 @@ pub struct UiElementFactory {
 }
 
 impl UiElementFactory {
+	pub fn with_standard_ui_elements( mut self ) -> Self {
+		self
+	}
+	
 	pub fn register_producer_via_info(&mut self, info: &UiElementInfo) {
 		let t = info.type_name;
 		let f = info.producer_fn;

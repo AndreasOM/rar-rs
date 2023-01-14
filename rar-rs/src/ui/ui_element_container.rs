@@ -314,7 +314,11 @@ impl UiElementContainer {
 			handle: None,
 		}
 	}
-	pub fn from_config_asset(system: &mut System, name: &str) -> Option<Self> {
+	pub fn from_config_asset(
+		system: &mut System,
+		ui_element_factory: &UiElementFactory,
+		name: &str,
+	) -> Option<Self> {
 		let dfs = system.default_filesystem_mut();
 		// try yaml
 		let name_yaml = format!("{}.ui_config.yaml", &name);
@@ -322,10 +326,11 @@ impl UiElementContainer {
 			let mut f = dfs.open(&name_yaml);
 			// :TODO: check is_valid ?
 			let yaml = f.read_as_string();
-			Some(Self::from_yaml(&yaml))
+			Some(Self::from_yaml(&ui_element_factory, &yaml))
 		} else {
 			// create fallback
 			let mut container = Self::from_yaml(
+				&ui_element_factory,
 				"
 type: UiImage
 name: fallback
@@ -355,23 +360,19 @@ children:
 		}
 	}
 
-	pub fn from_yaml(yaml: &str) -> Self {
+	pub fn from_yaml(ui_element_factory: &UiElementFactory, yaml: &str) -> Self {
 		let value: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
 		//		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
 		//		let s: String = serde_yaml::from_value(val).unwrap();
-		UiElementContainer::from_yaml_value(value)
+
+		UiElementContainer::from_yaml_value(&ui_element_factory, value)
 	}
 
-	pub fn from_yaml_value(yaml_value: serde_yaml::Value) -> Self {
+	pub fn from_yaml_value(
+		ui_element_factory: &UiElementFactory,
+		yaml_value: serde_yaml::Value,
+	) -> Self {
 		let config: UiElementContainerConfig = serde_yaml::from_value(yaml_value.clone()).unwrap();
-
-		let mut ui_element_factory = UiElementFactory::default();
-		ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiToggleButton::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiSpacer::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiGridBox::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiLabel::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiImage::info());
 
 		let mut element = ui_element_factory
 			.produce_element(&config.element_type)
@@ -440,7 +441,8 @@ children:
 		config.children.map(|children| {
 			for c in children.iter() {
 				debug!("Child: {:?}", &c);
-				let child_container = UiElementContainer::from_yaml_value(c.clone());
+				let child_container =
+					UiElementContainer::from_yaml_value(ui_element_factory, c.clone());
 				container.add_child(child_container);
 			}
 		});

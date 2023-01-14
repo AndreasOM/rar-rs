@@ -15,8 +15,12 @@ pub struct IngamePauseDialog {
 }
 
 impl IngamePauseDialog {
-	pub fn new(system: &mut System) -> Self {
-		let container = UiElementContainer::from_config_asset(system, "ingame_pause_dialog");
+	pub fn new(system: &mut System, ui_element_factory: &UiElementFactory) -> Self {
+		let container = UiElementContainer::from_config_asset(
+			system,
+			ui_element_factory,
+			"ingame_pause_dialog",
+		);
 		Self {
 			data: system.data().as_ref().map(|data| Arc::clone(data)),
 			container,

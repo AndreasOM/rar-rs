@@ -43,6 +43,7 @@ use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
 use crate::rar::RarUiUpdateContext;
+use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
 #[derive(Debug, PartialEq, Hash, Eq)]
@@ -187,6 +188,14 @@ impl RarApp {
 
 			//ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
+	}
+	pub fn setup_ui_element_factory(ui_element_factory: &mut UiElementFactory) {
+		ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiToggleButton::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiSpacer::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiGridBox::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiLabel::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiImage::info());
 	}
 }
 

@@ -17,7 +17,9 @@ use crate::rar::AppUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::Game;
 use crate::rar::GameState;
+use crate::rar::RarApp;
 use crate::ui::UiElement;
+use crate::ui::UiElementFactory;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
 use crate::ui::UiEventResponseGenericMessage;
@@ -30,6 +32,7 @@ pub struct GameStateGame {
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
 	data:                    Option<Arc<dyn Data>>,
 	game:                    Game,
+	ui_element_factory:      UiElementFactory,
 }
 
 impl Default for GameStateGame {
@@ -41,6 +44,7 @@ impl Default for GameStateGame {
 			event_response_receiver: rx,
 			data:                    Default::default(),
 			game:                    Default::default(),
+			ui_element_factory:      Default::default(),
 		}
 	}
 }
@@ -118,9 +122,11 @@ impl GameState for GameStateGame {
 		self.ui_system
 			.setup("Game", system, self.event_response_sender.clone())?;
 
+		RarApp::setup_ui_element_factory(&mut self.ui_element_factory);
+
 		self.ui_system.add_child(
 			&Vector2::new(-1.0, 1.0),
-			IngamePauseDialog::new(system)
+			IngamePauseDialog::new(system, &self.ui_element_factory)
 				.containerize()
 				.with_name("Ingame Pause Dialog"),
 		);
