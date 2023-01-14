@@ -21,7 +21,6 @@ mod ui_block;
 pub use ui_block::UiBlock;
 mod ui_button;
 pub use ui_button::UiButton;
-pub use ui_button::UiButtonProducer;
 mod ui_gravity_box;
 pub use ui_gravity_box::UiGravityBox;
 mod ui_grid_box;
@@ -43,7 +42,6 @@ pub use ui_vbox::UiVbox;
 
 mod ui_element_factory;
 pub use ui_element_factory::UiElementFactory;
-pub use ui_element_factory::UiElementProducer;
 mod ui_system;
 pub use ui_system::UiSystem;
 

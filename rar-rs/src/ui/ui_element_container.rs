@@ -11,7 +11,6 @@ use oml_game::system::System;
 use serde::Deserialize;
 use tracing::*;
 
-use crate::ui::UiButtonProducer;
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 use crate::ui::{
@@ -367,7 +366,7 @@ children:
 		let config: UiElementContainerConfig = serde_yaml::from_value(yaml_value.clone()).unwrap();
 
 		let mut ui_element_factory = UiElementFactory::default();
-		ui_element_factory.register_producer(Box::new(UiButtonProducer::default()));
+		ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
 		ui_element_factory.register_producer_via_info(&crate::ui::UiToggleButton::info());
 		ui_element_factory.register_producer_via_info(&crate::ui::UiSpacer::info());
 		ui_element_factory.register_producer_via_info(&crate::ui::UiGridBox::info());
