@@ -3,9 +3,10 @@
 
 ## In Progress
 
-- [ ] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 
 ## TODO
+
+- [ ] Fix fading out SettingsDialog when opened in game
 
 - [ ] Fix font rendering
 
@@ -83,7 +84,10 @@
 
 ## Done
 
-### Episode 0029 - 3.5h + 3.0h  ->  65.5h   +
+### Episode 0030 - 3.0h +
+- [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
+
+### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box

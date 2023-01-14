@@ -44,7 +44,7 @@ impl Default for GameStateGame {
 			event_response_receiver: rx,
 			data:                    Default::default(),
 			game:                    Default::default(),
-			ui_element_factory:      Default::default(),
+			ui_element_factory:      UiElementFactory::default().with_standard_ui_elements(),
 		}
 	}
 }
@@ -122,7 +122,7 @@ impl GameState for GameStateGame {
 		self.ui_system
 			.setup("Game", system, self.event_response_sender.clone())?;
 
-		RarApp::setup_ui_element_factory(&mut self.ui_element_factory);
+		RarApp::register_ui_elements_with_factory(&mut self.ui_element_factory);
 
 		self.ui_system.add_child(
 			&Vector2::new(-1.0, 1.0),

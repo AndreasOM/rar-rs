@@ -189,13 +189,9 @@ impl RarApp {
 			//ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
 	}
-	pub fn setup_ui_element_factory(ui_element_factory: &mut UiElementFactory) {
-		ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiToggleButton::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiSpacer::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiGridBox::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiLabel::info());
-		ui_element_factory.register_producer_via_info(&crate::ui::UiImage::info());
+	pub fn register_ui_elements_with_factory(_ui_element_factory: &mut UiElementFactory) {
+		// Note: here we could add game specific UiElements
+		// ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
 	}
 }
 

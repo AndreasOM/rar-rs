@@ -11,10 +11,16 @@ pub struct UiElementFactory {
 }
 
 impl UiElementFactory {
-	pub fn with_standard_ui_elements( mut self ) -> Self {
+	pub fn with_standard_ui_elements(mut self) -> Self {
+		self.register_producer_via_info(&crate::ui::UiButton::info());
+		self.register_producer_via_info(&crate::ui::UiToggleButton::info());
+		self.register_producer_via_info(&crate::ui::UiSpacer::info());
+		self.register_producer_via_info(&crate::ui::UiGridBox::info());
+		self.register_producer_via_info(&crate::ui::UiLabel::info());
+		self.register_producer_via_info(&crate::ui::UiImage::info());
 		self
 	}
-	
+
 	pub fn register_producer_via_info(&mut self, info: &UiElementInfo) {
 		let t = info.type_name;
 		let f = info.producer_fn;
