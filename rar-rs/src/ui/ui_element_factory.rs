@@ -18,6 +18,7 @@ impl UiElementFactory {
 		self.register_producer_via_info(&crate::ui::UiGridBox::info());
 		self.register_producer_via_info(&crate::ui::UiLabel::info());
 		self.register_producer_via_info(&crate::ui::UiImage::info());
+		self.register_producer_via_info(&crate::ui::Ui3x3Image::info());
 		self
 	}
 
@@ -32,6 +33,7 @@ impl UiElementFactory {
 			return Some(f());
 		};
 		debug!("{:?}", &self);
+		warn!("No producer for {}", &element_type);
 		None
 	}
 }

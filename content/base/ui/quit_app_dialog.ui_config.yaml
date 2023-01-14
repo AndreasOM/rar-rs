@@ -1,6 +1,7 @@
-type: UiImage
+type: Ui3x3Image
 image: ui-3x3-grassland
-size: 512x512
+size: 1152x768
+texturesize: 192x192
 children:
   - type: UiGridBox
     padding: 16.0
