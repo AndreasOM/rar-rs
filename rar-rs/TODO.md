@@ -62,7 +62,7 @@
 
 
 ## TODO - Later
-- [ ] Add hotreloading of UI from assets
+- [ ] Improve hotreloading of UI from assets
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
 - [ ] Reconsider how padding works in the UI
@@ -85,9 +85,10 @@
 
 ## Done
 
-### Episode 0030 - 3.0h +
+### Episode 0030 - 5.0h +
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 - [x] Fix fading out SettingsDialog when opened in game
+- [x] Add hotreloading of UI from assets
 
 ### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
 - [x] Load UI config from yaml string

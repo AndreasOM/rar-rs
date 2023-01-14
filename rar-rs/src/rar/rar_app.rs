@@ -366,6 +366,13 @@ impl App for RarApp {
 				ui_debug_config.cycle_mode();
 			});
 		}
+
+		if wuc.was_function_key_pressed( 5 ) {
+			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+				game_state.reload(&mut self.system)?;
+			}
+		}
+
 		debug_renderer::debug_renderer_begin_frame();
 
 		// the specific DebugRenderer

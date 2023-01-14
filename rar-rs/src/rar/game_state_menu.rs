@@ -55,16 +55,8 @@ impl GameStateMenu {
 	pub fn new() -> Self {
 		Default::default()
 	}
-}
 
-impl GameState for GameStateMenu {
-	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
-		self.ui_system
-			.setup("Menu", system, self.event_response_sender.clone())?;
-
-		RarApp::register_ui_elements_with_factory(&mut self.ui_element_factory);
-
-		//self.ui_system.set_root(
+	fn load_ui(&mut self, system: &mut System) {
 		self.ui_system.add_child(
 			&Vector2::new(0.0, 0.0),
 			WorldSelectionDialog::new()
@@ -83,6 +75,17 @@ impl GameState for GameStateMenu {
 		);
 
 		self.ui_system.layout();
+	}
+}
+
+impl GameState for GameStateMenu {
+	fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {
+		RarApp::register_ui_elements_with_factory(&mut self.ui_element_factory);
+
+		self.ui_system
+			.setup("Menu", system, self.event_response_sender.clone())?;
+		self.load_ui( system );
+
 		Ok(())
 	}
 	fn teardown(&mut self) {
@@ -93,6 +96,13 @@ impl GameState for GameStateMenu {
 		//self.ui_system.layout();
 		//self.ui_system.dump_info();
 		//todo!();
+	}
+	fn reload(&mut self, system: &mut System) -> anyhow::Result<()> {
+		self.ui_system.teardown();
+		self.ui_system
+			.setup("Menu", system, self.event_response_sender.clone())?;
+		self.load_ui( system );
+		Ok(())
 	}
 
 	fn update(&mut self, auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
