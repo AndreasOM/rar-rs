@@ -4,13 +4,12 @@
 ## In Progress
 
 
+
 ## TODO
 
-- [ ] Fix fading out SettingsDialog when opened in game
+- [ ] Add clean quit game (with confirmation)
 
 - [ ] Fix font rendering
-
-- [ ] Add clean quit game (with confirmation)
 
 - [ ] Add support for parallax in map layers
 - [ ] Add debug camera with zoom
@@ -59,7 +58,7 @@
 - [ ] Understand why macOS can load data from .app
 
 
-- [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
+- [ ] Experiment with passing the parent UiElement(Container) to all/most/some UiElement(Container?) methods
 
 
 ## TODO - Later
@@ -70,6 +69,7 @@
 - [ ] Trigger `cargo check` on pull request
 - [ ] Trigger sound effects from ui button
 - [ ] Experiment with speeding up package builds with sccache
+- [ ] Allow GameState to cleanly finish when going to next state
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
@@ -86,6 +86,7 @@
 
 ### Episode 0030 - 3.0h +
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
+- [x] Fix fading out SettingsDialog when opened in game
 
 ### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
 - [x] Load UI config from yaml string

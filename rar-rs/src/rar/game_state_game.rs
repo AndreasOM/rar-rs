@@ -71,12 +71,13 @@ impl GameStateGame {
 			if let Some(gme) = ev.as_any().downcast_ref::<UiEventResponseGenericMessage>() {
 				match gme.message.as_str() {
 					"playpause/toggle" => {
-						self.toggle_game_pause();
+						let is_paused = self.toggle_game_pause();
+						if !is_paused {
+							self.ui_system.fade_out_child_by_tag("settings_dialog", 1.0);
+						}
 					},
 					"settings/toggle" => {
-						self.ui_system
-							//							.toggle_child_fade(&["Ingame Settings Dialog"]);
-							.toggle_child_fade_by_tag("settings_dialog");
+						self.ui_system.toggle_child_fade_by_tag("settings_dialog");
 					},
 					"back" => {
 						let r = GameStateResponse::new("GotoMainMenu");
@@ -110,8 +111,8 @@ impl GameStateGame {
 		}
 	}
 
-	fn toggle_game_pause(&mut self) {
-		self.game.toggle_pause();
+	fn toggle_game_pause(&mut self) -> bool {
+		self.game.toggle_pause()
 	}
 }
 

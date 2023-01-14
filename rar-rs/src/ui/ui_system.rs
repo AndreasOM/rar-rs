@@ -78,6 +78,16 @@ impl UiSystem {
 			}
 		}
 	}
+	pub fn fade_out_child_by_tag(&mut self, tag: &str, duration: f32) {
+		if let Some(root) = &mut self.root {
+			let found = root.find_child_container_by_tag_mut_then(tag, &mut |child| {
+				child.fade_out(duration);
+			});
+			if !found {
+				warn!("Could fade out child for tag {}", &tag);
+			}
+		}
+	}
 	/*
 		pub fn toggle_child_fade(&mut self, path: &[&str]) -> bool {
 			let mut was_on = false;
