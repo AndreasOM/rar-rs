@@ -1,0 +1,18 @@
+type: UiImage
+image: ui-3x3-grassland
+size: 512x512
+children:
+  - type: UiGridBox
+    padding: 16.0
+    column_count: 2
+    children:
+      - type: UiButton
+        size: 64x64
+        image: ui-button_back
+        name: Back
+        tag: back
+      - type: UiButton
+        size: 64x64
+        image: ui-button_confirm_danger
+        name: Confirm Quit
+        tag: confirm_quit

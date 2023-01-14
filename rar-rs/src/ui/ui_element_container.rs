@@ -852,7 +852,7 @@ children:
 		event_sender: &Sender<Box<dyn UiEventResponse>>,
 	) -> Option<Box<dyn UiEventResponse>> {
 		match event {
-			UiEvent::MouseClick { pos, button } => {
+			UiEvent::MouseClick { pos, button } if self.data.is_visible() => {
 				if let Some(r) = self.handle_mouse_click(pos, *button, event, event_sender) {
 					// self.element.handle_ui_event_response(r)
 					self.handle_ui_event_response(r)

@@ -9,6 +9,7 @@ use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use tracing::*;
 
+use crate::rar::dialogs::QuitAppDialog;
 use crate::rar::dialogs::WorldSelectionDialog;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::game_state::GameStateResponse;
@@ -18,8 +19,10 @@ use crate::rar::AppUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarApp;
 //use crate::rar::GameStateResponseDataSelectWorld;
 use crate::ui::UiElement;
+use crate::ui::UiElementFactory;
 //use crate::ui::UiEvent;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
@@ -31,6 +34,8 @@ pub struct GameStateMenu {
 	ui_system:               UiSystem,
 	event_response_sender:   Sender<Box<dyn UiEventResponse>>,
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
+	ui_element_factory:      UiElementFactory,
+	display_confirm_quit_in: f64,
 }
 
 impl Default for GameStateMenu {
@@ -40,6 +45,8 @@ impl Default for GameStateMenu {
 			ui_system:               UiSystem::default(),
 			event_response_sender:   tx,
 			event_response_receiver: rx,
+			ui_element_factory:      UiElementFactory::default().with_standard_ui_elements(),
+			display_confirm_quit_in: 0.0,
 		}
 	}
 }
@@ -55,12 +62,24 @@ impl GameState for GameStateMenu {
 		self.ui_system
 			.setup("Menu", system, self.event_response_sender.clone())?;
 
+		RarApp::register_ui_elements_with_factory(&mut self.ui_element_factory);
+
 		//self.ui_system.set_root(
 		self.ui_system.add_child(
 			&Vector2::new(0.0, 0.0),
 			WorldSelectionDialog::new()
 				.containerize()
-				.with_name("World Selection Dialog"),
+				.with_name("World Selection Dialog")
+				.with_tag("world_selection_dialog"),
+		);
+
+		self.ui_system.add_child(
+			&Vector2::new(0.0, 0.0),
+			QuitAppDialog::new(system, &self.ui_element_factory)
+				.containerize()
+				.with_name("Quit App Dialog")
+				.with_tag("quit_app_dialog")
+				.with_fade_out(0.0),
 		);
 
 		self.ui_system.layout();
@@ -81,6 +100,12 @@ impl GameState for GameStateMenu {
 
 		self.ui_system.update(auc);
 
+		if self.display_confirm_quit_in > 0.0 {
+			self.display_confirm_quit_in -= auc.time_step();
+			if self.display_confirm_quit_in <= 0.0 {
+				self.ui_system.fade_in_child_by_tag("confirm_quit", 1.0);
+			}
+		}
 		// :TODO: not sure if we actually want to pass events this far up
 		for ev in self.event_response_receiver.try_recv() {
 			debug!("{:?}", &ev);
@@ -121,6 +146,26 @@ impl GameState for GameStateMenu {
 						},
 						"Settings" => {
 							let r = GameStateResponse::new("GotoSettings");
+							responses.push(r);
+						},
+						"Quit" => {
+							self.ui_system
+								.fade_out_child_by_tag("world_selection_dialog", 1.0);
+							self.ui_system.fade_in_child_by_tag("quit_app_dialog", 1.0);
+							self.ui_system.fade_out_child_by_tag("confirm_quit", 0.0);
+							self.ui_system.fade_out_child_by_tag("back", 0.0);
+							self.ui_system.fade_in_child_by_tag("back", 0.5);
+							self.display_confirm_quit_in = 1.0;
+						},
+						"Back" => {
+							self.ui_system.fade_out_child_by_tag("quit_app_dialog", 1.0);
+							self.ui_system
+								.fade_in_child_by_tag("world_selection_dialog", 1.0);
+							self.ui_system.fade_out_child_by_tag("confirm_quit", 0.5);
+							self.ui_system.fade_out_child_by_tag("back", 0.5);
+						},
+						"Confirm Quit" => {
+							let r = GameStateResponse::new("QuitApp");
 							responses.push(r);
 						},
 						_ => {

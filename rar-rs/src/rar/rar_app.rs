@@ -186,7 +186,7 @@ impl RarApp {
 			ui_debug_config.select("Debug Collisions", 1);
 			ui_debug_config.select("Paused Buttons", 3);
 
-			//ui_debug_config.set_mode(UiDebugConfigMode::None);
+			ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
 	}
 	pub fn register_ui_elements_with_factory(_ui_element_factory: &mut UiElementFactory) {
@@ -484,6 +484,10 @@ impl App for RarApp {
 
 		for r in responses.iter() {
 			match r.name() {
+				"QuitApp" => {
+					debug!("QuitApp");
+					self.is_done = true;
+				},
 				"GotoMainMenu" => {
 					debug!("GotoMainMenu");
 					self.next_game_states.push_back(GameStates::Menu);

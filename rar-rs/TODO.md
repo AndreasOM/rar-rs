@@ -3,11 +3,11 @@
 
 ## In Progress
 
+- [ ] Add clean quit game (with confirmation)
 
 
 ## TODO
 
-- [ ] Add clean quit game (with confirmation)
 
 - [ ] Fix font rendering
 
