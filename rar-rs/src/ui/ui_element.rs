@@ -111,3 +111,8 @@ impl std::fmt::Debug for dyn UiElement {
 		writeln!(f, "[Trait] UiElement")
 	}
 }
+
+pub struct UiElementInfo {
+	pub type_name:   &'static str,
+	pub producer_fn: &'static dyn Fn() -> Box<dyn UiElement>,
+}

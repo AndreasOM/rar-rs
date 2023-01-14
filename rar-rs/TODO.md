@@ -3,6 +3,7 @@
 
 ## In Progress
 
+- [ ] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 
 ## TODO
 
@@ -59,7 +60,6 @@
 
 - [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
 
-- [ ] Allow registering custom UIElements for creation from config ("creators & factory")
 
 ## TODO - Later
 - [ ] Refactor button click handling

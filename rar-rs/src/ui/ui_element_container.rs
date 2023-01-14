@@ -11,6 +11,8 @@ use oml_game::system::System;
 use serde::Deserialize;
 use tracing::*;
 
+use crate::ui::UiButtonProducer;
+use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 use crate::ui::{
 	UiElement, UiElementFadeData, UiElementFadeState, UiEvent, UiEventResponse, UiRenderer,
@@ -364,6 +366,24 @@ children:
 	pub fn from_yaml_value(yaml_value: serde_yaml::Value) -> Self {
 		let config: UiElementContainerConfig = serde_yaml::from_value(yaml_value.clone()).unwrap();
 
+		let mut ui_element_factory = UiElementFactory::default();
+		ui_element_factory.register_producer(Box::new(UiButtonProducer::default()));
+		ui_element_factory.register_producer_via_info(&crate::ui::UiToggleButton::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiSpacer::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiGridBox::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiLabel::info());
+		ui_element_factory.register_producer_via_info(&crate::ui::UiImage::info());
+
+		let mut element = ui_element_factory
+			.produce_element(&config.element_type)
+			.unwrap_or_else(|| {
+				error!(
+					"Creating from yaml not supported for {}",
+					&config.element_type
+				);
+				panic!();
+			});
+		/*
 		let mut element: Box<dyn UiElement> = match config.element_type.as_ref() {
 			"UiButton" => Box::new(crate::ui::UiButton::default()),
 			"UiToggleButton" => Box::new(crate::ui::UiToggleButton::default()),
@@ -376,6 +396,7 @@ children:
 				panic!();
 			},
 		};
+		*/
 		element.configure_from_yaml_value(yaml_value.clone());
 		let mut container = UiElementContainer::new(element);
 		/* other option, not finally decided yet

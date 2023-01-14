@@ -2,6 +2,7 @@ use oml_game::math::Vector2;
 use oml_game::renderer::Color;
 use serde::Deserialize;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
 #[derive(Debug, Default)]
@@ -43,6 +44,16 @@ impl UiLabel {
 	pub fn with_font_id(mut self, font_id: u8) -> Self {
 		self.font_id = font_id;
 		self
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiLabel",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 
