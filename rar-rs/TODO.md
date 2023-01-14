@@ -3,18 +3,18 @@
 
 ## In Progress
 
-- [ ] Add clean quit game (with confirmation)
 
 
 ## TODO
 
+
+- [ ] Add world selection via menu
 
 - [ ] Fix font rendering
 
 - [ ] Add support for parallax in map layers
 - [ ] Add debug camera with zoom
 
-- [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Add sideways collision
@@ -62,6 +62,7 @@
 
 
 ## TODO - Later
+- [ ] Add support for font selection from ui config for label
 - [ ] Improve hotreloading of UI from assets
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
@@ -89,6 +90,7 @@
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 - [x] Fix fading out SettingsDialog when opened in game
 - [x] Add hotreloading of UI from assets
+- [x] Add clean quit game (with confirmation)
 
 ### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
 - [x] Load UI config from yaml string
