@@ -1,11 +1,14 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::{Rc, Weak};
+use std::str::FromStr;
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
+use oml_game::system::System;
+use serde::Deserialize;
 use tracing::*;
 
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
@@ -140,14 +143,21 @@ impl UiElementContainerData {
 		&mut self,
 		tag: &str,
 		f: &dyn Fn(&mut UiElementContainer),
-	) {
+	) -> bool {
 		// lookup in tag_map
 		let maybe_index = self.tag_map.get(tag);
-		maybe_index.map(|i| {
-			self.children[*i]
-				.borrow_mut()
-				.find_child_container_by_tag_mut_then(tag, f)
-		});
+		let r = maybe_index
+			.map(|i| {
+				let r = self.children[*i]
+					.borrow_mut()
+					.find_child_container_by_tag_mut_then(tag, f);
+
+				//debug!("{} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
+				r
+			})
+			.unwrap_or(false);
+		//debug!("! {} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
+		r
 	}
 
 	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
@@ -218,7 +228,17 @@ impl UiElementContainerData {
 		}
 	*/
 	pub fn dump_info(&self) {
-		todo!("dump_info");
+		self.dump_info_internal(&"", &Vector2::zero(), 0);
+	}
+	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2, depth: usize) {
+		debug!("{:?}", &self.tag_map);
+		let new_indent = format!("{}  ", indent);
+		for c in self.borrow_children().iter() {
+			//			let co = offset; //.add( c.pos() );
+			let co = offset.add(c.borrow().pos());
+			c.borrow()
+				.dump_info_internal(&new_indent, &co, depth.saturating_sub(1));
+		}
 	}
 }
 
@@ -292,6 +312,120 @@ impl UiElementContainer {
 			data,
 			handle: None,
 		}
+	}
+	pub fn from_config_asset(system: &mut System, name: &str) -> Option<Self> {
+		let dfs = system.default_filesystem_mut();
+		// try yaml
+		let name_yaml = format!("{}.ui_config.yaml", &name);
+		if dfs.exists(&name_yaml) {
+			let mut f = dfs.open(&name_yaml);
+			// :TODO: check is_valid ?
+			let yaml = f.read_as_string();
+			Some(Self::from_yaml(&yaml))
+		} else {
+			// create fallback
+			let mut container = Self::from_yaml(
+				"
+type: UiImage
+name: fallback
+image: ui-button_confirm_danger
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+children:
+  - type: UiLabel
+    tag: fallback_label
+    size: 128x32
+    text: Unable to load ui config from asset
+    fade:
+      - out 0.0
+      - in 1.0
+",
+			);
+			container.set_name(&format!("Fallback for {}", &name));
+			container.find_child_by_tag_as_mut_element_then::<crate::ui::UiLabel>(
+				"fallback_label",
+				&|l| {
+					l.set_text(&format!("UI config not found {}", &name));
+				},
+			);
+			Some(container)
+		}
+	}
+
+	pub fn from_yaml(yaml: &str) -> Self {
+		let value: serde_yaml::Value = serde_yaml::from_str(&yaml).unwrap();
+		//		let config: UiElementContainerConfig = serde_yaml::from_str(&yaml).unwrap();
+		//		let s: String = serde_yaml::from_value(val).unwrap();
+		UiElementContainer::from_yaml_value(value)
+	}
+
+	pub fn from_yaml_value(yaml_value: serde_yaml::Value) -> Self {
+		let config: UiElementContainerConfig = serde_yaml::from_value(yaml_value.clone()).unwrap();
+
+		let mut element: Box<dyn UiElement> = match config.element_type.as_ref() {
+			"UiButton" => Box::new(crate::ui::UiButton::default()),
+			"UiToggleButton" => Box::new(crate::ui::UiToggleButton::default()),
+			"UiSpacer" => Box::new(crate::ui::UiSpacer::default()),
+			"UiGridBox" => Box::new(crate::ui::UiGridBox::default()),
+			"UiLabel" => Box::new(crate::ui::UiLabel::default()),
+			"UiImage" => Box::new(crate::ui::UiImage::default()),
+			o => {
+				error!("Creating from yaml not supported for {}", &o);
+				panic!();
+			},
+		};
+		element.configure_from_yaml_value(yaml_value.clone());
+		let mut container = UiElementContainer::new(element);
+		/* other option, not finally decided yet
+				let mut container = match config.element_type.as_ref() {
+					"UiButton" => crate::ui::UiButton::from_yaml(yaml).containerize(),
+					"UiSpacer" => crate::ui::UiSpacer::from_yaml(yaml).containerize(),
+					//"UiGridBox" => crate::ui::UiGridBox::from_yaml(yaml).containerize(),
+					"UiGridBox" => { let mut e = crate::ui::UiGridBox::default(); e.configure_from_yaml( yaml ); e.containerize() },
+					o => {
+						error!("Creating from yaml not supported for {}", &o);
+						panic!();
+					},
+				};
+		*/
+		if let Some(tag) = &config.tag {
+			container = container.with_tag(tag);
+		}
+		if let Some(name) = &config.name {
+			container = container.with_name(name);
+		}
+		if let Some(fades) = &config.fade {
+			for f in fades.iter() {
+				let f: Vec<&str> = f.split(" ").collect();
+				if f.len() == 2 {
+					let duration = f32::from_str(f[1].trim()).unwrap_or(0.0);
+					match f[0].trim() {
+						"in" => {
+							debug!("Fade in {}", duration);
+							container = container.with_fade_in(duration);
+						},
+						"out" => {
+							debug!("Fade out {}", duration);
+							container = container.with_fade_out(duration);
+						},
+						o => {
+							warn!("Unhandled fade mode {}", o);
+						},
+					}
+				}
+			}
+		}
+		config.children.map(|children| {
+			for c in children.iter() {
+				debug!("Child: {:?}", &c);
+				let child_container = UiElementContainer::from_yaml_value(c.clone());
+				container.add_child(child_container);
+			}
+		});
+		//todo!();
+		container
 	}
 
 	pub fn new_from_element(element: impl UiElement + 'static) -> Self {
@@ -752,75 +886,26 @@ impl UiElementContainer {
 		&mut self,
 		tag: &str,
 		f: &dyn Fn(&mut UiElementContainer),
-	) {
+	) -> bool {
 		if self.data.tag == Some(tag.to_string()) {
 			f(self);
+			//debug!("true");
+			true
 		} else {
-			self.data.find_child_container_by_tag_mut_then(tag, f);
+			let r = self.data.find_child_container_by_tag_mut_then(tag, f);
+			//debug!("{}", &r);
+			r
 		}
 	}
-	/*
-		pub fn find_child_container_mut_then(
-			&mut self,
-			path: &[&str],
-			f: &mut dyn FnMut(&mut UiElementContainer),
-		) {
-			if path.is_empty() {
-				return;
-			}
-			let (head, tail) = path.split_at(1);
-			let head = head[0];
+}
 
-			// find a child that matches
-			for c in self.data.borrow_children_mut().iter_mut() {
-				let mut c = c.borrow_mut();
-				if c.name() == head {
-					if tail.is_empty() {
-						// found -> run f with container
-						f(&mut c);
-					} else {
-						// path matches so far, go deeper
-						c.find_child_container_mut_then(&tail, f);
-					}
-				}
-			}
-		}
-	*/
-	/*
-	pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
-		if path.len() == 0 {
-			// nothing left to check
-			return None;
-		}
-		let (head, tail) = path.split_at(1);
-		let head = head[0];
-
-		//		println!("Checking {} for {}, {:?}", self.name(), head, tail );
-
-		if head == self.name() {
-			if tail.len() == 0 {
-				//				println!("Found {}!", &head );
-				//				return Some( &mut UiElementContainerHandle::new( *self ) );
-				if let Some(handle) = &mut self.handle {
-					return Some(handle.upgrade());
-				} else {
-					println!("Found {}, but it doesn't have a handle!", &head);
-					return None;
-				}
-			} else {
-				//				println!("Found {} ... {:?}", &head, &tail );
-				return self.find_child_mut(tail);
-			}
-		}
-
-		//		println!("Checking {} children for {}, {:?}", self.data.borrow_children().len(), head, tail );
-
-		for c in self.data.borrow_children_mut().iter_mut() {
-			if let Some(r) = c.borrow_mut().find_child_mut(path) {
-				return Some(r);
-			}
-		}
-		None
-	}
-	*/
+#[derive(Debug, Deserialize)]
+struct UiElementContainerConfig {
+	#[serde(rename = "type")]
+	element_type: String,
+	name:         Option<String>,
+	tag:          Option<String>,
+	//	children:     Option<Vec<UiElementContainerChildConfig>>,
+	children:     Option<Vec<serde_yaml::Value>>,
+	fade:         Option<Vec<String>>,
 }

@@ -11,5 +11,13 @@ parameters: {
 }
 cmd_line: "${tool} ${command} --size 1024 --output ${data_directory}/${output}-atlas --input ${input} --reference-path ${data_directory}"
 
-
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256
+---
+version: 0.5.0
+
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "*.ui_config.yaml"
+  

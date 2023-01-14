@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-use oml_game::math::Vector2;
-use oml_game::renderer::Color;
 use oml_game::system::Data;
 use oml_game::system::System;
 use tracing::*;
@@ -12,87 +10,17 @@ use crate::ui::*;
 
 #[derive(Debug)]
 pub struct IngamePauseDialog {
-	data: Option<Arc<dyn Data>>,
+	data:      Option<Arc<dyn Data>>,
+	container: Option<UiElementContainer>,
 }
 
 impl IngamePauseDialog {
 	pub fn new(system: &mut System) -> Self {
+		let container = UiElementContainer::from_config_asset(system, "ingame_pause_dialog");
 		Self {
 			data: system.data().as_ref().map(|data| Arc::clone(data)),
+			container,
 		}
-	}
-	fn create_paused_box(&self) -> UiElementContainer {
-		UiGridBox::default()
-			.with_padding(16.0)
-			.with_column_count(2)
-			.containerize()
-			.with_name("Paused Buttons")
-			.with_tag("paused_buttons")
-			.with_fade_out(0.0)
-			.with_child_element_containers(
-				[
-					{
-						UiButton::new("ui-button_settings", &Vector2::new(64.0, 64.0))
-							.containerize()
-							.with_name("settings")
-							.with_fade_out(0.0)
-							.with_fade_in(1.0)
-					},
-					{ UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white()).containerize() },
-					{
-						UiButton::new("ui-button_back", &Vector2::new(64.0, 64.0))
-							.containerize()
-							.with_name("back")
-							.with_fade_out(0.0)
-							.with_fade_in(1.0)
-					},
-					{
-						UiButton::new("ui-button_confirm_danger", &Vector2::new(64.0, 64.0))
-							.containerize()
-							.with_name("back_confirm")
-							.with_tag("back_confirm/button")
-							.with_fade_out(0.0)
-						//.with_fade_in(1.0)
-					},
-				]
-				.into(),
-			)
-	}
-	fn create_children(&self) -> UiElementContainer {
-		UiVbox::new()
-			.with_padding(16.0)
-			.containerize()
-			.with_name("Ingame Pause vBox")
-			.with_child_element_containers(
-				[
-					UiHbox::new()
-						.with_padding(16.0)
-						.containerize()
-						.with_child_element_containers(
-							[
-								{
-									UiToggleButton::new(
-										"ui-button_play",
-										"ui-button_pause",
-										&Vector2::new(64.0, 64.0),
-									)
-									.containerize()
-									.with_name("playpause/toggle")
-									.with_tag("playpause/toggle")
-									.with_fade_out(0.0)
-									.with_fade_in(1.0)
-								},
-								{
-									UiSpacer::new(&Vector2::new(64.0, 64.0), &Color::white())
-										.containerize()
-								},
-							]
-							.into(),
-						),
-					self.create_paused_box(),
-				]
-				.into(),
-			)
 	}
 
 	fn update_playpause(
@@ -101,13 +29,22 @@ impl IngamePauseDialog {
 		container_data: &mut UiElementContainerData,
 		is_paused: bool,
 	) {
-		container_data.find_child_container_by_tag_mut_then("paused_buttons", &mut |container| {
-			if is_paused {
-				container.fade_in(1.0);
-			} else {
-				container.fade_out(1.0);
-			}
-		});
+		let found = container_data.find_child_container_by_tag_mut_then(
+			"paused_buttons",
+			&mut |container| {
+				debug!("Found paused_buttons");
+				if is_paused {
+					container.fade_in(1.0);
+				} else {
+					container.fade_out(1.0);
+				}
+			},
+		);
+		if !found {
+			warn!("Could't find paused_buttons");
+			container_data.dump_info();
+			//panic!();
+		}
 		container_data.find_child_by_tag_as_mut_element_then::<UiToggleButton>(
 			"playpause/toggle",
 			&|pptb| {
@@ -121,12 +58,9 @@ impl IngamePauseDialog {
 		);
 
 		if !is_paused {
-			container_data.find_child_container_by_tag_mut_then(
-				"back_confirm/button",
-				&mut |c| {
-					c.fade_out(1.0);
-				},
-			);			
+			container_data.find_child_container_by_tag_mut_then("back_confirm/button", &mut |c| {
+				c.fade_out(1.0);
+			});
 		}
 	}
 }
@@ -139,8 +73,12 @@ impl UiElement for IngamePauseDialog {
 		self
 	}
 
-	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		container.add_child_element_container(self.create_children());
+	fn setup_within_container(&mut self, container_data: &mut UiElementContainerData) {
+		if let Some(container) = self.container.take() {
+			container_data.add_child_element_container(container);
+		} else {
+			panic!("No container for IngamePauseDialog");
+		};
 	}
 	fn update(&mut self, container: &mut UiElementContainerData, _time_step: f64) {
 		if let Some(data) = &self.data {

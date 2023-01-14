@@ -1,4 +1,5 @@
 use oml_game::math::Vector2;
+use serde::Deserialize;
 use tracing::*;
 
 use crate::ui::UiElement;
@@ -55,7 +56,7 @@ impl UiElement for UiGridBox {
 			}
 			x += 1;
 			if x >= self.column_count {
-				debug!("{} {} {}", x, row_width, row_height);
+				//debug!("{} {} {}", x, row_width, row_height);
 				if row_width > total_size.x {
 					total_size.x = row_width;
 				}
@@ -66,14 +67,14 @@ impl UiElement for UiGridBox {
 			}
 		}
 		if x > 0 {
-			debug!("{} {} {}", x, row_width, row_height);
+			//debug!("{} {} {}", x, row_width, row_height);
 			if row_width > total_size.x {
 				total_size.x = row_width;
 			}
 			total_size.y += row_height;
 		}
 
-		debug!("total_size {:?}", &total_size);
+		//debug!("total_size {:?}", &total_size);
 		//		total_size.x -= self.padding;
 
 		container.set_size(&total_size);
@@ -92,7 +93,7 @@ impl UiElement for UiGridBox {
 		let mut total_height = -0.5 * padding;
 		row_starts.push(total_height);
 		let mut x = 0;
-		let mut y = 0;
+		let mut _y = 0;
 
 		// :TODO: .chunks( self.column_count) might be simpler
 		for c in container.borrow_children().iter() {
@@ -109,7 +110,7 @@ impl UiElement for UiGridBox {
 			}
 
 			if x >= self.column_count {
-				y += 1;
+				//y += 1;
 				total_height -= row_height;
 				row_starts.push(total_height);
 				x = 0;
@@ -131,19 +132,21 @@ impl UiElement for UiGridBox {
 			.windows(2)
 			.map(|w| 0.5 * w[0] + 0.5 * w[1])
 			.collect();
-		debug!("row_starts {:#?}", &row_starts);
-		debug!("column_starts {:#?}", &column_starts);
-		debug!("row_centers {:#?}", &row_centers);
-		debug!("column_centers {:#?}", &column_centers);
+		/*
+				debug!("row_starts {:#?}", &row_starts);
+				debug!("column_starts {:#?}", &column_starts);
+				debug!("row_centers {:#?}", &row_centers);
+				debug!("column_centers {:#?}", &column_centers);
+		*/
 		let mut x = 0;
 		let mut y = 0;
 		let mut cpos = Vector2::zero();
-		debug!("{:?}", &container.size);
+		// debug!("{:?}", &container.size);
 		let h = container.size.scaled_vector2(&Vector2::new(-0.5, 0.5));
 		for c in container.borrow_children_mut().iter_mut() {
 			cpos.x = column_centers[x];
 			cpos.y = row_centers[y];
-			debug!("cpos = {:?}", &cpos);
+			// debug!("cpos = {:?}", &cpos);
 			//			let hsize = c.borrow().size().scaled_vector2( &h );
 			//			let p = cpos.sub( &hsize );
 			let p = cpos.add(&h);
@@ -157,4 +160,22 @@ impl UiElement for UiGridBox {
 		}
 		container.set_pos(pos);
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: UiGridBoxConfig = serde_yaml::from_value(yaml_value).unwrap();
+		self.padding = config.padding.unwrap_or(0.0);
+		self.column_count = config.column_count;
+	}
+	/*
+	fn configure_from_yaml(&mut self, yaml: &str) {
+		let config: UiGridBoxConfig = serde_yaml::from_str(&yaml).unwrap();
+		self.padding = config.padding.unwrap_or(0.0);
+		self.column_count = config.column_count;
+	}
+	*/
+}
+
+#[derive(Debug, Deserialize)]
+struct UiGridBoxConfig {
+	padding:      Option<f32>,
+	column_count: usize,
 }

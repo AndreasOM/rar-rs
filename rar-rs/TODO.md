@@ -3,32 +3,41 @@
 
 ## In Progress
 
-- [ ] Add confirmation when leaving game
-    - [ ] Fix alignment of ingame pause buttons using grid box
-        - [ ] Fix padding for hbox & vbox
-
 
 ## TODO
 
-- [ ] Add support for multiple fonts
-- [ ] Trigger sound effects from ui button
-
 - [ ] Fix font rendering
+
+- [ ] Add clean quit game (with confirmation)
 
 - [ ] Add support for parallax in map layers
 - [ ] Add debug camera with zoom
-- [ ] Trigger `cargo check` on pull request
 
 - [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
+    - [ ] Add sideways collision
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
 
+- [ ] Implement and balance basic gameplay mechanics
+    - [ ] Run
+    - [ ] Jump
+    - [ ] Double Jump
+    - [ ] Die
+    - [ ] Respawn
+
+- [ ] Serialise game progression and settings
+
+- [ ] Add basic inventory to track items
+- [ ] Add collectables (-> coins, power ups, etc)
+    - [ ] Including uniquely collectable items (via inventory)
 - [ ] Work on art style ("look")
+    - [ ] Improve placeholder tilesets (v0.2)
+    - [ ] Improve placeholder UI (v0.2)
+
 - [ ] Create a test world
 - [ ] Implement camera system (with freeze & thaw)
-- [ ] Add collectables (-> coins, power ups, etc)
 - [ ] Implement basic game states (e.g. Intro, Menu, Game, Credits)
     - [x] Implement game state `game`
     - [x] Implement game state `menu`
@@ -37,12 +46,12 @@
     - [ ] Implement game state `credits`
 - [ ] Decide how to model Entity state
 - [ ] Autogenerate CRCs in enums, or get rid of them
-- [ ] Move world when player gets close to edge
+- [ ] Improve camera
+    - [ ] Move world when player gets close to edge
+
 - [ ] Add test case for entity configuration loading from yaml
 - [ ] Decide if entities should have components, e.g position
 - [ ] Load renderer setup from config file
-- [ ] Add basic UI
-- [ ] Experiment with speeding up package builds with sccache
 
 - [ ] Move filesystem setup boilerplate to oml-game
 - [ ] Understand why macOS can load data from .app
@@ -50,23 +59,41 @@
 
 - [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
 
+- [ ] Allow registering custom UIElements for creation from config ("creators & factory")
+
 ## TODO - Later
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
 - [ ] Reconsider how padding works in the UI
+- [ ] Fix padding for hbox & vbox (Note: we might not use these anymore)
+- [ ] Trigger `cargo check` on pull request
+- [ ] Trigger sound effects from ui button
+- [ ] Experiment with speeding up package builds with sccache
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
 - [ ] Remove dead from entity manager
-- [ ] Understand how to organise tiled worlds
+- [x] Understand how to organise tiled worlds -> see first part of Episode 0026
 
 
 ## Obsolete
 - [+] Create generic, reusable UiRoot to remove all the boilerplate -> Nope, this is what UiSystem is supposed to be
+- [+] Add basic UI -> Done in other tasks
+
 
 ## Done
 
-### Episode 0028 - 5.0h + ...
+### Episode 0029 - 3.5h + 3.0h  ->  65.5h   +
+- [x] Load UI config from yaml string
+- [x] Add confirmation when leaving game
+- [x] Fix alignment of ingame pause buttons using grid box
+- [x] Handle UI fade when creating from config
+- [x] Load ui layout from file, including fallback with error message
+- [x] Add support for multiple fonts
+
+## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
+
+### Episode 0028 - 5.0h + 0.5h  ->  62.0h   + 46.5h     -> 108.5h
 - [x] Improve layout of settings dialog
 - [x] Add support for tagging ui element instances, and finding them
 - [x] Add UI tags for easier access of UI elements
@@ -239,7 +266,6 @@ Note: We didn't track progress cleanly before this.
 ### Episode 0000 - 1.5h + 0h    -> 1.5h + 0.0h          ->  1.5h
 
 
-## Released
 
-Note:
-Nothing released yet, but you can run the current version by building the source yourself.
+~~Note:~~
+~~Nothing released yet, but you can run the current version by building the source yourself.~~

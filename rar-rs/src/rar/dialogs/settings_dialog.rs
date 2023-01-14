@@ -6,6 +6,7 @@ use oml_game::system::System;
 use tracing::*;
 
 use crate::rar::data::RarData;
+use crate::rar::font_ids::FontId;
 use crate::ui::*;
 
 #[derive(Debug)]
@@ -32,8 +33,9 @@ impl SettingsDialog {
 		}
 	}
 	fn create_info_labels(&self) -> Vec<UiElementContainer> {
-		let label_size = Vector2::new(256.0 + 64.0 + 32.0, 48.0);
-		let value_size = Vector2::new(512.0, 48.0);
+		let h = 16.0;
+		let label_size = Vector2::new(256.0 + 64.0 + 32.0, h);
+		let value_size = Vector2::new(512.0, h);
 		const VERSION: &str = env!("CARGO_PKG_VERSION");
 		const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
@@ -53,8 +55,18 @@ impl SettingsDialog {
 		];
 
 		labels
-			.iter()
-			.map(|l| UiLabel::new(&label_size, l).containerize())
+			//.iter()
+			.chunks_exact(2)
+			.flat_map(|labels| {
+				[
+					UiLabel::new(&label_size, labels[0])
+						.with_font_id(FontId::Mono as u8)
+						.containerize(),
+					UiLabel::new(&value_size, labels[1])
+						.with_font_id(FontId::Mono as u8)
+						.containerize(),
+				]
+			})
 			.collect()
 	}
 	fn create_audio_buttons(&self) -> Vec<UiElementContainer> {
@@ -116,7 +128,7 @@ impl SettingsDialog {
 
 	fn update_music(
 		&self,
-		uielement: &dyn UiElement,
+		_uielement: &dyn UiElement,
 		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {
@@ -135,7 +147,7 @@ impl SettingsDialog {
 
 	fn update_sound(
 		&self,
-		uielement: &dyn UiElement,
+		_uielement: &dyn UiElement,
 		container_data: &mut UiElementContainerData,
 		is_on: bool,
 	) {
