@@ -3,12 +3,14 @@
 
 ## In Progress
 
-
+- [ ] Add world selection via menu
+    - [ ] Create world selection via config file
+    - [ ] Create the "world button" from config file
+    - [ ] Configure world list via config file
 
 ## TODO
 
 
-- [ ] Add world selection via menu
 
 - [ ] Fix font rendering
 
@@ -86,7 +88,9 @@
 
 ## Done
 
-### Episode 0030 - 5.0h +
+## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
+
+### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 - [x] Fix fading out SettingsDialog when opened in game
 - [x] Add hotreloading of UI from assets
@@ -100,7 +104,6 @@
 - [x] Load ui layout from file, including fallback with error message
 - [x] Add support for multiple fonts
 
-## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
 ### Episode 0028 - 5.0h + 0.5h  ->  62.0h   + 46.5h     -> 108.5h
 - [x] Improve layout of settings dialog
