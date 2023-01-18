@@ -8,8 +8,10 @@ use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::system::System;
-use serde::Deserialize;
+use serde::{Deserialize,Serialize};
 use tracing::*;
+
+use yaml_patch::Patch;
 
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
@@ -448,6 +450,92 @@ children:
 		});
 		//todo!();
 		container
+	}
+
+	pub fn to_yaml_config(&self) -> serde_yaml::Value {
+/*
+struct UiElementContainerConfig {
+	#[serde(rename = "type")]
+	element_type: String,
+	name:         Option<String>,
+	tag:          Option<String>,
+	//	children:     Option<Vec<UiElementContainerChildConfig>>,
+	children:     Option<Vec<serde_yaml::Value>>,
+	fade:         Option<Vec<String>>,
+}
+*/
+		let children: Vec<serde_yaml::Value> = self.data.children.iter().map(|c|{
+			c.borrow().to_yaml_config()
+		}).collect();
+		//let children = serde_yaml::Value::Sequence( children );
+		let mut c = UiElementContainerConfig {
+			element_type: self.element.type_name().to_string(),
+			name: if self.data.name.is_empty() { None } else { Some( self.data.name.clone() ) },
+			tag: self.data.tag.clone(),
+			children: if children.is_empty() { None } else { Some(children) },
+			fade: None,
+		};
+
+		let element_yaml = self.element.to_yaml_config();
+
+		//serde_yaml::to_value( element_yaml ).unwrap_or( serde_yaml::Value::Null )
+		debug!("{:?}", &c);
+		println!("{:?}", &element_yaml);
+
+		let mut c_yaml = serde_yaml::to_value( c ).unwrap_or( serde_yaml::Value::Null );
+		UiElementContainer::merge_yaml( &mut c_yaml, element_yaml );
+		/*
+		c.patch_from_value( &element_yaml ).unwrap();
+		c.patch_from_key_val( "element_type=UiGridBox____PATCHED" ).unwrap();
+		c.patch_from_key_val( "padding=1234.56" ).unwrap();
+		*/
+		debug!("{:?}", &c_yaml);
+
+		//serde_yaml::to_value( c ).unwrap_or( serde_yaml::Value::Null )
+		c_yaml
+		//serde_yaml::Value::Null
+		/*
+		- type: UiButton
+          size: 64x64
+          image: ui-button_back
+          name: Back
+          tag: back
+         */
+	}
+	fn merge_yaml(a: &mut serde_yaml::Value, b: serde_yaml::Value) {
+		println!("Merging");
+    match (a, b) {
+        (a @ &mut serde_yaml::Value::Mapping(_), serde_yaml::Value::Mapping(b)) => {
+						println!("Merging values");
+            let a = a.as_mapping_mut().unwrap();
+            for (k, v) in b {
+                if v.is_sequence() && a.contains_key(&k) && a[&k].is_sequence() { 
+                    let mut _b = a.get(&k).unwrap().as_sequence().unwrap().to_owned();
+                    _b.append(&mut v.as_sequence().unwrap().to_owned());
+                    a[&k] = serde_yaml::Value::from(_b);
+                    continue;
+                }
+                if !a.contains_key(&k) {
+                	println!("Adding {:?} = {:?}", &k, &v);
+                	a.insert(k.to_owned(), v.to_owned());
+                }
+                else {
+                	println!("Recursing {:?} = {:?}", &k, &v);
+                	Self::merge_yaml(&mut a[&k], v);
+                }
+
+            }
+            
+        }
+        (_a, serde_yaml::Value::Null ) => {
+        	println!("Ignoring NULL");
+        },
+        (a, b) => {
+					println!("Replacing {:?} <= {:?}", &a, &b);
+
+        	*a = b
+        },
+    }
 	}
 
 	pub fn new_from_element(element: impl UiElement + 'static) -> Self {
@@ -921,7 +1009,8 @@ children:
 	}
 }
 
-#[derive(Debug, Deserialize)]
+#[serde_with::skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiElementContainerConfig {
 	#[serde(rename = "type")]
 	element_type: String,
@@ -930,4 +1019,43 @@ struct UiElementContainerConfig {
 	//	children:     Option<Vec<UiElementContainerChildConfig>>,
 	children:     Option<Vec<serde_yaml::Value>>,
 	fade:         Option<Vec<String>>,
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn can_to_yaml() {
+		let container = UiElementContainer::from_yaml(
+			&UiElementFactory::default().with_standard_ui_elements(),
+				"
+type: UiImage
+name: fallback
+image: ui-button_confirm_danger
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+"
+/*
+"
+children:
+  - type: UiLabel
+    tag: fallback_label
+    size: 128x32
+    text: Unable to load ui config from asset
+    fade:
+      - out 0.0
+      - in 1.0
+"
+*/,
+		);
+
+		eprintln!("{:#?}", &container);
+
+		let config = container.to_yaml_config();
+		eprintln!("{:#?}", &config);
+		let config_yaml = erde_yaml::to_string( &config ).unwrap_or( "".to_string() );
+	}
 }

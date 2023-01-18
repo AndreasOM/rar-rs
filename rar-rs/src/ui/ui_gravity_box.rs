@@ -42,7 +42,7 @@ impl UiGravityBox {
 
 impl UiElement for UiGravityBox {
 	fn type_name(&self) -> &str {
-		"[UiGravityBox]"
+		"UiGravityBox"
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

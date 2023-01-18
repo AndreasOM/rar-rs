@@ -213,6 +213,11 @@ impl GameState for GameStateMenu {
 		self.ui_system.render_debug(debug_renderer);
 	}
 
+	fn ui_to_yaml_config(&self) -> serde_yaml::Value {
+
+		self.ui_system.to_yaml_config()
+	}
+
 	fn as_any(&self) -> &(dyn Any + 'static) {
 		self
 	}

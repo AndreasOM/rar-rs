@@ -181,7 +181,7 @@ impl Ui3x3Image {
 
 impl UiElement for Ui3x3Image {
 	fn type_name(&self) -> &str {
-		"[Ui3x3Image]"
+		"Ui3x3Image"
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

@@ -59,7 +59,7 @@ impl UiLabel {
 
 impl UiElement for UiLabel {
 	fn type_name(&self) -> &str {
-		"[UiLabel]"
+		Self::info().type_name
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

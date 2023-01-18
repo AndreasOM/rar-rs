@@ -186,4 +186,14 @@ impl UiSystem {
 			root.render_debug(debug_renderer, &Vector2::zero(), 0);
 		}
 	}
+
+	pub fn to_yaml_config(&self) -> serde_yaml::Value {
+
+		if let Some(root) = &self.root {
+			root.to_yaml_config()
+		} else {
+			serde_yaml::Value::Null
+		}
+	}
+
 }

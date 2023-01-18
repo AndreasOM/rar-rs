@@ -367,6 +367,15 @@ impl App for RarApp {
 			});
 		}
 
+		if wuc.was_function_key_pressed( 2 ) {
+			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+				let ui_yaml = game_state.ui_to_yaml_config();
+				let yaml = serde_yaml::to_string( &ui_yaml ).unwrap_or( "".to_string() );
+				debug!("{}", &yaml);
+				todo!();
+			}
+		}
+
 		if wuc.was_function_key_pressed( 5 ) {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 				game_state.reload(&mut self.system)?;

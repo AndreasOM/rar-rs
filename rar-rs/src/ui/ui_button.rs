@@ -49,7 +49,7 @@ impl UiButton {
 
 impl UiElement for UiButton {
 	fn type_name(&self) -> &str {
-		"[UiButton]"
+		UiButton::info().type_name
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

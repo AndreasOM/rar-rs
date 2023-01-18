@@ -52,6 +52,13 @@ pub trait GameState {
 	fn fixed_update(&mut self, _time_step: f64) {}
 	fn render(&mut self, _renderer: &mut Renderer) {}
 	fn render_debug(&mut self, _debug_renderer: &mut DebugRenderer) {}
+
+	fn ui_to_yaml_config(&self) -> serde_yaml::Value {
+
+		let r = serde_yaml::Value::Null;
+
+		r
+	}
 }
 
 impl std::fmt::Debug for dyn GameState {

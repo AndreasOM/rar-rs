@@ -52,8 +52,9 @@ impl UiElement for WorldSelectionDialog {
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
 		let button_size = Vector2::new(256.0, 64.0);
 		container.add_child_element_container(
-			UiVbox::new()
+			UiGridBox::default()
 				.with_padding(16.0)
+				.with_column_count(1)
 				.containerize()
 				.with_name("World Selection Dialog - vbox")
 				.with_child_element_containers(

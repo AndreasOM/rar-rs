@@ -4,6 +4,7 @@
 ## In Progress
 
 - [ ] Add world selection via menu
+    - [ ] Dump UI config to yaml
     - [ ] Create world selection via config file
     - [ ] Create the "world button" from config file
     - [ ] Configure world list via config file

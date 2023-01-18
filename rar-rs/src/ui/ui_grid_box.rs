@@ -1,5 +1,5 @@
 use oml_game::math::Vector2;
-use serde::Deserialize;
+use serde::{Deserialize,Serialize};
 use tracing::*;
 
 use crate::ui::UiElement;
@@ -37,7 +37,7 @@ impl UiGridBox {
 
 impl UiElement for UiGridBox {
 	fn type_name(&self) -> &str {
-		"[UiGridBox]"
+		Self::info().type_name
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
@@ -183,9 +183,19 @@ impl UiElement for UiGridBox {
 		self.column_count = config.column_count;
 	}
 	*/
+
+	fn to_yaml_config(&self) -> serde_yaml::Value {
+		serde_yaml::to_value(
+			UiGridBoxConfig {
+				padding: Some(self.padding),
+				column_count: self.column_count,
+			}
+		).unwrap_or( serde_yaml::Value::Null )
+	}
+
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize,Serialize)]
 struct UiGridBoxConfig {
 	padding:      Option<f32>,
 	column_count: usize,
