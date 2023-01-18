@@ -84,7 +84,7 @@ impl GameState for GameStateMenu {
 
 		self.ui_system
 			.setup("Menu", system, self.event_response_sender.clone())?;
-		self.load_ui( system );
+		self.load_ui(system);
 
 		Ok(())
 	}
@@ -101,7 +101,7 @@ impl GameState for GameStateMenu {
 		self.ui_system.teardown();
 		self.ui_system
 			.setup("Menu", system, self.event_response_sender.clone())?;
-		self.load_ui( system );
+		self.load_ui(system);
 		Ok(())
 	}
 
@@ -214,7 +214,6 @@ impl GameState for GameStateMenu {
 	}
 
 	fn ui_to_yaml_config(&self) -> serde_yaml::Value {
-
 		self.ui_system.to_yaml_config()
 	}
 

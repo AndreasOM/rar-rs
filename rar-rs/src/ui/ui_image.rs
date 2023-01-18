@@ -1,6 +1,6 @@
 use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
-use serde::{Deserialize,Serialize};
+use serde::{Deserialize, Serialize};
 use tracing::*;
 
 use crate::ui::UiElementInfo;
@@ -60,16 +60,15 @@ impl UiElement for UiImage {
 		self.imagename = config.image;
 	}
 	fn to_yaml_config(&self) -> serde_yaml::Value {
-		serde_yaml::to_value(
-			UiImageConfig {
-				image: self.imagename.clone(),
-				size: format!("{}x{}", self.imagesize.x, self.imagesize.y ),
-			}
-		).unwrap_or( serde_yaml::Value::Null )
+		serde_yaml::to_value(UiImageConfig {
+			image: self.imagename.clone(),
+			size:  format!("{}x{}", self.imagesize.x, self.imagesize.y),
+		})
+		.unwrap_or(serde_yaml::Value::Null)
 	}
 }
 
-#[derive(Debug, Deserialize,Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiImageConfig {
 	image: String,
 	size:  String,

@@ -54,7 +54,6 @@ pub trait GameState {
 	fn render_debug(&mut self, _debug_renderer: &mut DebugRenderer) {}
 
 	fn ui_to_yaml_config(&self) -> serde_yaml::Value {
-
 		let r = serde_yaml::Value::Null;
 
 		r

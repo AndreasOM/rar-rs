@@ -188,12 +188,10 @@ impl UiSystem {
 	}
 
 	pub fn to_yaml_config(&self) -> serde_yaml::Value {
-
 		if let Some(root) = &self.root {
 			root.to_yaml_config()
 		} else {
 			serde_yaml::Value::Null
 		}
 	}
-
 }
