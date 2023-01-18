@@ -4,6 +4,7 @@ use oml_game::math::Vector2;
 use serde::Deserialize;
 use tracing::*;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{
 	UiElement, UiElementContainerData, UiElementContainerHandle, UiEvent, UiEventResponse,
 	UiEventResponseButtonClicked, UiImage,
@@ -50,6 +51,17 @@ impl UiToggleButton {
 		let mut r = Vec::new();
 		r.push(Box::new(UiEventResponseButtonClicked::new("foo")));
 		r
+	}
+
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiToggleButton",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 

@@ -55,12 +55,9 @@ impl Game {
 	pub fn select_world(&mut self, world: &str) {
 		self.world_name = world.to_string();
 	}
-	pub fn toggle_pause(&mut self) {
-		if self.is_paused {
-			self.is_paused = false;
-		} else {
-			self.is_paused = true;
-		}
+	pub fn toggle_pause(&mut self) -> bool {
+		self.is_paused = !self.is_paused;
+		self.is_paused
 	}
 
 	pub fn setup(&mut self, system: &mut System) -> anyhow::Result<()> {

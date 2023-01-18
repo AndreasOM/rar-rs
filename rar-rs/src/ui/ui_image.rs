@@ -3,6 +3,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use serde::Deserialize;
 use tracing::*;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
 #[derive(Debug, Default)]
@@ -17,6 +18,16 @@ impl UiImage {
 			imagename: imagename.to_owned(),
 			imagesize: *size,
 		}
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiImage",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 

@@ -2,6 +2,7 @@ use oml_game::math::Vector2;
 use oml_game::renderer::Color;
 use serde::Deserialize;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
 #[derive(Default)]
@@ -25,6 +26,16 @@ impl UiSpacer {
 			size:  Vector2::from_x_str(&config.size),
 			color: Color::white(),
 		}
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiSpacer",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 

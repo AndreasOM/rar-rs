@@ -1,0 +1,29 @@
+type: Ui3x3Image
+image: ui-3x3-grassland
+size: 1152x768
+texturesize: 192x192
+children:
+  - type: UiGridBox
+    padding: 16.0
+    column_count: 1
+    children:
+    - type: UiLabel
+      size: 768x48
+      text: "Thanks for playing..."
+      font: mono
+    - type: UiSpacer
+      size: 1x48
+    - type: UiGridBox
+      padding: 16.0
+      column_count: 2
+      children:
+        - type: UiButton
+          size: 64x64
+          image: ui-button_back
+          name: Back
+          tag: back
+        - type: UiButton
+          size: 64x64
+          image: ui-button_confirm_danger
+          name: Confirm Quit
+          tag: confirm_quit

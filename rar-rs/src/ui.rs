@@ -2,6 +2,7 @@ mod ui_element;
 pub use ui_element::UiElement;
 pub use ui_element::UiElementFadeData;
 pub use ui_element::UiElementFadeState;
+pub use ui_element::UiElementInfo;
 mod ui_element_base;
 pub use ui_element_base::UiElementBase;
 mod ui_element_container;
@@ -39,6 +40,8 @@ pub use ui_toggle_button::UiToggleButton;
 mod ui_vbox;
 pub use ui_vbox::UiVbox;
 
+mod ui_element_factory;
+pub use ui_element_factory::UiElementFactory;
 mod ui_system;
 pub use ui_system::UiSystem;
 

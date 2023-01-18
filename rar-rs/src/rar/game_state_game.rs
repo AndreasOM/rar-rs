@@ -17,7 +17,9 @@ use crate::rar::AppUpdateContext;
 use crate::rar::AudioMessage;
 use crate::rar::Game;
 use crate::rar::GameState;
+use crate::rar::RarApp;
 use crate::ui::UiElement;
+use crate::ui::UiElementFactory;
 use crate::ui::UiEventResponse;
 use crate::ui::UiEventResponseButtonClicked;
 use crate::ui::UiEventResponseGenericMessage;
@@ -30,6 +32,7 @@ pub struct GameStateGame {
 	event_response_receiver: Receiver<Box<dyn UiEventResponse>>,
 	data:                    Option<Arc<dyn Data>>,
 	game:                    Game,
+	ui_element_factory:      UiElementFactory,
 }
 
 impl Default for GameStateGame {
@@ -41,6 +44,7 @@ impl Default for GameStateGame {
 			event_response_receiver: rx,
 			data:                    Default::default(),
 			game:                    Default::default(),
+			ui_element_factory:      UiElementFactory::default().with_standard_ui_elements(),
 		}
 	}
 }
@@ -67,12 +71,13 @@ impl GameStateGame {
 			if let Some(gme) = ev.as_any().downcast_ref::<UiEventResponseGenericMessage>() {
 				match gme.message.as_str() {
 					"playpause/toggle" => {
-						self.toggle_game_pause();
+						let is_paused = self.toggle_game_pause();
+						if !is_paused {
+							self.ui_system.fade_out_child_by_tag("settings_dialog", 1.0);
+						}
 					},
 					"settings/toggle" => {
-						self.ui_system
-							//							.toggle_child_fade(&["Ingame Settings Dialog"]);
-							.toggle_child_fade_by_tag("settings_dialog");
+						self.ui_system.toggle_child_fade_by_tag("settings_dialog");
 					},
 					"back" => {
 						let r = GameStateResponse::new("GotoMainMenu");
@@ -106,8 +111,8 @@ impl GameStateGame {
 		}
 	}
 
-	fn toggle_game_pause(&mut self) {
-		self.game.toggle_pause();
+	fn toggle_game_pause(&mut self) -> bool {
+		self.game.toggle_pause()
 	}
 }
 
@@ -118,9 +123,11 @@ impl GameState for GameStateGame {
 		self.ui_system
 			.setup("Game", system, self.event_response_sender.clone())?;
 
+		RarApp::register_ui_elements_with_factory(&mut self.ui_element_factory);
+
 		self.ui_system.add_child(
 			&Vector2::new(-1.0, 1.0),
-			IngamePauseDialog::new(system)
+			IngamePauseDialog::new(system, &self.ui_element_factory)
 				.containerize()
 				.with_name("Ingame Pause Dialog"),
 		);

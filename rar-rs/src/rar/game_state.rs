@@ -42,6 +42,9 @@ pub trait GameState {
 		Ok(())
 	}
 	fn teardown(&mut self) {}
+	fn reload(&mut self, _system: &mut System) -> anyhow::Result<()> {
+		Ok(())
+	}
 	fn set_size(&mut self, _size: &Vector2) {}
 	fn update(&mut self, _auc: &mut AppUpdateContext) -> Vec<GameStateResponse> {
 		Vec::new()

@@ -4,16 +4,17 @@
 ## In Progress
 
 
+
 ## TODO
 
-- [ ] Fix font rendering
 
-- [ ] Add clean quit game (with confirmation)
+- [ ] Add world selection via menu
+
+- [ ] Fix font rendering
 
 - [ ] Add support for parallax in map layers
 - [ ] Add debug camera with zoom
 
-- [ ] Add world selection via menu
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Add sideways collision
@@ -57,11 +58,12 @@
 - [ ] Understand why macOS can load data from .app
 
 
-- [ ] Experiment with passing the parent UiElement(Containter) to all/most/some UiElement(Container?) methods
+- [ ] Experiment with passing the parent UiElement(Container) to all/most/some UiElement(Container?) methods
 
-- [ ] Allow registering custom UIElements for creation from config ("creators & factory")
 
 ## TODO - Later
+- [ ] Add support for font selection from ui config for label
+- [ ] Improve hotreloading of UI from assets
 - [ ] Refactor button click handling
 - [ ] Get rid of pointers/handles in UI element/container
 - [ ] Reconsider how padding works in the UI
@@ -69,6 +71,7 @@
 - [ ] Trigger `cargo check` on pull request
 - [ ] Trigger sound effects from ui button
 - [ ] Experiment with speeding up package builds with sccache
+- [ ] Allow GameState to cleanly finish when going to next state
 
 ## TODO - off stream
 - [ ] Push sound blocking down to `oml-audio`
@@ -83,7 +86,13 @@
 
 ## Done
 
-### Episode 0029 - 3.5h + 3.0h  ->  65.5h   +
+### Episode 0030 - 5.0h +
+- [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
+- [x] Fix fading out SettingsDialog when opened in game
+- [x] Add hotreloading of UI from assets
+- [x] Add clean quit game (with confirmation)
+
+### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box

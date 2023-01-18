@@ -4,6 +4,7 @@ use tracing::*;
 
 use crate::ui::UiElement;
 use crate::ui::UiElementContainerData;
+use crate::ui::UiElementInfo;
 
 #[derive(Debug, Default)]
 pub struct UiGridBox {
@@ -21,6 +22,16 @@ impl UiGridBox {
 		self.column_count = column_count;
 
 		self
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiGridBox",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 

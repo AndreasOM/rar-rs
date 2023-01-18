@@ -43,6 +43,7 @@ use crate::rar::AudioMessage;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
 use crate::rar::RarUiUpdateContext;
+use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
 #[derive(Debug, PartialEq, Hash, Eq)]
@@ -185,8 +186,12 @@ impl RarApp {
 			ui_debug_config.select("Debug Collisions", 1);
 			ui_debug_config.select("Paused Buttons", 3);
 
-			//ui_debug_config.set_mode(UiDebugConfigMode::None);
+			ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
+	}
+	pub fn register_ui_elements_with_factory(_ui_element_factory: &mut UiElementFactory) {
+		// Note: here we could add game specific UiElements
+		// ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
 	}
 }
 
@@ -361,6 +366,13 @@ impl App for RarApp {
 				ui_debug_config.cycle_mode();
 			});
 		}
+
+		if wuc.was_function_key_pressed( 5 ) {
+			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+				game_state.reload(&mut self.system)?;
+			}
+		}
+
 		debug_renderer::debug_renderer_begin_frame();
 
 		// the specific DebugRenderer
@@ -479,6 +491,10 @@ impl App for RarApp {
 
 		for r in responses.iter() {
 			match r.name() {
+				"QuitApp" => {
+					debug!("QuitApp");
+					self.is_done = true;
+				},
 				"GotoMainMenu" => {
 					debug!("GotoMainMenu");
 					self.next_game_states.push_back(GameStates::Menu);

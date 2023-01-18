@@ -1,9 +1,12 @@
 use oml_game::math::Matrix32;
 use oml_game::math::Vector2;
+use serde::Deserialize;
 use tracing::*;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
 
+#[derive(Debug, Default)]
 pub struct Ui3x3Image {
 	imagename:   String,
 	imagesize:   Vector2,
@@ -13,6 +16,19 @@ pub struct Ui3x3Image {
 
 impl Ui3x3Image {
 	pub fn new(imagename: &str, size: &Vector2, texturesize: &Vector2) -> Self {
+		let mut s = Self {
+			imagename:   imagename.to_owned(),
+			imagesize:   *size,
+			texturesize: *texturesize,
+			quads:       Vec::new(),
+		};
+
+		s.recalculate_quads();
+		s
+	}
+	fn recalculate_quads(&mut self) {
+		let texturesize = &self.texturesize;
+		let size = &self.imagesize;
 		// Note: the whole quad handling is a massive :HACK: there are much better ways to create, and render the mesh
 		let mut div = size.scaled_reciprocal_vector2(&texturesize);
 		let mut scale = Vector2::new(1.0 / 3.0, 1.0 / 3.0);
@@ -149,12 +165,17 @@ impl Ui3x3Image {
 			mtx.clone(),
 		));
 
-		Self {
-			imagename: imagename.to_owned(),
-			imagesize: *size,
-			texturesize: *texturesize,
-			quads,
+		self.quads = quads;
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "Ui3x3Image",
+			producer_fn: &Self::produce,
 		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 
@@ -192,4 +213,19 @@ impl UiElement for Ui3x3Image {
 			ui_renderer.pop_opacity();
 		}
 	}
+	fn configure_from_yaml_value(&mut self, yaml_value: serde_yaml::Value) {
+		let config: Ui3x3ImageConfig = serde_yaml::from_value(yaml_value).unwrap();
+
+		self.imagesize = Vector2::from_x_str(&config.size);
+		self.imagename = config.image;
+		self.texturesize = Vector2::from_x_str(&config.texturesize);
+		self.recalculate_quads();
+	}
+}
+
+#[derive(Debug, Deserialize)]
+struct Ui3x3ImageConfig {
+	image:       String,
+	size:        String,
+	texturesize: String,
 }

@@ -129,7 +129,7 @@ impl<'a> UiRenderer<'a> {
 		color.a *= self.opacity;
 		self.renderer.set_color(&color);
 		let font_id = *self.font_id_stack.top();
-		tracing::debug!("FontId: {}", font_id);
+		//tracing::debug!("FontId: {}", font_id);
 		self.renderer.use_font(font_id);
 		self.renderer.use_layer(self.front_layer_id);
 		self.renderer.use_effect(self.font_render_effect_id);

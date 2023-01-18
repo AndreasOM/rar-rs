@@ -4,6 +4,7 @@ use oml_game::math::Vector2;
 use serde::Deserialize;
 use tracing::*;
 
+use crate::ui::UiElementInfo;
 use crate::ui::{
 	UiElement, UiElementContainerData, UiElementContainerHandle, UiEvent, UiEventResponse,
 	UiEventResponseButtonClicked, UiImage,
@@ -33,6 +34,16 @@ impl UiButton {
 			imagename: config.image,
 			image:     None,
 		}
+	}
+	pub fn info() -> &'static UiElementInfo {
+		&UiElementInfo {
+			type_name:   "UiButton",
+			producer_fn: &Self::produce,
+		}
+	}
+
+	pub fn produce() -> Box<dyn UiElement> {
+		Box::new(Self::default())
 	}
 }
 

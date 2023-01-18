@@ -64,6 +64,7 @@ impl UiElement for WorldSelectionDialog {
 						Self::create_world_button("mystic_mountain", &button_size),
 						Self::create_world_button("DebugCollisions", &button_size),
 						Self::create_world_button("Settings", &button_size),
+						Self::create_world_button("Quit", &button_size),
 					]
 					.into(),
 				),
