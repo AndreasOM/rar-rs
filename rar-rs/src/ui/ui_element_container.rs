@@ -1,4 +1,3 @@
-use crate::ui::UiElementContainerData;
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::{Rc, Weak};
@@ -13,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use tracing::*;
 use yaml_patch::Patch;
 
+use crate::ui::UiElementContainerData;
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 use crate::ui::{
@@ -591,7 +591,7 @@ children:
 		&mut self.data.children
 	}
 
-	pub fn refresh_tags( &mut self ) {
+	pub fn refresh_tags(&mut self) {
 		self.data.refresh_tags();
 	}
 

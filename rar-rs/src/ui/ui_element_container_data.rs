@@ -1,14 +1,12 @@
-use crate::ui::UiElementContainer;
-use crate::ui::UiElement;
-use oml_game::math::Vector2;
-
-use crate::ui::UiElementFadeState;
-
-use crate::ui::UiElementContainerHandle;
-
 use std::collections::HashMap;
 
+use oml_game::math::Vector2;
 use tracing::*;
+
+use crate::ui::UiElement;
+use crate::ui::UiElementContainer;
+use crate::ui::UiElementContainerHandle;
+use crate::ui::UiElementFadeState;
 
 #[derive(Debug, Default)]
 pub struct UiElementContainerData {
@@ -77,10 +75,10 @@ impl UiElementContainerData {
 		}
 	}
 
-	pub fn refresh_tags( &mut self ) {
+	pub fn refresh_tags(&mut self) {
 		//debug!("Refreshing tags for {}", self.name );
 		self.tag_map = HashMap::new();
-		for ( p, child ) in &mut self.children.iter_mut().enumerate() {
+		for (p, child) in &mut self.children.iter_mut().enumerate() {
 			//debug!("Refreshing tags for child [{}]{}", p, child.borrow().data().name );
 			let mut child_mut = child.borrow_mut();
 			let child_data = child_mut.data_mut();
@@ -189,7 +187,10 @@ impl UiElementContainerData {
 	) {
 		// lookup in tag_map
 		let maybe_index = self.tag_map.get(tag);
-		debug!("Index for tag {} in {} -> {:?}", tag, self.name, maybe_index );
+		debug!(
+			"Index for tag {} in {} -> {:?}",
+			tag, self.name, maybe_index
+		);
 		maybe_index.map(|i| {
 			self.children[*i]
 				.borrow_mut()
