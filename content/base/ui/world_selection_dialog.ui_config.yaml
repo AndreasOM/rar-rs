@@ -1,0 +1,79 @@
+type: UiGridBox
+name: World Selection Dialog
+padding: 16.0
+column_count: 1
+children:
+  - type: UiGridBox
+    name: World Selection Box
+    tag: world_selection_box
+    padding: 16.0
+    column_count: 3
+    children:
+#      - type: UiButton
+#        name: dev
+#        children:
+#          - type: Ui3x3Image
+#            image: ui-3x3-grassland
+#            size: 256x256
+#            texturesize: 192x192
+#          - type: UiLabel
+#            name: dev
+#            size: 256x64
+#            text: dev
+#        image: ui-button
+#        size: 256x64
+#      - type: UiButton
+#        name: grassland
+#        children:
+#          - type: Ui3x3Image
+#            image: ui-3x3-grassland
+#            size: 256x256
+#            texturesize: 192x192
+#          - type: UiLabel
+#            name: grassland
+#            size: 256x64
+#            text: grassland
+#        image: ui-button
+#        size: 256x64
+#      - type: UiButton
+#        name: mystic_mountain
+#        children:
+#          - type: UiImage
+#            image: ui-button
+#            size: 256x256
+#          - type: UiLabel
+#            name: mystic_mountain
+#            size: 256x64
+#            text: mystic_mountain
+#        image: ui-button
+#        size: 256x64
+  - type: UiGridBox
+    name: Debug Button Box
+    padding: 16.0
+    column_count: 5
+    children:
+      - type: UiButton
+        name: DebugCollisions
+        children:
+          - type: UiImage
+            image: ui-button
+            size: 256x64
+          - type: UiLabel
+            name: DebugCollisions
+            size: 256x64
+            text: DebugCollisions
+        image: ui-button
+        size: 256x64
+  - type: UiGridBox
+    name: Other Button Box
+    padding: 16.0
+    column_count: 2
+    children:
+      - type: UiButton
+        name: Settings
+        image: ui-button_settings
+        size: 64x64
+      - type: UiButton
+        name: Quit
+        image: ui-button_confirm_danger
+        size: 64x64

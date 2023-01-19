@@ -1,7 +1,7 @@
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::*;
 
 use crate::ui::UiElementInfo;
@@ -99,9 +99,16 @@ impl UiElement for UiButton {
 		// self.image =    None; :TODO: handle reconfigure
 	}
 	*/
+	fn to_yaml_config(&self) -> serde_yaml::Value {
+		serde_yaml::to_value(UiButtonConfig {
+			image: self.imagename.clone(),
+			size:  format!("{}x{}", self.imagesize.x, self.imagesize.y),
+		})
+		.unwrap_or(serde_yaml::Value::Null)
+	}
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiButtonConfig {
 	image: String,
 	size:  String,

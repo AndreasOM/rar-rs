@@ -144,7 +144,7 @@ impl UiElementContainerData {
 	pub fn find_child_container_by_tag_mut_then(
 		&mut self,
 		tag: &str,
-		f: &dyn Fn(&mut UiElementContainer),
+		f: &mut dyn FnMut(&mut UiElementContainer),
 	) -> bool {
 		// lookup in tag_map
 		let maybe_index = self.tag_map.get(tag);
@@ -850,6 +850,9 @@ children:
 			.parent_size_changed(&mut self.data, parent_size);
 	}
 
+	pub fn recalculate_size(&mut self) {
+		self.element.recalculate_size(&mut self.data);
+	}
 	pub fn layout(&mut self, pos: &Vector2) {
 		/*
 		debug!(
@@ -1002,7 +1005,7 @@ children:
 	pub fn find_child_container_by_tag_mut_then(
 		&mut self,
 		tag: &str,
-		f: &dyn Fn(&mut UiElementContainer),
+		f: &mut dyn FnMut(&mut UiElementContainer),
 	) -> bool {
 		if self.data.tag == Some(tag.to_string()) {
 			f(self);

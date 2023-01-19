@@ -4,14 +4,14 @@
 ## In Progress
 
 - [ ] Add world selection via menu
-    - [ ] Dump UI config to yaml
-    - [ ] Create world selection via config file
+    - [x] Dump UI config to yaml
+    - [x] Create world selection via config file
     - [ ] Create the "world button" from config file
     - [ ] Configure world list via config file
 
 ## TODO
 
-
+- [ ] Dump all UIElements to yaml config
 
 - [ ] Fix font rendering
 
@@ -90,6 +90,10 @@
 ## Done
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
+
+### Episode 0031 - 3.5h
+- [x] Dump (some) UI config to yaml
+- [x] Create world selection via config file
 
 ### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")

@@ -85,7 +85,7 @@ impl UiElement for UiGridBox {
 			total_size.y += row_height;
 		}
 
-		//debug!("total_size {:?}", &total_size);
+		debug!("total_size {:?}", &total_size);
 		//		total_size.x -= self.padding;
 
 		container.set_size(&total_size);

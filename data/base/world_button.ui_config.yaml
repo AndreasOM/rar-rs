@@ -1,0 +1,10 @@
+type: Ui3x3Image
+image: ui-3x3-grassland
+size: 256x256
+texturesize: 192x192
+name: WorldButton
+#children:
+#  - type: UiLabel
+#    name: Label
+#    size: 256x64
+#    text: dev

@@ -59,7 +59,7 @@ impl GameStateMenu {
 	fn load_ui(&mut self, system: &mut System) {
 		self.ui_system.add_child(
 			&Vector2::new(0.0, 0.0),
-			WorldSelectionDialog::new()
+			WorldSelectionDialog::new(system, &self.ui_element_factory)
 				.containerize()
 				.with_name("World Selection Dialog")
 				.with_tag("world_selection_dialog"),
