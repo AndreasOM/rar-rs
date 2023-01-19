@@ -189,7 +189,7 @@ impl RarApp {
 			*/
 			ui_debug_config.select("World Selection Dialog Box", 5);
 
-			//ui_debug_config.set_mode(UiDebugConfigMode::None);
+			ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
 	}
 	pub fn register_ui_elements_with_factory(_ui_element_factory: &mut UiElementFactory) {

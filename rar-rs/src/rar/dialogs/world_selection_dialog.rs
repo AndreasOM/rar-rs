@@ -13,11 +13,24 @@ impl WorldSelectionDialog {
 	fn create_world_button(
 		system: &mut System,
 		ui_element_factory: &UiElementFactory,
+		name: &str,
 	) -> UiElementContainer {
-		if let Some(world_button) =
+		if let Some(mut world_button) =
 			UiElementContainer::from_config_asset(system, ui_element_factory, "world_button")
 		{
-			world_button
+			world_button.find_child_by_tag_as_mut_element_then::<UiLabel>(
+				//.
+				"label",
+				&|l| {
+					//.
+					l.set_text(name);
+				},
+			); /* :TODO: {
+	   warn!("'label' not found for world_button");
+   }
+   */
+			world_button.with_name(name)
+		// world_button
 		} else {
 			todo!();
 		}
@@ -30,10 +43,11 @@ impl WorldSelectionDialog {
 		);
 		if let Some(container) = &mut container {
 			if !container.find_child_container_by_tag_mut_then("world_selection_box", &mut |wsb| {
-				for _i in 0..3 {
+				for n in ["dev", "grassland", "mystic_mountain"] {
 					wsb.add_child_element_container(Self::create_world_button(
 						system,
 						ui_element_factory,
+						n,
 					));
 				}
 			}) {

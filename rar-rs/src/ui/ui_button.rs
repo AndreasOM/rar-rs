@@ -58,8 +58,10 @@ impl UiElement for UiButton {
 		self
 	}
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		let image = container.add_child_element(UiImage::new(&self.imagename, &self.imagesize));
-		self.image = Some(image);
+		if self.imagename != "None" {
+			let image = container.add_child_element(UiImage::new(&self.imagename, &self.imagesize));
+			self.image = Some(image);
+		}
 	}
 	fn handle_ui_event(
 		&mut self,

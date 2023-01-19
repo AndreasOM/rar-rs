@@ -37,6 +37,10 @@ impl UiElementContainerData {
 		&self.name
 	}
 
+	pub fn tag(&self) -> Option<&str> {
+		self.tag.as_ref().map(|x| &**x)
+	}
+
 	pub fn tags(&self) -> Vec<String> {
 		// :TODO: we probably could just use the tag map here
 		let mut tags = Vec::new();
@@ -86,7 +90,7 @@ impl UiElementContainerData {
 		for tag in ct.iter() {
 			if self.tag_map.get(tag).is_some() {
 				warn!("Duplicated tag: {} -> {:#?}", &tag, &self.tag_map);
-				todo!(); // :TODO: panic? or ignore?
+			//todo!(); // :TODO: panic? or ignore? -> allow, and implement correctly!
 			} else {
 				let p = self.children.len();
 				self.tag_map.insert(tag.to_owned(), p);
@@ -779,9 +783,10 @@ children:
 
 		if depth > 0 {
 			println!(
-				"C  {} {} ({}): {}x{} @{},{} +({},{})",
+				"C  {} {}[{}] ({}): {}x{} @{},{} +({},{})",
 				indent,
 				&self.data.name,
+				&self.data.tag().unwrap_or(&"".to_string()),
 				self.element.type_name(),
 				self.size().x,
 				self.size().y,

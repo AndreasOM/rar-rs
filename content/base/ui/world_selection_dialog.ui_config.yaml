@@ -54,16 +54,18 @@ children:
     children:
       - type: UiButton
         name: DebugCollisions
+        image: None
+        size: 256x64
         children:
-          - type: UiImage
-            image: ui-button
-            size: 256x64
+          - type: Ui3x3Image
+            image: ui-3x3-dev
+            size: 288x96
+            texturesize: 96x96
+            name: WorldButtonBackground
           - type: UiLabel
             name: DebugCollisions
             size: 256x64
             text: DebugCollisions
-        image: ui-button
-        size: 256x64
   - type: UiGridBox
     name: Other Button Box
     padding: 16.0
