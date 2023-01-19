@@ -73,19 +73,20 @@ impl GameStateMenu {
 				.with_tag("quit_app_dialog")
 				.with_fade_out(0.0),
 		);
-
-		self.ui_system
-			.root_mut()
-			.as_mut()
-			.unwrap()
-			.find_child_by_tag_as_mut_element_then::<crate::ui::UiLabel>(
-				//.
-				"label",
-				&|l| {
-					//.
-					l.set_text("TEST gs_menu");
-				},
-			);
+		/*
+				self.ui_system
+					.root_mut()
+					.as_mut()
+					.unwrap()
+					.find_child_by_tag_as_mut_element_then::<crate::ui::UiLabel>(
+						//.
+						"label",
+						&|l| {
+							//.
+							l.set_text("TEST gs_menu");
+						},
+					);
+		*/
 		self.ui_system.layout();
 	}
 }
