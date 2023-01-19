@@ -41,6 +41,10 @@ impl UiSystem {
 		Ok(())
 	}
 
+	pub fn root_mut(&mut self) -> &mut Option<UiElementContainer> {
+		&mut self.root
+	}
+
 	pub fn teardown(&mut self) {
 		if let Some(_ers) = self.event_response_sender.take() {}
 		if let Some(_root) = self.root.take() {}
