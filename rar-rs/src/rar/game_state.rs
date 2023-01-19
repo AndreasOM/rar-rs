@@ -58,6 +58,9 @@ pub trait GameState {
 
 		r
 	}
+	fn ui_to_yaml_config_string(&self) -> String {
+		String::new()
+	}
 }
 
 impl std::fmt::Debug for dyn GameState {

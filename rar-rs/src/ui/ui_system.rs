@@ -194,4 +194,12 @@ impl UiSystem {
 			serde_yaml::Value::Null
 		}
 	}
+
+	pub fn to_yaml_config_string(&self) -> String {
+		if let Some(root) = &self.root {
+			root.to_yaml_config_string()
+		} else {
+			String::new()
+		}
+	}
 }

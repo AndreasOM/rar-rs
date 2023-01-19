@@ -451,6 +451,10 @@ children:
 		container
 	}
 
+	pub fn to_yaml_config_string(&self) -> String {
+		let yaml = self.to_yaml_config();
+		serde_yaml::to_string(&SortDataElement(&yaml)).unwrap_or("".to_string())
+	}
 	pub fn to_yaml_config(&self) -> serde_yaml::Value {
 		/*
 		struct UiElementContainerConfig {
@@ -1019,6 +1023,7 @@ children:
 	}
 }
 
+// :TODO: write custom serializer, to ensure 'correct' order
 #[serde_with::skip_serializing_none]
 #[derive(Debug, Deserialize, Serialize)]
 struct UiElementContainerConfig {
@@ -1031,6 +1036,40 @@ struct UiElementContainerConfig {
 	fade:         Option<Vec<String>>,
 }
 
+fn sort_data_element<T: Serialize, S: serde::Serializer>(
+	value: &T,
+	serializer: S,
+) -> Result<S::Ok, S::Error> {
+	let value = serde_yaml::to_value(value).map_err(serde::ser::Error::custom)?;
+	eprintln!("Value: {:?}", &value);
+	let value = match value {
+		serde_yaml::Value::Mapping(mapping) => {
+			eprintln!("Mapping: {:?}", &mapping);
+			let data_names = &[serde_yaml::Value::String("children".to_string())];
+			let l = mapping.len();
+			let mut new_mapping = serde_yaml::Mapping::with_capacity(l);
+			let mut data_mapping = serde_yaml::Mapping::with_capacity(l);
+			for (k, v) in mapping {
+				// :TODO: recurse into sub structs aka 'v'
+				if data_names.contains(&k) {
+					data_mapping.insert(k, v); // remember data
+				} else {
+					new_mapping.insert(k, v);
+				}
+			}
+			for (k, v) in data_mapping {
+				new_mapping.insert(k, v); // append the remembered data
+			}
+			serde_yaml::Value::Mapping(new_mapping)
+		},
+		serde_yaml::Value::Sequence(sequence) => serde_yaml::Value::Sequence(sequence),
+		o => o,
+	};
+	value.serialize(serializer)
+}
+
+#[derive(Serialize)]
+struct SortDataElement<T: Serialize>(#[serde(serialize_with = "sort_data_element")] T);
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -1047,24 +1086,23 @@ size: 64x64
 fade:
   - out 0.0
   - in 1.0
-", /*
-			   "
-			   children:
-				 - type: UiLabel
-				   tag: fallback_label
-				   size: 128x32
-				   text: Unable to load ui config from asset
-				   fade:
-					 - out 0.0
-					 - in 1.0
-			   "
-			   */
+children:
+ - type: UiLabel
+   tag: fallback_label
+   size: 128x32
+   text: Unable to load ui config from asset
+   fade:
+     - out 0.0
+     - in 1.0
+",
 		);
 
 		eprintln!("{:#?}", &container);
 
 		let config = container.to_yaml_config();
 		eprintln!("{:#?}", &config);
-		let config_yaml = erde_yaml::to_string(&config).unwrap_or("".to_string());
+		let config_yaml =
+			serde_yaml::to_string(&SortDataElement(&config)).unwrap_or("".to_string());
+		eprintln!("{}", &config_yaml);
 	}
 }

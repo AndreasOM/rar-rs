@@ -217,6 +217,10 @@ impl GameState for GameStateMenu {
 		self.ui_system.to_yaml_config()
 	}
 
+	fn ui_to_yaml_config_string(&self) -> String {
+		self.ui_system.to_yaml_config_string()
+	}
+
 	fn as_any(&self) -> &(dyn Any + 'static) {
 		self
 	}
