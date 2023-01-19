@@ -180,13 +180,16 @@ impl RarApp {
 	fn setup_debug(&mut self) {
 		UiDebugConfig::write_then(&mut |ui_debug_config| {
 			ui_debug_config.set_mode(UiDebugConfigMode::Selected);
+			/*
 			ui_debug_config.select("Menu", 3);
 			ui_debug_config.select("Settings", 3);
 			//ui_debug_config.select("Game", 3);
 			ui_debug_config.select("Debug Collisions", 1);
 			ui_debug_config.select("Paused Buttons", 3);
+			*/
+			ui_debug_config.select("World Selection Dialog Box", 5);
 
-			ui_debug_config.set_mode(UiDebugConfigMode::None);
+			//ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
 	}
 	pub fn register_ui_elements_with_factory(_ui_element_factory: &mut UiElementFactory) {

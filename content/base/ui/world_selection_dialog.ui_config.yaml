@@ -1,5 +1,5 @@
 type: UiGridBox
-name: World Selection Dialog
+name: World Selection Dialog Box
 padding: 16.0
 column_count: 1
 children:
