@@ -776,13 +776,14 @@ children:
 		f: &dyn Fn(&mut E),
 	) {
 		if self.data.tag == Some(tag.to_string()) {
-			debug!("Found tag {}", &tag);
+			//debug!("Found tag {}", &tag);
 			let c = &mut self.element;
 			match c.as_any_mut().downcast_mut::<E>() {
 				Some(e) => {
 					f(e);
 				},
 				None => panic!(
+					// :TODO: maybe this is ok!?
 					"{:?} isn't a {:?} with tag {:#?}!",
 					&c,
 					std::any::type_name::<E>(),

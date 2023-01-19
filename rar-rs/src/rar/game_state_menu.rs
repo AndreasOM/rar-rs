@@ -86,7 +86,6 @@ impl GameStateMenu {
 					l.set_text("TEST gs_menu");
 				},
 			);
-
 		self.ui_system.layout();
 	}
 }

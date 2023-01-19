@@ -16,7 +16,7 @@ pub struct UiElementContainerData {
 	pub size:       Vector2,
 	pub fade_state: UiElementFadeState,
 	pub children:   Vec<UiElementContainerHandle>,
-	tag_map:        HashMap<String, usize>,
+	tag_map:        HashMap<String, Vec<usize>>,
 }
 
 impl UiElementContainerData {
@@ -86,29 +86,17 @@ impl UiElementContainerData {
 			let ct = child_data.tags();
 			for tag in ct.iter() {
 				if self.tag_map.get(tag).is_some() {
-					warn!("Duplicated tag: {} -> {:#?}", &tag, &self.tag_map);
-				//todo!(); // :TODO: panic? or ignore? -> allow, and implement correctly!
-				} else {
-					//let p = self.children.len();
-					//let p = 999; // :TODO:
-					self.tag_map.insert(tag.to_owned(), p);
+					warn!("Duplicated tag: {} -> {:?}", &tag, &self.tag_map);
 				}
+				let e = self
+					.tag_map
+					.entry(tag.to_owned())
+					.or_insert(Default::default());
+				e.push(p); // :TODO: Use HashSet?
 			}
 		}
 	}
 	pub fn add_child(&mut self, child: UiElementContainer) -> UiElementContainerHandle {
-		/*
-		let ct = child.data().tags();
-		for tag in ct.iter() {
-			if self.tag_map.get(tag).is_some() {
-				warn!("Duplicated tag: {} -> {:#?}", &tag, &self.tag_map);
-			//todo!(); // :TODO: panic? or ignore? -> allow, and implement correctly!
-			} else {
-				let p = self.children.len();
-				self.tag_map.insert(tag.to_owned(), p);
-			}
-		}
-		*/
 		let mut handle = UiElementContainerHandle::new(child);
 		let mut handle2 = handle.clone();
 		handle.borrow_mut().set_handle(&mut handle2);
@@ -165,12 +153,15 @@ impl UiElementContainerData {
 		f: &mut dyn FnMut(&mut UiElementContainer),
 	) -> bool {
 		// lookup in tag_map
-		let maybe_index = self.tag_map.get(tag);
-		let r = maybe_index
-			.map(|i| {
-				let r = self.children[*i]
-					.borrow_mut()
-					.find_child_container_by_tag_mut_then(tag, f);
+		let maybe_indices = self.tag_map.get(tag);
+		let r = maybe_indices
+			.map(|indices| {
+				let mut r = false;
+				for i in indices {
+					r |= self.children[*i]
+						.borrow_mut()
+						.find_child_container_by_tag_mut_then(tag, f);
+				}
 
 				//debug!("{} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
 				r
@@ -186,15 +177,15 @@ impl UiElementContainerData {
 		f: &dyn Fn(&mut E),
 	) {
 		// lookup in tag_map
-		let maybe_index = self.tag_map.get(tag);
-		debug!(
-			"Index for tag {} in {} -> {:?}",
-			tag, self.name, maybe_index
-		);
-		maybe_index.map(|i| {
-			self.children[*i]
-				.borrow_mut()
-				.find_child_by_tag_as_mut_element_then(tag, f)
+		let maybe_indices = self.tag_map.get(tag);
+		maybe_indices.map(|indices| {
+			// debug!("Tag indices {:?}", indices);
+			for i in indices {
+				// debug!("Following tag chain to {}", i);
+				self.children[*i]
+					.borrow_mut()
+					.find_child_by_tag_as_mut_element_then(tag, f)
+			}
 		});
 	}
 	/*
