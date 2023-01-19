@@ -8,6 +8,7 @@ pub struct UiVbox {
 }
 
 impl UiVbox {
+	#[deprecated(since = "0.31.0", note = "Please use UiGridBox!")]
 	pub fn new() -> Self {
 		Self { padding: 0.0 }
 	}

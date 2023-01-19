@@ -99,30 +99,36 @@ impl SettingsDialog {
 		.into()
 	}
 	fn create_children(&self) -> Vec<UiElementContainer> {
-		[UiHbox::new()
-			.with_padding(16.0)
-			.containerize()
-			.with_name("Settings hBox")
-			.with_child_element_containers(
-				[
-					{
-						UiVbox::new()
-							.with_padding(16.0)
-							.containerize()
-							.with_name("Settings vBox") // :TODO: fix name
-							.with_child_element_containers(self.create_audio_buttons())
-					},
-					{
-						UiGridBox::default()
-							.with_padding(16.0)
-							.with_column_count(2)
-							.containerize()
-							.with_name("Labels hBox")
-							.with_child_element_containers(self.create_info_labels())
-					},
-				]
-				.into(),
-			)]
+		[
+			//UiHbox::new()
+			UiGridBox::default()
+				.with_column_count(9)
+				.with_padding(16.0)
+				.containerize()
+				.with_name("Settings hBox")
+				.with_child_element_containers(
+					[
+						{
+							// UiVbox::new()
+							UiGridBox::default()
+								.with_column_count(1)
+								.with_padding(16.0)
+								.containerize()
+								.with_name("Settings vBox") // :TODO: fix name
+								.with_child_element_containers(self.create_audio_buttons())
+						},
+						{
+							UiGridBox::default()
+								.with_padding(16.0)
+								.with_column_count(2)
+								.containerize()
+								.with_name("Labels hBox")
+								.with_child_element_containers(self.create_info_labels())
+						},
+					]
+					.into(),
+				),
+		]
 		.into()
 	}
 
@@ -188,7 +194,9 @@ impl UiElement for SettingsDialog {
 			.with_name("Settings Dialog - background"),
 		);
 		container.add_child_element_container(
-			UiVbox::new()
+			//UiVbox::new()
+			UiGridBox::default()
+				.with_column_count(1)
 				.with_padding(16.0)
 				.containerize()
 				.with_name("Settings Dialog - vbox")
