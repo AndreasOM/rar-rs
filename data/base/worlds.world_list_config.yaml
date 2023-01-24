@@ -1,0 +1,7 @@
+worlds:
+  - id: grassland
+    name: "Grassland"
+  - id: mystic_mountain
+    name: "Mystic Mountain"
+  - id: dev
+    name: "Dev"

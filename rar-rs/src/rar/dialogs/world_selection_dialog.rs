@@ -1,7 +1,7 @@
-use oml_game::math::Vector2;
 use oml_game::system::System;
 use tracing::*;
 
+use crate::rar::WorldList;
 use crate::ui::*;
 
 #[derive(Debug, Default)]
@@ -13,6 +13,7 @@ impl WorldSelectionDialog {
 	fn create_world_button(
 		system: &mut System,
 		ui_element_factory: &UiElementFactory,
+		id: &str,
 		name: &str,
 	) -> UiElementContainer {
 		if let Some(mut world_button) =
@@ -29,7 +30,7 @@ impl WorldSelectionDialog {
 	   warn!("'label' not found for world_button");
    }
    */
-			world_button.with_name(name)
+			world_button.with_name(id)
 		// world_button
 		} else {
 			todo!();
@@ -43,11 +44,14 @@ impl WorldSelectionDialog {
 		);
 		if let Some(container) = &mut container {
 			if !container.find_child_container_by_tag_mut_then("world_selection_box", &mut |wsb| {
-				for n in ["dev", "grassland", "mystic_mountain"] {
+				let world_list = WorldList::from_config_asset(system, "worlds").unwrap();
+				debug!("{:?}", &world_list);
+				for w in world_list.worlds().iter() {
 					wsb.add_child_element_container(Self::create_world_button(
 						system,
 						ui_element_factory,
-						n,
+						w.id(),
+						w.name(),
 					));
 				}
 			}) {
@@ -59,26 +63,6 @@ impl WorldSelectionDialog {
 
 		Self { container }
 	}
-	/*
-	fn create_world_button(name: &str, size: &Vector2) -> UiElementContainer {
-		let container = UiButton::new("ui-button", size)
-			.containerize()
-			.with_name(name)
-			.with_fade_out(0.0)
-			.with_fade_in(1.0)
-			.with_child_element_containers(
-				[{
-					UiLabel::new(&size, name)
-						.containerize()
-						.with_name(name)
-						.with_fade_out(0.0)
-						.with_fade_in(1.0)
-				}]
-				.into(),
-			);
-		container
-	}
-	*/
 }
 
 impl UiElement for WorldSelectionDialog {

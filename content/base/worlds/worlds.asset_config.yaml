@@ -1,0 +1,6 @@
+tool:    "$asset"
+command: "copy"
+output:  "${input}"
+input:
+  - "*.world_list_config.yaml"
+
