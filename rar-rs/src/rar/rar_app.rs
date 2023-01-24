@@ -1,3 +1,6 @@
+use oml_audio::AudioBackend;
+//use oml_audio::fileloader::{FileLoader, FileLoaderFile};
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -22,6 +25,7 @@ use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
+use oml_game::system::audio_fileloader_system::*;
 use tracing::*;
 
 use crate::rar::data::RarData;
@@ -57,7 +61,7 @@ enum GameStates {
 #[derive(Debug)]
 pub struct RarApp {
 	renderer:         Option<Renderer>,
-	audio:            Audio,
+	audio:            Box<dyn AudioBackend<oml_game::system::System>>,
 	is_sound_enabled: bool,
 	sound_rx:         Receiver<AudioMessage>,
 	sound_tx:         Sender<AudioMessage>,
@@ -91,7 +95,7 @@ impl Default for RarApp {
 		let (sound_tx, sound_rx) = std::sync::mpsc::channel();
 		Self {
 			renderer: None,
-			audio: Audio::new(),
+			audio: Audio::create_default(),
 			is_sound_enabled: true,
 			sound_rx,
 			sound_tx,
