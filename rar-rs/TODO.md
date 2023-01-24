@@ -3,27 +3,20 @@
 
 ## In Progress
 
-- [ ] Add world selection via menu
-    - [x] Dump UI config to yaml
-    - [x] Create world selection via config file
-    - [x] Create the "world button" from config file
-    - [x] Add tag reuse, aka duplicated tag support
-    - [ ] Configure world list via config file
 
 ## TODO
-
-- [ ] Dump all UIElements to yaml config
-
-- [ ] Fix font rendering
-
-- [ ] Add support for parallax in map layers
-- [ ] Add debug camera with zoom
 
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Add sideways collision
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
+
+- [ ] Fix font rendering
+
+- [ ] Add support for parallax in map layers
+- [ ] Add debug camera with zoom
+
 
 - [ ] Implement and balance basic gameplay mechanics
     - [ ] Run
@@ -66,6 +59,7 @@
 
 
 ## TODO - Later
+- [ ] Dump all UIElements to yaml config -> do as we go
 - [ ] Add support for font selection from ui config for label
 - [ ] Improve hotreloading of UI from assets
 - [ ] Refactor button click handling
@@ -92,11 +86,14 @@
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
-### Episode 0031 - 3.5h + 1.5h
+### Episode 0031 - 3.5h + 2.0h
 - [x] Dump (some) UI config to yaml
 - [x] Create world selection via config file
 - [x] Create the "world button" from config file
 - [x] Add tag reuse, aka duplicated tag support
+- [x] Add world selection via menu
+- [x] Create the "world button" from config file
+- [x] Configure world list via config file
 
 ### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
