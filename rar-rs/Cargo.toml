@@ -44,8 +44,9 @@ version = "0.31.0-dev"
 #branch = "episode-0030"
 
 [dependencies.oml-audio]
-path = "../../oml-audio"
-version = "0.8.4-dev"
+#path = "../../oml-audio"
+#version = "0.8.4-dev"
+version = "0.8.4-alpha"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }
