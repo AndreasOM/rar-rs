@@ -36,7 +36,7 @@ impl IngamePauseDialog {
 		let found = container_data.find_child_container_by_tag_mut_then(
 			"paused_buttons",
 			&mut |container| {
-				debug!("Found paused_buttons");
+				//debug!("Found paused_buttons");
 				if is_paused {
 					container.fade_in(1.0);
 				} else {

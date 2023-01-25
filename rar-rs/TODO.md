@@ -3,14 +3,15 @@
 
 ## In Progress
 
-
-## TODO
-
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
+    - [ ] Merge adjacent colliders
     - [ ] Add sideways collision
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
+
+## TODO
+
 
 - [ ] Fix font rendering
 
