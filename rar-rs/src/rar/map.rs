@@ -270,6 +270,11 @@ impl Map {
 		// for now we just use data from *all* layers
 		let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
 		let half_tile_size = tile_size.scaled(0.5);
+		let mut min_x = i32::MAX;
+		let mut min_y = i32::MAX;
+		let mut max_x = i32::MIN;
+		let mut max_y = i32::MIN;
+
 		for l in self.layers.iter() {
 			if !layers.iter().any(|ul| l.name().starts_with(ul)) {
 				debug!(
@@ -297,7 +302,19 @@ impl Map {
 						// :TODO: maybe we need the tilemap here to lookup non-1x1 tiles?
 						let tid = tm.get_xy(x, y);
 						if tid > 0 {
-							all_tiles.insert((chunk_x + x as i32, chunk_y + y as i32));
+							let cx = chunk_x + x as i32;
+							let cy = chunk_y + y as i32;
+							all_tiles.insert((cx, cy));
+							if cx < min_x {
+								min_x = cx;
+							} else if cx > max_x {
+								max_x = cx;
+							}
+							if cy < min_y {
+								min_y = cy;
+							} else if cy > max_y {
+								max_y = cy;
+							}
 						}
 					}
 				}
@@ -305,32 +322,45 @@ impl Map {
 		}
 
 		// :HACK: just create one collider per none-zero tile
-		while !all_tiles.is_empty() {
-			let tile = all_tiles.iter().next().cloned().unwrap();
-			let (x, y) = all_tiles.take(&tile).unwrap();
-			let start = Vector2::zero(); //tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32));
-			let pos =
-				start.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
-			let mut pos = pos.add(&half_tile_size);
-			let mut rect_size = tile_size;
-			if all_tiles.contains(&(x + 1, y)) {
-				all_tiles.remove(&(x + 1, y));
-				rect_size.x *= 2.0;
-				pos.x += half_tile_size.x;
-			} else if all_tiles.contains(&(x, y + 1)) {
-				all_tiles.remove(&(x, y + 1));
-				rect_size.y *= 2.0;
-				pos.y -= half_tile_size.y;
+		'outer: for cy in min_y..=max_y {
+			for cx in min_x..=max_x {
+				if all_tiles.is_empty() {
+					break 'outer;
+				}
+				if all_tiles.contains(&(cx, cy)) {
+					let (x, y) = all_tiles.take(&(cx, cy)).unwrap();
+					let start = Vector2::zero(); //tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32));
+					let pos = start
+						.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
+					let mut pos = pos.add(&half_tile_size);
+					let mut rect_size = tile_size;
+					if all_tiles.contains(&(x + 1, y)) {
+						all_tiles.remove(&(x + 1, y));
+						rect_size.x *= 2.0;
+						pos.x += half_tile_size.x;
+					} else if all_tiles.contains(&(x - 1, y)) {
+						all_tiles.remove(&(x - 1, y));
+						rect_size.x *= 2.0;
+						pos.x -= half_tile_size.x;
+					} else if all_tiles.contains(&(x, y + 1)) {
+						all_tiles.remove(&(x, y + 1));
+						rect_size.y *= 2.0;
+						pos.y -= half_tile_size.y;
+					}
+					let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
+					let bounding_circle = rect.calculate_bounding_circle();
+					let od = ObjectData::Rectangle {
+						rect,
+						bounding_circle: Some(bounding_circle),
+					};
+					let o = Object::default().with_data(od);
+					layer.add_object(o);
+				}
 			}
-			let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
-			let bounding_circle = rect.calculate_bounding_circle();
-			let od = ObjectData::Rectangle {
-				rect,
-				bounding_circle: Some(bounding_circle),
-			};
-			let o = Object::default().with_data(od);
-			layer.add_object(o);
 		}
+		//		while !all_tiles.is_empty() {
+		//			let tile = all_tiles.iter().next().cloned().unwrap();
+		//		}
 
 		self.add_layer(layer);
 
