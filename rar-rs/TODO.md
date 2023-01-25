@@ -12,6 +12,7 @@
 
 ## TODO
 
+- [ ] Clip title rendering on top and bottom
 
 - [ ] Fix font rendering
 

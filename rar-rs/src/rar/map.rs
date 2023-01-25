@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use derive_getters::Getters;
 use oml_game::math::{Circle, Rectangle, Vector2};
 use oml_game::system::System;
@@ -264,7 +266,10 @@ impl Map {
 		let mut layer = Layer::default();
 		layer.set_name(name);
 
+		let mut all_tiles: HashSet<(i32, i32)> = HashSet::new();
 		// for now we just use data from *all* layers
+		let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
+		let half_tile_size = tile_size.scaled(0.5);
 		for l in self.layers.iter() {
 			if !layers.iter().any(|ul| l.name().starts_with(ul)) {
 				debug!(
@@ -281,37 +286,40 @@ impl Map {
 
 			}
 			*/
-			let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
-			let half_tile_size = tile_size.scaled(0.5);
 			for c in l.chunks().iter() {
-				let x = *c.x() as f32;
-				let y = *c.y() as f32;
-				let y = -y + 7.0; // :HACK: what the fudge?
-				let start = tile_size.scaled_vector2(&Vector2::new(x, y));
+				let chunk_x = *c.x();
+				let chunk_y = *c.y();
+				let chunk_y = chunk_y - 7; // :HACK: what the fudge? 7?
 				let tm = c.tile_map();
 				// no visibility checks here, it's pre-processed anyway
-				// :HACK: just create one collider per none-zero tile
 				for y in 0..*c.height() {
 					for x in 0..*c.width() {
 						// :TODO: maybe we need the tilemap here to lookup non-1x1 tiles?
 						let tid = tm.get_xy(x, y);
 						if tid > 0 {
-							let pos = start.add(
-								&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)),
-							);
-							let pos = pos.add(&half_tile_size);
-							let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
-							let bounding_circle = rect.calculate_bounding_circle();
-							let od = ObjectData::Rectangle {
-								rect,
-								bounding_circle: Some(bounding_circle),
-							};
-							let o = Object::default().with_data(od);
-							layer.add_object(o);
+							all_tiles.insert((chunk_x + x as i32, chunk_y + y as i32));
 						}
 					}
 				}
 			}
+		}
+
+		// :HACK: just create one collider per none-zero tile
+		while !all_tiles.is_empty() {
+			let tile = all_tiles.iter().next().cloned().unwrap();
+			let (x, y) = all_tiles.take(&tile).unwrap();
+			let start = Vector2::zero(); //tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32));
+			let pos =
+				start.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
+			let pos = pos.add(&half_tile_size);
+			let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
+			let bounding_circle = rect.calculate_bounding_circle();
+			let od = ObjectData::Rectangle {
+				rect,
+				bounding_circle: Some(bounding_circle),
+			};
+			let o = Object::default().with_data(od);
+			layer.add_object(o);
 		}
 
 		self.add_layer(layer);
