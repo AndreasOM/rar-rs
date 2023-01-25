@@ -311,8 +311,14 @@ impl Map {
 			let start = Vector2::zero(); //tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32));
 			let pos =
 				start.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
-			let pos = pos.add(&half_tile_size);
-			let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
+			let mut pos = pos.add(&half_tile_size);
+			let mut rect_size = tile_size;
+			if all_tiles.contains(&(x + 1, y)) {
+				all_tiles.remove(&(x + 1, y));
+				rect_size.x *= 2.0;
+				pos.x += half_tile_size.x;
+			}
+			let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
 			let bounding_circle = rect.calculate_bounding_circle();
 			let od = ObjectData::Rectangle {
 				rect,
