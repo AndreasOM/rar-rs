@@ -334,19 +334,48 @@ impl Map {
 						.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
 					let mut pos = pos.add(&half_tile_size);
 					let mut rect_size = tile_size;
+					let t10 = (x + 1, y + 0);
+					let t01 = (x + 0, y + 1);
+					let t11 = (x + 1, y + 1);
+					match (
+						all_tiles.contains(&t10),
+						all_tiles.contains(&t01),
+						all_tiles.contains(&t11),
+					) {
+						(true, true, true) => {
+							all_tiles.remove(&t10);
+							all_tiles.remove(&t01);
+							all_tiles.remove(&t11);
+							rect_size.x *= 2.0;
+							rect_size.y *= 2.0;
+							pos.x += half_tile_size.x;
+							pos.y -= half_tile_size.y;
+						},
+						(true, _, _) => {
+							all_tiles.remove(&t10);
+							rect_size.x *= 2.0;
+							pos.x += half_tile_size.x;
+						},
+						(_, true, _) => {
+							all_tiles.remove(&t01);
+							rect_size.y *= 2.0;
+							pos.y -= half_tile_size.y;
+						},
+						_ => {},
+					};
+
+					/*
 					if all_tiles.contains(&(x + 1, y)) {
 						all_tiles.remove(&(x + 1, y));
 						rect_size.x *= 2.0;
 						pos.x += half_tile_size.x;
-					} else if all_tiles.contains(&(x - 1, y)) {
-						all_tiles.remove(&(x - 1, y));
-						rect_size.x *= 2.0;
-						pos.x -= half_tile_size.x;
 					} else if all_tiles.contains(&(x, y + 1)) {
 						all_tiles.remove(&(x, y + 1));
 						rect_size.y *= 2.0;
 						pos.y -= half_tile_size.y;
 					}
+						*/
+
 					let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
 					let bounding_circle = rect.calculate_bounding_circle();
 					let od = ObjectData::Rectangle {

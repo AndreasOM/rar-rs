@@ -5,18 +5,18 @@
 
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
-    - [ ] Merge adjacent colliders
+    - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
     - [ ] Add sideways collision
     - [ ] Prepare optimized getting of potential colliders
-    - [ ] Add a fixed_update to entities
+    - [+] Add a fixed_update to entities
 
 ## TODO
 
-- [ ] Clip title rendering on top and bottom
+- [ ] Clip tile rendering on top and bottom
 
 - [ ] Fix font rendering
 
-- [ ] Add support for parallax in map layers
+- [ ] Add support for parallax in map layers. Maybe for decoration layers only
 
 
 - [ ] Implement and balance basic gameplay mechanics
@@ -85,8 +85,9 @@
 
 ## Done
 
-### Episode 0032 - 1.5h...
+### Episode 0032 - 3.0h...
 - [x] Add very simple debug zoom (via mouse wheel and '/' key)
+- [x] Merge adjacent colliders (2x1, 1x2, 2x2)
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
