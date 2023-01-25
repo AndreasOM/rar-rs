@@ -194,7 +194,11 @@ impl Game {
 		let frame_size = Vector2::new(scaling * wuc.window_size.x, 1024.0);
 		self.camera.set_frame_size(&frame_size);
 		self.fixed_camera.set_frame_size(&frame_size);
-
+		/*
+				if wuc.mouse_wheel_line_delta.y != 0.0 { // :TODO: use close to
+					self.camera.change_zoom( wuc.mouse_wheel_line_delta.y );
+				}
+		*/
 		if !self.is_paused {
 			let mut euc = EntityUpdateContext::new().with_world(&self.world);
 

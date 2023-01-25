@@ -16,7 +16,6 @@
 - [ ] Fix font rendering
 
 - [ ] Add support for parallax in map layers
-- [ ] Add debug camera with zoom
 
 
 - [ ] Implement and balance basic gameplay mechanics
@@ -84,6 +83,9 @@
 
 
 ## Done
+
+### Episode 0032 - 1.5h...
+- [x] Add very simple debug zoom (via mouse wheel and '/' key)
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
