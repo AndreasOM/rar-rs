@@ -317,6 +317,10 @@ impl Map {
 				all_tiles.remove(&(x + 1, y));
 				rect_size.x *= 2.0;
 				pos.x += half_tile_size.x;
+			} else if all_tiles.contains(&(x, y + 1)) {
+				all_tiles.remove(&(x, y + 1));
+				rect_size.y *= 2.0;
+				pos.y -= half_tile_size.y;
 			}
 			let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
 			let bounding_circle = rect.calculate_bounding_circle();
