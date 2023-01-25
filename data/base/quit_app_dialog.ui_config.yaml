@@ -10,7 +10,6 @@ children:
     - type: UiLabel
       size: 768x48
       text: "Thanks for playing..."
-      font: mono
     - type: UiSpacer
       size: 1x48
     - type: UiGridBox

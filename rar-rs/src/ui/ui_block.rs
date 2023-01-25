@@ -19,7 +19,7 @@ impl UiBlock {
 
 impl UiElement for UiBlock {
 	fn type_name(&self) -> &str {
-		"[UiBlock]"
+		"UiBlock"
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self

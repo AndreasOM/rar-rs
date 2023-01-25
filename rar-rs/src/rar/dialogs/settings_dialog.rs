@@ -41,6 +41,19 @@ impl SettingsDialog {
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
 		let code_build_number = env!("CODE_BUILD_NUMBER");
 
+		let mut audio_backend = "Unknown".to_string();
+		if let Some(data) = &self.data {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio.read().and_then(|audio| {
+						audio_backend = audio.backend_type.to_owned();
+						Ok(())
+					});
+				},
+				None => {},
+			};
+		};
+
 		let labels = [
 			"Version",
 			&format!(": {}", VERSION),
@@ -52,6 +65,9 @@ impl SettingsDialog {
 			&format!(": {}", self.base_data_build_number),
 			"Commit",
 			&format!(": {}", GIT_COMMIT_HASH),
+			"Audio",
+			//&audio_backend,
+			&format!(": {}", audio_backend),
 		];
 
 		labels
@@ -99,30 +115,36 @@ impl SettingsDialog {
 		.into()
 	}
 	fn create_children(&self) -> Vec<UiElementContainer> {
-		[UiHbox::new()
-			.with_padding(16.0)
-			.containerize()
-			.with_name("Settings hBox")
-			.with_child_element_containers(
-				[
-					{
-						UiVbox::new()
-							.with_padding(16.0)
-							.containerize()
-							.with_name("Settings vBox") // :TODO: fix name
-							.with_child_element_containers(self.create_audio_buttons())
-					},
-					{
-						UiGridBox::default()
-							.with_padding(16.0)
-							.with_column_count(2)
-							.containerize()
-							.with_name("Labels hBox")
-							.with_child_element_containers(self.create_info_labels())
-					},
-				]
-				.into(),
-			)]
+		[
+			//UiHbox::new()
+			UiGridBox::default()
+				.with_column_count(9)
+				.with_padding(16.0)
+				.containerize()
+				.with_name("Settings hBox")
+				.with_child_element_containers(
+					[
+						{
+							// UiVbox::new()
+							UiGridBox::default()
+								.with_column_count(1)
+								.with_padding(16.0)
+								.containerize()
+								.with_name("Settings vBox") // :TODO: fix name
+								.with_child_element_containers(self.create_audio_buttons())
+						},
+						{
+							UiGridBox::default()
+								.with_padding(16.0)
+								.with_column_count(2)
+								.containerize()
+								.with_name("Labels hBox")
+								.with_child_element_containers(self.create_info_labels())
+						},
+					]
+					.into(),
+				),
+		]
 		.into()
 	}
 
@@ -188,7 +210,9 @@ impl UiElement for SettingsDialog {
 			.with_name("Settings Dialog - background"),
 		);
 		container.add_child_element_container(
-			UiVbox::new()
+			//UiVbox::new()
+			UiGridBox::default()
+				.with_column_count(1)
 				.with_padding(16.0)
 				.containerize()
 				.with_name("Settings Dialog - vbox")

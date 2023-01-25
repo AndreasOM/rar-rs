@@ -1,3 +1,4 @@
+//use oml_audio::fileloader::{FileLoader, FileLoaderFile};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -6,7 +7,9 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
 
+pub use oml_audio::fileloader::{FileLoader, FileLoaderFile};
 use oml_audio::Audio;
+use oml_audio::AudioBackend;
 //use oml_game::system::audio_fileloader_system::*;
 use oml_game::math::{Matrix44, Vector2};
 use oml_game::renderer::debug_renderer;
@@ -14,6 +17,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
 use oml_game::renderer::Renderer;
+use oml_game::system::audio_fileloader_system::*;
 //use oml_game::renderer::TextureAtlas;
 use oml_game::system::filesystem::Filesystem;
 use oml_game::system::filesystem_archive::FilesystemArchive;
@@ -24,6 +28,7 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 use tracing::*;
 
+use crate::rar::data::AudioData;
 use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::font_ids::FontId;
@@ -57,7 +62,7 @@ enum GameStates {
 #[derive(Debug)]
 pub struct RarApp {
 	renderer:         Option<Renderer>,
-	audio:            Audio,
+	audio:            Box<dyn AudioBackend<oml_game::system::System>>,
 	is_sound_enabled: bool,
 	sound_rx:         Receiver<AudioMessage>,
 	sound_tx:         Sender<AudioMessage>,
@@ -91,7 +96,7 @@ impl Default for RarApp {
 		let (sound_tx, sound_rx) = std::sync::mpsc::channel();
 		Self {
 			renderer: None,
-			audio: Audio::new(),
+			audio: Audio::create_default(),
 			is_sound_enabled: true,
 			sound_rx,
 			sound_tx,
@@ -180,11 +185,14 @@ impl RarApp {
 	fn setup_debug(&mut self) {
 		UiDebugConfig::write_then(&mut |ui_debug_config| {
 			ui_debug_config.set_mode(UiDebugConfigMode::Selected);
+			/*
 			ui_debug_config.select("Menu", 3);
 			ui_debug_config.select("Settings", 3);
 			//ui_debug_config.select("Game", 3);
 			ui_debug_config.select("Debug Collisions", 1);
 			ui_debug_config.select("Paused Buttons", 3);
+			*/
+			ui_debug_config.select("World Selection Dialog Box", 5);
 
 			ui_debug_config.set_mode(UiDebugConfigMode::None);
 		});
@@ -246,6 +254,23 @@ impl App for RarApp {
 		let something = something_file.read_as_string();
 
 		println!("Something: {}", &something);
+
+		//self.audio = Audio::create_default();
+
+		if let Some(data) = self.system.data() {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio
+						.write()
+						.and_then(|mut audio| {
+							audio.backend_type = self.audio.backend_type().to_owned();
+							Ok(())
+						})
+						.unwrap();
+				},
+				None => {},
+			}
+		}
 
 		self.audio.load_sound_bank(&mut self.system, "base.omsb");
 
@@ -367,7 +392,15 @@ impl App for RarApp {
 			});
 		}
 
-		if wuc.was_function_key_pressed( 5 ) {
+		if wuc.was_function_key_pressed(2) {
+			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+				let yaml = game_state.ui_to_yaml_config_string();
+				debug!("{}", &yaml);
+				todo!();
+			}
+		}
+
+		if wuc.was_function_key_pressed(5) {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 				game_state.reload(&mut self.system)?;
 			}

@@ -1,6 +1,6 @@
 [package]
 name = "rar-rs"
-version = "0.30.1-dev"
+version = "0.31.1-dev"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,8 +10,8 @@ name="rar"
 path="src/rar_main.rs"
 
 [features]
-#default = []
-default = ["audio-apple"]
+default = []
+#default = ["audio-apple"]
 standalone = []
 audio-apple = ["oml-audio/use_apple"]
 audio-miniaudio = ["oml-audio/use_miniaudio"]
@@ -29,18 +29,27 @@ derive-getters = "0.2.0"
 tracing = "0.1.36"
 tracing-subscriber = "0.3.15"
 atty = "0.2.14"
-oml-audio = "0.6.9-alpha"
+# oml-audio = "0.8.3-alpha"
 once_cell = "1.16.0"
+serde_with = "2.2.0"
+yaml-patch = "0.1.1"
 
 [build-dependencies]
 chrono = "0.4.23"
 
 [dependencies.oml-game]
 #path = "../../oml-game"
-#version = "0.30.0-dev"
-git = "https://github.com/AndreasOM/oml-game"
-branch = "episode-0030"
+#version = "0.31.0-dev"
+#git = "https://github.com/AndreasOM/oml-game"
+#branch = "episode-0031"
+
+[dependencies.oml-audio]
+#path = "../../oml-audio"
+#version = "0.8.5-dev"
+version = "0.8.6-alpha"
+#default-features = false
+#features = ["use_miniaudio"]
 
 [patch.crates-io]
-## oml-game = { path = "../../oml-game" }
+oml-game = { path = "../../oml-game" }
 ## oml-game = { git = "https://github.com/AndreasOM/oml-game", branch = "episode-0018" }

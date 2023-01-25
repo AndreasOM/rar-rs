@@ -8,240 +8,16 @@ use oml_game::math::Vector2;
 use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::system::System;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::*;
+use yaml_patch::Patch;
 
+use crate::ui::UiElementContainerData;
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 use crate::ui::{
 	UiElement, UiElementFadeData, UiElementFadeState, UiEvent, UiEventResponse, UiRenderer,
 };
-
-#[derive(Debug, Default)]
-pub struct UiElementContainerData {
-	pub name:       String,
-	pub tag:        Option<String>,
-	pub pos:        Vector2,
-	pub size:       Vector2,
-	pub fade_state: UiElementFadeState,
-	pub children:   Vec<UiElementContainerHandle>,
-	tag_map:        HashMap<String, usize>,
-}
-
-impl UiElementContainerData {
-	pub fn new() -> Self {
-		Default::default()
-	}
-	pub fn name(&self) -> &str {
-		&self.name
-	}
-
-	pub fn tags(&self) -> Vec<String> {
-		// :TODO: we probably could just use the tag map here
-		let mut tags = Vec::new();
-		self.tag.as_ref().map(|t| tags.push(t.to_owned()));
-		for c in self.children.iter() {
-			let mut ct = c.borrow().data.tags();
-			tags.append(&mut ct);
-		}
-		tags
-	}
-	pub fn set_size(&mut self, size: &Vector2) {
-		self.size = *size;
-	}
-	pub fn set_pos(&mut self, pos: &Vector2) {
-		self.pos = *pos;
-	}
-	pub fn borrow_children(&self) -> &Vec<UiElementContainerHandle> {
-		&self.children
-	}
-	pub fn borrow_children_mut(&mut self) -> &mut Vec<UiElementContainerHandle> {
-		&mut self.children
-	}
-	pub fn fade_state(&self) -> &UiElementFadeState {
-		&self.fade_state
-	}
-	pub fn get_fade_level(&self) -> f32 {
-		let fs = self.fade_state;
-		match fs {
-			UiElementFadeState::FadedOut => 0.0,
-			UiElementFadeState::FadedIn => 1.0,
-			UiElementFadeState::FadingIn(d) => d.level,
-			UiElementFadeState::FadingOut(d) => d.level,
-		}
-	}
-	pub fn is_visible(&self) -> bool {
-		let fs = self.fade_state;
-		match fs {
-			UiElementFadeState::FadedOut => false,
-			UiElementFadeState::FadedIn => true,
-			UiElementFadeState::FadingIn(_) => true,
-			UiElementFadeState::FadingOut(_) => false,
-		}
-	}
-
-	pub fn add_child(&mut self, child: UiElementContainer) -> UiElementContainerHandle {
-		let ct = child.data.tags();
-		for tag in ct.iter() {
-			if self.tag_map.get(tag).is_some() {
-				warn!("Duplicated tag: {} -> {:#?}", &tag, &self.tag_map);
-				todo!(); // :TODO: panic? or ignore?
-			} else {
-				let p = self.children.len();
-				self.tag_map.insert(tag.to_owned(), p);
-			}
-		}
-		let mut handle = UiElementContainerHandle::new(child);
-		let mut handle2 = handle.clone();
-		handle.borrow_mut().set_handle(&mut handle2);
-
-		self.children.push(handle);
-		let last = self.children.len() - 1;
-		self.children[last].clone()
-	}
-
-	pub fn add_child_element(
-		&mut self,
-		element: impl UiElement + 'static,
-	) -> UiElementContainerHandle {
-		self.add_child(UiElementContainer::new(Box::new(element)))
-	}
-
-	pub fn add_child_element_container(
-		&mut self,
-		element_container: UiElementContainer,
-	) -> UiElementContainerHandle {
-		self.add_child(element_container)
-	}
-	/*
-		pub fn find_child_container_mut_then(
-			&mut self,
-			path: &[&str],
-			f: &mut dyn FnMut(&mut UiElementContainer),
-		) {
-			if path.is_empty() {
-				return;
-			}
-			let (head, tail) = path.split_at(1);
-			let head = head[0];
-
-			// find a child that matches
-			for c in self.children.iter_mut() {
-				let mut c = c.borrow_mut();
-				if c.name() == head {
-					if tail.is_empty() {
-						// found -> run f with container
-						f(&mut c);
-					} else {
-						// path matches so far, go deeper
-						c.find_child_container_mut_then(&tail, f);
-					}
-				}
-			}
-		}
-	*/
-	pub fn find_child_container_by_tag_mut_then(
-		&mut self,
-		tag: &str,
-		f: &dyn Fn(&mut UiElementContainer),
-	) -> bool {
-		// lookup in tag_map
-		let maybe_index = self.tag_map.get(tag);
-		let r = maybe_index
-			.map(|i| {
-				let r = self.children[*i]
-					.borrow_mut()
-					.find_child_container_by_tag_mut_then(tag, f);
-
-				//debug!("{} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
-				r
-			})
-			.unwrap_or(false);
-		//debug!("! {} <- UiElementContainerData::find_child_container_by_tag_mut_then", r);
-		r
-	}
-
-	pub fn find_child_by_tag_as_mut_element_then<E: 'static>(
-		&mut self,
-		tag: &str,
-		f: &dyn Fn(&mut E),
-	) {
-		// lookup in tag_map
-		let maybe_index = self.tag_map.get(tag);
-		maybe_index.map(|i| {
-			self.children[*i]
-				.borrow_mut()
-				.find_child_by_tag_as_mut_element_then(tag, f)
-		});
-	}
-	/*
-		pub fn find_child_mut_as_element_then<E: 'static>(
-			&mut self,
-			path: &[&str],
-			f: &dyn Fn(&mut E),
-		) {
-			if let Some(mut c) = self.find_child_mut(path) {
-				let mut c = c.borrow_mut();
-				let c = c.borrow_element_mut();
-				match c.as_any_mut().downcast_mut::<E>() {
-					Some(e) => {
-						f(e);
-					},
-					None => panic!(
-						"{:?} isn't a {:?} at {:#?}!",
-						&c,
-						std::any::type_name::<E>(),
-						&path
-					),
-				}
-			} else {
-				warn!(
-					"Cannot find {:?} at path {:#?}",
-					std::any::type_name::<E>(),
-					&path
-				);
-			}
-		}
-	*/
-	/*
-		pub fn find_child_mut(&mut self, path: &[&str]) -> Option<UiElementContainerHandle> {
-			if path.len() == 0 {
-				// nothing left to check
-				return None;
-			}
-			let (head, tail) = path.split_at(1);
-			let head = head[0];
-
-			if head == self.name() {
-				if tail.len() == 0 {
-					todo!("Is searching for yourself in yourself actually a valid use case?");
-				} else {
-					return self.find_child_mut(tail);
-				}
-			}
-
-			for c in self.borrow_children_mut().iter_mut() {
-				if let Some(r) = c.borrow_mut().find_child_mut(path) {
-					return Some(r);
-				}
-			}
-			None
-		}
-	*/
-	pub fn dump_info(&self) {
-		self.dump_info_internal(&"", &Vector2::zero(), 0);
-	}
-	pub fn dump_info_internal(&self, indent: &str, offset: &Vector2, depth: usize) {
-		debug!("{:?}", &self.tag_map);
-		let new_indent = format!("{}  ", indent);
-		for c in self.borrow_children().iter() {
-			//			let co = offset; //.add( c.pos() );
-			let co = offset.add(c.borrow().pos());
-			c.borrow()
-				.dump_info_internal(&new_indent, &co, depth.saturating_sub(1));
-		}
-	}
-}
 
 #[derive(Debug, Clone)]
 pub struct UiElementContainerHandleWeak {
@@ -448,6 +224,104 @@ children:
 		});
 		//todo!();
 		container
+	}
+
+	pub fn to_yaml_config_string(&self) -> String {
+		let yaml = self.to_yaml_config();
+		serde_yaml::to_string(&SortDataElement(&yaml)).unwrap_or("".to_string())
+	}
+	pub fn to_yaml_config(&self) -> serde_yaml::Value {
+		/*
+		struct UiElementContainerConfig {
+			#[serde(rename = "type")]
+			element_type: String,
+			name:         Option<String>,
+			tag:          Option<String>,
+			//	children:     Option<Vec<UiElementContainerChildConfig>>,
+			children:     Option<Vec<serde_yaml::Value>>,
+			fade:         Option<Vec<String>>,
+		}
+		*/
+		let children: Vec<serde_yaml::Value> = self
+			.data
+			.children
+			.iter()
+			.map(|c| c.borrow().to_yaml_config())
+			.collect();
+		//let children = serde_yaml::Value::Sequence( children );
+		let mut c = UiElementContainerConfig {
+			element_type: self.element.type_name().to_string(),
+			name:         if self.data.name.is_empty() {
+				None
+			} else {
+				Some(self.data.name.clone())
+			},
+			tag:          self.data.tag.clone(),
+			children:     if children.is_empty() {
+				None
+			} else {
+				Some(children)
+			},
+			fade:         None,
+		};
+
+		let element_yaml = self.element.to_yaml_config();
+
+		//serde_yaml::to_value( element_yaml ).unwrap_or( serde_yaml::Value::Null )
+		debug!("{:?}", &c);
+		println!("{:?}", &element_yaml);
+
+		let mut c_yaml = serde_yaml::to_value(c).unwrap_or(serde_yaml::Value::Null);
+		UiElementContainer::merge_yaml(&mut c_yaml, element_yaml);
+		/*
+		c.patch_from_value( &element_yaml ).unwrap();
+		c.patch_from_key_val( "element_type=UiGridBox____PATCHED" ).unwrap();
+		c.patch_from_key_val( "padding=1234.56" ).unwrap();
+		*/
+		debug!("{:?}", &c_yaml);
+
+		//serde_yaml::to_value( c ).unwrap_or( serde_yaml::Value::Null )
+		c_yaml
+		//serde_yaml::Value::Null
+		/*
+		- type: UiButton
+		  size: 64x64
+		  image: ui-button_back
+		  name: Back
+		  tag: back
+		 */
+	}
+	fn merge_yaml(a: &mut serde_yaml::Value, b: serde_yaml::Value) {
+		println!("Merging");
+		match (a, b) {
+			(a @ &mut serde_yaml::Value::Mapping(_), serde_yaml::Value::Mapping(b)) => {
+				println!("Merging values");
+				let a = a.as_mapping_mut().unwrap();
+				for (k, v) in b {
+					if v.is_sequence() && a.contains_key(&k) && a[&k].is_sequence() {
+						let mut _b = a.get(&k).unwrap().as_sequence().unwrap().to_owned();
+						_b.append(&mut v.as_sequence().unwrap().to_owned());
+						a[&k] = serde_yaml::Value::from(_b);
+						continue;
+					}
+					if !a.contains_key(&k) {
+						println!("Adding {:?} = {:?}", &k, &v);
+						a.insert(k.to_owned(), v.to_owned());
+					} else {
+						println!("Recursing {:?} = {:?}", &k, &v);
+						Self::merge_yaml(&mut a[&k], v);
+					}
+				}
+			},
+			(_a, serde_yaml::Value::Null) => {
+				println!("Ignoring NULL");
+			},
+			(a, b) => {
+				println!("Replacing {:?} <= {:?}", &a, &b);
+
+				*a = b
+			},
+		}
 	}
 
 	pub fn new_from_element(element: impl UiElement + 'static) -> Self {
@@ -680,9 +554,10 @@ children:
 
 		if depth > 0 {
 			println!(
-				"C  {} {} ({}): {}x{} @{},{} +({},{})",
+				"C  {} {}[{}] ({}): {}x{} @{},{} +({},{})",
 				indent,
 				&self.data.name,
+				&self.data.tag().unwrap_or(&"".to_string()),
 				self.element.type_name(),
 				self.size().x,
 				self.size().y,
@@ -714,6 +589,10 @@ children:
 
 	pub fn borrow_children_mut(&mut self) -> &mut Vec<UiElementContainerHandle> {
 		&mut self.data.children
+	}
+
+	pub fn refresh_tags(&mut self) {
+		self.data.refresh_tags();
 	}
 
 	pub fn add_child(&mut self, mut child: UiElementContainer) -> &mut UiElementContainerHandle {
@@ -755,6 +634,9 @@ children:
 			.parent_size_changed(&mut self.data, parent_size);
 	}
 
+	pub fn recalculate_size(&mut self) {
+		self.element.recalculate_size(&mut self.data);
+	}
 	pub fn layout(&mut self, pos: &Vector2) {
 		/*
 		debug!(
@@ -803,6 +685,13 @@ children:
 	}
 	pub fn set_pos(&mut self, pos: &Vector2) {
 		self.data.pos = *pos;
+	}
+
+	pub fn data(&self) -> &UiElementContainerData {
+		&self.data
+	}
+	pub fn data_mut(&mut self) -> &mut UiElementContainerData {
+		&mut self.data
 	}
 
 	fn handle_mouse_click(
@@ -887,12 +776,14 @@ children:
 		f: &dyn Fn(&mut E),
 	) {
 		if self.data.tag == Some(tag.to_string()) {
+			//debug!("Found tag {}", &tag);
 			let c = &mut self.element;
 			match c.as_any_mut().downcast_mut::<E>() {
 				Some(e) => {
 					f(e);
 				},
 				None => panic!(
+					// :TODO: maybe this is ok!?
 					"{:?} isn't a {:?} with tag {:#?}!",
 					&c,
 					std::any::type_name::<E>(),
@@ -907,7 +798,7 @@ children:
 	pub fn find_child_container_by_tag_mut_then(
 		&mut self,
 		tag: &str,
-		f: &dyn Fn(&mut UiElementContainer),
+		f: &mut dyn FnMut(&mut UiElementContainer),
 	) -> bool {
 		if self.data.tag == Some(tag.to_string()) {
 			f(self);
@@ -921,7 +812,9 @@ children:
 	}
 }
 
-#[derive(Debug, Deserialize)]
+// :TODO: write custom serializer, to ensure 'correct' order
+#[serde_with::skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiElementContainerConfig {
 	#[serde(rename = "type")]
 	element_type: String,
@@ -930,4 +823,75 @@ struct UiElementContainerConfig {
 	//	children:     Option<Vec<UiElementContainerChildConfig>>,
 	children:     Option<Vec<serde_yaml::Value>>,
 	fade:         Option<Vec<String>>,
+}
+
+fn sort_data_element<T: Serialize, S: serde::Serializer>(
+	value: &T,
+	serializer: S,
+) -> Result<S::Ok, S::Error> {
+	let value = serde_yaml::to_value(value).map_err(serde::ser::Error::custom)?;
+	//eprintln!("Value: {:?}", &value);
+	let value = match value {
+		serde_yaml::Value::Mapping(mapping) => {
+			//eprintln!("Mapping: {:?}", &mapping);
+			let data_names = &[serde_yaml::Value::String("children".to_string())];
+			let l = mapping.len();
+			let mut new_mapping = serde_yaml::Mapping::with_capacity(l);
+			let mut data_mapping = serde_yaml::Mapping::with_capacity(l);
+			for (k, v) in mapping {
+				// :TODO: recurse into sub structs aka 'v'
+				if data_names.contains(&k) {
+					data_mapping.insert(k, v); // remember data
+				} else {
+					new_mapping.insert(k, v);
+				}
+			}
+			for (k, v) in data_mapping {
+				new_mapping.insert(k, v); // append the remembered data
+			}
+			serde_yaml::Value::Mapping(new_mapping)
+		},
+		serde_yaml::Value::Sequence(sequence) => serde_yaml::Value::Sequence(sequence),
+		o => o,
+	};
+	value.serialize(serializer)
+}
+
+#[derive(Serialize)]
+struct SortDataElement<T: Serialize>(#[serde(serialize_with = "sort_data_element")] T);
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn can_to_yaml() {
+		let container = UiElementContainer::from_yaml(
+			&UiElementFactory::default().with_standard_ui_elements(),
+			"
+type: UiImage
+name: fallback
+image: ui-button_confirm_danger
+size: 64x64
+fade:
+  - out 0.0
+  - in 1.0
+children:
+ - type: UiLabel
+   tag: fallback_label
+   size: 128x32
+   text: Unable to load ui config from asset
+   fade:
+     - out 0.0
+     - in 1.0
+",
+		);
+
+		eprintln!("{:#?}", &container);
+
+		let config = container.to_yaml_config();
+		eprintln!("{:#?}", &config);
+		let config_yaml =
+			serde_yaml::to_string(&SortDataElement(&config)).unwrap_or("".to_string());
+		eprintln!("{}", &config_yaml);
+	}
 }

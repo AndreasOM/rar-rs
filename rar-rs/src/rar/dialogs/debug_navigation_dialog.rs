@@ -22,7 +22,9 @@ impl UiElement for DebugNavigationDialog {
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
 		//let button_size = Vector2::new(256.0, 64.0);
 		container.add_child_element_container(
-			UiHbox::new()
+			//UiHbox::new()
+			UiGridBox::default()
+				.with_column_count(9) // larger than elements -> hbox
 				.with_padding(16.0)
 				.containerize()
 				.with_name("Debug Navigation Dialog - hbox")

@@ -32,6 +32,8 @@ mod tileset;
 pub use tileset::Tileset;
 mod world;
 pub use world::World;
+mod world_list;
+pub use world_list::WorldList;
 mod world_renderer;
 pub use world_renderer::WorldRenderer;
 

@@ -1,6 +1,6 @@
 use oml_game::math::Vector2;
 use oml_game::renderer::Color;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::ui::UiElementInfo;
 use crate::ui::{UiElement, UiElementContainerData, UiElementFadeState, UiRenderer};
@@ -10,8 +10,8 @@ pub struct UiLabel {
 	size:      Vector2,
 	color:     Color,
 	text:      String,
-	alignment: Vector2,
-	font_id:   u8,
+	alignment: Vector2, // :TODO: serialize
+	font_id:   u8,      // :TODO: serialize
 }
 
 impl UiLabel {
@@ -59,7 +59,7 @@ impl UiLabel {
 
 impl UiElement for UiLabel {
 	fn type_name(&self) -> &str {
-		"[UiLabel]"
+		Self::info().type_name
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
@@ -92,9 +92,18 @@ impl UiElement for UiLabel {
 			// :TODO:
 		}
 	}
+	fn to_yaml_config(&self) -> serde_yaml::Value {
+		serde_yaml::to_value(UiLabelConfig {
+			text:  self.text.clone(),
+			size:  format!("{}x{}", self.size.x, self.size.y),
+			color: None, // :TODO: Some(self.color),
+		})
+		.unwrap_or(serde_yaml::Value::Null)
+	}
 }
 
-#[derive(Debug, Deserialize)]
+#[serde_with::skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiLabelConfig {
 	size:  String,
 	#[serde(default)]

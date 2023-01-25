@@ -1,7 +1,7 @@
 use std::sync::mpsc::Sender;
 
 use oml_game::math::Vector2;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::*;
 
 use crate::ui::UiElementInfo;
@@ -49,7 +49,7 @@ impl UiButton {
 
 impl UiElement for UiButton {
 	fn type_name(&self) -> &str {
-		"[UiButton]"
+		UiButton::info().type_name
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
@@ -58,8 +58,10 @@ impl UiElement for UiButton {
 		self
 	}
 	fn setup_within_container(&mut self, container: &mut UiElementContainerData) {
-		let image = container.add_child_element(UiImage::new(&self.imagename, &self.imagesize));
-		self.image = Some(image);
+		if self.imagename != "None" {
+			let image = container.add_child_element(UiImage::new(&self.imagename, &self.imagesize));
+			self.image = Some(image);
+		}
 	}
 	fn handle_ui_event(
 		&mut self,
@@ -99,9 +101,16 @@ impl UiElement for UiButton {
 		// self.image =    None; :TODO: handle reconfigure
 	}
 	*/
+	fn to_yaml_config(&self) -> serde_yaml::Value {
+		serde_yaml::to_value(UiButtonConfig {
+			image: self.imagename.clone(),
+			size:  format!("{}x{}", self.imagesize.x, self.imagesize.y),
+		})
+		.unwrap_or(serde_yaml::Value::Null)
+	}
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct UiButtonConfig {
 	image: String,
 	size:  String,

@@ -59,7 +59,7 @@ impl GameStateMenu {
 	fn load_ui(&mut self, system: &mut System) {
 		self.ui_system.add_child(
 			&Vector2::new(0.0, 0.0),
-			WorldSelectionDialog::new()
+			WorldSelectionDialog::new(system, &self.ui_element_factory)
 				.containerize()
 				.with_name("World Selection Dialog")
 				.with_tag("world_selection_dialog"),
@@ -73,7 +73,20 @@ impl GameStateMenu {
 				.with_tag("quit_app_dialog")
 				.with_fade_out(0.0),
 		);
-
+		/*
+				self.ui_system
+					.root_mut()
+					.as_mut()
+					.unwrap()
+					.find_child_by_tag_as_mut_element_then::<crate::ui::UiLabel>(
+						//.
+						"label",
+						&|l| {
+							//.
+							l.set_text("TEST gs_menu");
+						},
+					);
+		*/
 		self.ui_system.layout();
 	}
 }
@@ -84,7 +97,7 @@ impl GameState for GameStateMenu {
 
 		self.ui_system
 			.setup("Menu", system, self.event_response_sender.clone())?;
-		self.load_ui( system );
+		self.load_ui(system);
 
 		Ok(())
 	}
@@ -101,7 +114,7 @@ impl GameState for GameStateMenu {
 		self.ui_system.teardown();
 		self.ui_system
 			.setup("Menu", system, self.event_response_sender.clone())?;
-		self.load_ui( system );
+		self.load_ui(system);
 		Ok(())
 	}
 
@@ -211,6 +224,14 @@ impl GameState for GameStateMenu {
 	}
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		self.ui_system.render_debug(debug_renderer);
+	}
+
+	fn ui_to_yaml_config(&self) -> serde_yaml::Value {
+		self.ui_system.to_yaml_config()
+	}
+
+	fn ui_to_yaml_config_string(&self) -> String {
+		self.ui_system.to_yaml_config_string()
 	}
 
 	fn as_any(&self) -> &(dyn Any + 'static) {

@@ -181,7 +181,7 @@ impl Ui3x3Image {
 
 impl UiElement for Ui3x3Image {
 	fn type_name(&self) -> &str {
-		"[Ui3x3Image]"
+		"Ui3x3Image"
 	}
 	fn as_any(&self) -> &dyn std::any::Any {
 		self
@@ -203,9 +203,10 @@ impl UiElement for Ui3x3Image {
 			// Note: We pre-calc everything in the ::new()
 
 			for q in &self.quads {
-				let p = &q.0; // :TODO: I am pretty sure we need to factor in the container.pos here ... somehow ... maybe
+				let p = &q.0; // :TODO: See below! I am pretty sure we need to factor in the container.pos here ... somehow ... maybe
 				let s = &q.1;
 				let m = &q.2;
+				let p = p.add(&container.pos); // yes, we do need to factor in the container.pos :facepalm:
 				ui_renderer.push_texture_matrix(&m);
 				ui_renderer.render_textured_quad(&p, &s);
 				ui_renderer.pop_texture_matrix();

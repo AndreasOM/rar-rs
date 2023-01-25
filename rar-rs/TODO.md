@@ -4,22 +4,19 @@
 ## In Progress
 
 
-
 ## TODO
-
-
-- [ ] Add world selection via menu
-
-- [ ] Fix font rendering
-
-- [ ] Add support for parallax in map layers
-- [ ] Add debug camera with zoom
 
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [ ] Add sideways collision
     - [ ] Prepare optimized getting of potential colliders
     - [ ] Add a fixed_update to entities
+
+- [ ] Fix font rendering
+
+- [ ] Add support for parallax in map layers
+- [ ] Add debug camera with zoom
+
 
 - [ ] Implement and balance basic gameplay mechanics
     - [ ] Run
@@ -62,6 +59,7 @@
 
 
 ## TODO - Later
+- [ ] Dump all UIElements to yaml config -> do as we go
 - [ ] Add support for font selection from ui config for label
 - [ ] Improve hotreloading of UI from assets
 - [ ] Refactor button click handling
@@ -86,7 +84,19 @@
 
 ## Done
 
-### Episode 0030 - 5.0h +
+## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
+
+### Episode 0031 - 3.5h + 2.5h
+- [x] Dump (some) UI config to yaml
+- [x] Create world selection via config file
+- [x] Create the "world button" from config file
+- [x] Add tag reuse, aka duplicated tag support
+- [x] Add world selection via menu
+- [x] Create the "world button" from config file
+- [x] Configure world list via config file
+- [x] Display audio backend in settings
+
+### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 - [x] Fix fading out SettingsDialog when opened in game
 - [x] Add hotreloading of UI from assets
@@ -100,7 +110,6 @@
 - [x] Load ui layout from file, including fallback with error message
 - [x] Add support for multiple fonts
 
-## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
 ### Episode 0028 - 5.0h + 0.5h  ->  62.0h   + 46.5h     -> 108.5h
 - [x] Improve layout of settings dialog

@@ -24,7 +24,7 @@ pub enum UiElementFadeState {
 
 pub trait UiElement {
 	fn type_name(&self) -> &str {
-		"[UiElement]"
+		"[Trait] [UiElement]"
 	}
 	fn as_any(&self) -> &dyn std::any::Any;
 	fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
@@ -97,6 +97,10 @@ pub trait UiElement {
 		);
 	}
 
+	fn to_yaml_config(&self) -> serde_yaml::Value {
+		serde_yaml::Value::Null
+	}
+
 	fn containerize(self) -> UiElementContainer
 	where
 		Self: 'static + Sized,
@@ -108,7 +112,7 @@ pub trait UiElement {
 
 impl std::fmt::Debug for dyn UiElement {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-		writeln!(f, "[Trait] UiElement")
+		write!(f, "{}", self.type_name())
 	}
 }
 

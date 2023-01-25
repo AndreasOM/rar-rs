@@ -41,6 +41,10 @@ impl UiSystem {
 		Ok(())
 	}
 
+	pub fn root_mut(&mut self) -> &mut Option<UiElementContainer> {
+		&mut self.root
+	}
+
 	pub fn teardown(&mut self) {
 		if let Some(_ers) = self.event_response_sender.take() {}
 		if let Some(_root) = self.root.take() {}
@@ -184,6 +188,22 @@ impl UiSystem {
 	pub fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		if let Some(root) = &mut self.root {
 			root.render_debug(debug_renderer, &Vector2::zero(), 0);
+		}
+	}
+
+	pub fn to_yaml_config(&self) -> serde_yaml::Value {
+		if let Some(root) = &self.root {
+			root.to_yaml_config()
+		} else {
+			serde_yaml::Value::Null
+		}
+	}
+
+	pub fn to_yaml_config_string(&self) -> String {
+		if let Some(root) = &self.root {
+			root.to_yaml_config_string()
+		} else {
+			String::new()
 		}
 	}
 }
