@@ -1,6 +1,4 @@
-use oml_audio::AudioBackend;
 //use oml_audio::fileloader::{FileLoader, FileLoaderFile};
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -9,7 +7,9 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
 
+pub use oml_audio::fileloader::{FileLoader, FileLoaderFile};
 use oml_audio::Audio;
+use oml_audio::AudioBackend;
 //use oml_game::system::audio_fileloader_system::*;
 use oml_game::math::{Matrix44, Vector2};
 use oml_game::renderer::debug_renderer;
@@ -17,6 +17,7 @@ use oml_game::renderer::debug_renderer::DebugRenderer;
 use oml_game::renderer::Color;
 use oml_game::renderer::Effect;
 use oml_game::renderer::Renderer;
+use oml_game::system::audio_fileloader_system::*;
 //use oml_game::renderer::TextureAtlas;
 use oml_game::system::filesystem::Filesystem;
 use oml_game::system::filesystem_archive::FilesystemArchive;
@@ -25,9 +26,9 @@ use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
-use oml_game::system::audio_fileloader_system::*;
 use tracing::*;
 
+use crate::rar::data::AudioData;
 use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
 use crate::rar::font_ids::FontId;
@@ -253,6 +254,23 @@ impl App for RarApp {
 		let something = something_file.read_as_string();
 
 		println!("Something: {}", &something);
+
+		//self.audio = Audio::create_default();
+
+		if let Some(data) = self.system.data() {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio
+						.write()
+						.and_then(|mut audio| {
+							audio.backend_type = self.audio.backend_type().to_owned();
+							Ok(())
+						})
+						.unwrap();
+				},
+				None => {},
+			}
+		}
 
 		self.audio.load_sound_bank(&mut self.system, "base.omsb");
 

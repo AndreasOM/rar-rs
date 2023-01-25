@@ -4,6 +4,7 @@ use std::sync::RwLock;
 pub struct AudioData {
 	pub is_sound_enabled: bool,
 	pub is_music_enabled: bool,
+	pub backend_type:     String,
 }
 
 #[derive(Debug, Default)]
@@ -24,6 +25,15 @@ impl RarData {
 			game:  RwLock::new(GameData::default()),
 		}
 	}
+
+	/* :WIP:
+	pub fn audio_write_and_then(&mut self, f: &dyn FnOnce( std::sync::RwLockWriteGuard<AudioData> ) -> bool ) -> bool {
+		self.audio.write().and_then(|mut audio| {
+			Ok(f( audio ))
+		});
+		false
+	}
+	*/
 }
 
 impl oml_game::system::Data for RarData {

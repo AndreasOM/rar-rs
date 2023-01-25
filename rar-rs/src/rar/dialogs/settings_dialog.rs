@@ -41,6 +41,19 @@ impl SettingsDialog {
 		const GIT_COMMIT_HASH: &str = env!("GIT_COMMIT_HASH");
 		let code_build_number = env!("CODE_BUILD_NUMBER");
 
+		let mut audio_backend = "Unknown".to_string();
+		if let Some(data) = &self.data {
+			match data.as_any().downcast_ref::<RarData>() {
+				Some(data) => {
+					data.audio.read().and_then(|audio| {
+						audio_backend = audio.backend_type.to_owned();
+						Ok(())
+					});
+				},
+				None => {},
+			};
+		};
+
 		let labels = [
 			"Version",
 			&format!(": {}", VERSION),
@@ -52,6 +65,9 @@ impl SettingsDialog {
 			&format!(": {}", self.base_data_build_number),
 			"Commit",
 			&format!(": {}", GIT_COMMIT_HASH),
+			"Audio",
+			//&audio_backend,
+			&format!(": {}", audio_backend),
 		];
 
 		labels

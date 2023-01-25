@@ -10,8 +10,8 @@ name="rar"
 path="src/rar_main.rs"
 
 [features]
-#default = []
-default = ["audio-apple"]
+default = []
+#default = ["audio-apple"]
 standalone = []
 audio-apple = ["oml-audio/use_apple"]
 audio-miniaudio = ["oml-audio/use_miniaudio"]
@@ -38,16 +38,18 @@ yaml-patch = "0.1.1"
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-path = "../../oml-game"
-version = "0.31.0-dev"
+#path = "../../oml-game"
+#version = "0.31.0-dev"
 #git = "https://github.com/AndreasOM/oml-game"
-#branch = "episode-0030"
+#branch = "episode-0031"
 
 [dependencies.oml-audio]
 #path = "../../oml-audio"
-#version = "0.8.4-dev"
-version = "0.8.4-alpha"
+#version = "0.8.5-dev"
+version = "0.8.6-alpha"
+#default-features = false
+#features = ["use_miniaudio"]
 
 [patch.crates-io]
-## oml-game = { path = "../../oml-game" }
+oml-game = { path = "../../oml-game" }
 ## oml-game = { git = "https://github.com/AndreasOM/oml-game", branch = "episode-0018" }
