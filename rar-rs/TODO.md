@@ -86,7 +86,7 @@
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
-### Episode 0031 - 3.5h + 2.0h
+### Episode 0031 - 3.5h + 2.5h
 - [x] Dump (some) UI config to yaml
 - [x] Create world selection via config file
 - [x] Create the "world button" from config file
@@ -94,6 +94,7 @@
 - [x] Add world selection via menu
 - [x] Create the "world button" from config file
 - [x] Configure world list via config file
+- [x] Display audio backend in settings
 
 ### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
