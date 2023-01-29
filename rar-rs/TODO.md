@@ -85,9 +85,10 @@
 
 ## Done
 
-### Episode 0032 - 3.0h...
+### Episode 0032 - 3.0h + 0.5h  ->
 - [x] Add very simple debug zoom (via mouse wheel and '/' key)
 - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
+- [x] Use omt-atlas new autosizing feature to reduce atlas sizes
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
