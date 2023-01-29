@@ -39,7 +39,7 @@ chrono = "0.4.23"
 
 [dependencies.oml-game]
 #path = "../../oml-game"
-#version = "0.31.0-dev"
+version = "0.32.2-alpha"
 #git = "https://github.com/AndreasOM/oml-game"
 #branch = "episode-0031"
 
@@ -51,5 +51,5 @@ version = "0.8.6-alpha"
 #features = ["use_miniaudio"]
 
 [patch.crates-io]
-oml-game = { path = "../../oml-game" }
+#oml-game = { path = "../../oml-game" }
 ## oml-game = { git = "https://github.com/AndreasOM/oml-game", branch = "episode-0018" }
