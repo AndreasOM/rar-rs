@@ -9,7 +9,7 @@ input:
   - "player-backflip-left-*.png"
 parameters: {
 }
-cmd_line: "${tool} ${command} --size 2048 --output ${data_directory}/${output} --input ${input} --reference-path ${data_directory}"
+cmd_line: "${tool} ${command} --maximum-size 2048 --output ${data_directory}/${output} --input ${input} --reference-path ${data_directory}"
 
 
 # omt-atlas combine --output rar-data/player-atlas-0 --input rar-content/entities/player/*.png --size 256

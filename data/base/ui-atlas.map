@@ -3,10 +3,10 @@ ui-3x3-dev.png:0,192-96,288
 ui-button.png:96,192-352,256
 ui-button_back.png:352,192-416,256
 ui-button_confirm_danger.png:416,192-480,256
-ui-button_pause.png:480,192-544,256
-ui-button_play.png:544,192-608,256
-ui-button_settings.png:608,192-672,256
-ui-togglebutton_music_off.png:672,192-736,256
-ui-togglebutton_music_on.png:736,192-800,256
-ui-togglebutton_sound_off.png:800,192-864,256
-ui-togglebutton_sound_on.png:864,192-928,256
+ui-button_pause.png:0,288-64,352
+ui-button_play.png:64,288-128,352
+ui-button_settings.png:128,288-192,352
+ui-togglebutton_music_off.png:192,288-256,352
+ui-togglebutton_music_on.png:256,288-320,352
+ui-togglebutton_sound_off.png:320,288-384,352
+ui-togglebutton_sound_on.png:384,288-448,352

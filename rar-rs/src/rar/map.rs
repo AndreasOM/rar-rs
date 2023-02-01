@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use derive_getters::Getters;
 use oml_game::math::{Circle, Rectangle, Vector2};
 use oml_game::system::System;
@@ -264,7 +266,15 @@ impl Map {
 		let mut layer = Layer::default();
 		layer.set_name(name);
 
+		let mut all_tiles: HashSet<(i32, i32)> = HashSet::new();
 		// for now we just use data from *all* layers
+		let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
+		let half_tile_size = tile_size.scaled(0.5);
+		let mut min_x = i32::MAX;
+		let mut min_y = i32::MAX;
+		let mut max_x = i32::MIN;
+		let mut max_y = i32::MIN;
+
 		for l in self.layers.iter() {
 			if !layers.iter().any(|ul| l.name().starts_with(ul)) {
 				debug!(
@@ -281,35 +291,87 @@ impl Map {
 
 			}
 			*/
-			let tile_size = Vector2::new(self.tilewidth as f32, self.tileheight as f32);
-			let half_tile_size = tile_size.scaled(0.5);
 			for c in l.chunks().iter() {
-				let x = *c.x() as f32;
-				let y = *c.y() as f32;
-				let y = -y + 7.0; // :HACK: what the fudge?
-				let start = tile_size.scaled_vector2(&Vector2::new(x, y));
+				let chunk_x = *c.x();
+				let chunk_y = *c.y();
+				let chunk_y = chunk_y - 7; // :HACK: what the fudge? 7?
 				let tm = c.tile_map();
 				// no visibility checks here, it's pre-processed anyway
-				// :HACK: just create one collider per none-zero tile
 				for y in 0..*c.height() {
 					for x in 0..*c.width() {
 						// :TODO: maybe we need the tilemap here to lookup non-1x1 tiles?
 						let tid = tm.get_xy(x, y);
 						if tid > 0 {
-							let pos = start.add(
-								&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)),
-							);
-							let pos = pos.add(&half_tile_size);
-							let rect = Rectangle::default().with_size(&tile_size).with_center(&pos);
-							let bounding_circle = rect.calculate_bounding_circle();
-							let od = ObjectData::Rectangle {
-								rect,
-								bounding_circle: Some(bounding_circle),
-							};
-							let o = Object::default().with_data(od);
-							layer.add_object(o);
+							let cx = chunk_x + x as i32;
+							let cy = chunk_y + y as i32;
+							all_tiles.insert((cx, cy));
+							if cx < min_x {
+								min_x = cx;
+							} else if cx > max_x {
+								max_x = cx;
+							}
+							if cy < min_y {
+								min_y = cy;
+							} else if cy > max_y {
+								max_y = cy;
+							}
 						}
 					}
+				}
+			}
+		}
+
+		// :HACK: just create one collider per none-zero tile
+		'outer: for cy in min_y..=max_y {
+			for cx in min_x..=max_x {
+				if all_tiles.is_empty() {
+					break 'outer;
+				}
+				if all_tiles.contains(&(cx, cy)) {
+					let (x, y) = all_tiles.take(&(cx, cy)).unwrap();
+					let start = Vector2::zero(); //tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32));
+					let pos = start
+						.add(&tile_size.scaled_vector2(&Vector2::new(x as f32, y as f32 * -1.0)));
+					let mut pos = pos.add(&half_tile_size);
+					let mut rect_size = tile_size;
+					let t10 = (x + 1, y + 0);
+					let t01 = (x + 0, y + 1);
+					let t11 = (x + 1, y + 1);
+					match (
+						all_tiles.contains(&t10),
+						all_tiles.contains(&t01),
+						all_tiles.contains(&t11),
+					) {
+						(true, true, true) => {
+							all_tiles.remove(&t10);
+							all_tiles.remove(&t01);
+							all_tiles.remove(&t11);
+							rect_size.x *= 2.0;
+							rect_size.y *= 2.0;
+							pos.x += half_tile_size.x;
+							pos.y -= half_tile_size.y;
+						},
+						(true, _, _) => {
+							all_tiles.remove(&t10);
+							rect_size.x *= 2.0;
+							pos.x += half_tile_size.x;
+						},
+						(_, true, _) => {
+							all_tiles.remove(&t01);
+							rect_size.y *= 2.0;
+							pos.y -= half_tile_size.y;
+						},
+						_ => {},
+					};
+
+					let rect = Rectangle::default().with_size(&rect_size).with_center(&pos);
+					let bounding_circle = rect.calculate_bounding_circle();
+					let od = ObjectData::Rectangle {
+						rect,
+						bounding_circle: Some(bounding_circle),
+					};
+					let o = Object::default().with_data(od);
+					layer.add_object(o);
 				}
 			}
 		}

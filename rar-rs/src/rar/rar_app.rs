@@ -84,8 +84,9 @@ pub struct RarApp {
 	game_states:       HashMap<GameStates, Box<dyn GameState>>,
 	active_game_state: GameStates,
 
-	next_game_states: VecDeque<GameStates>,
-	debug_zoomed_out: bool,
+	next_game_states:  VecDeque<GameStates>,
+	debug_zoomed_out:  bool,
+	debug_zoom_factor: f32,
 }
 
 impl Default for RarApp {
@@ -115,6 +116,7 @@ impl Default for RarApp {
 			//			game_state:       Box::new(GameStateGame::new()),
 			//			game_state:       Box::new(GameStateMenu::new()),
 			debug_zoomed_out: false,
+			debug_zoom_factor: 1.0,
 			active_game_state: GameStates::Menu,
 			game_states,
 			next_game_states: VecDeque::new(),
@@ -425,6 +427,20 @@ impl App for RarApp {
 		if wuc.was_key_pressed('^' as u8) {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
 		}
+		if wuc.was_key_pressed('/' as u8) {
+			self.debug_zoomed_out = !self.debug_zoomed_out;
+		}
+
+		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y != 0.0 {
+			// :TODO: use close to
+			self.debug_zoom_factor += wuc.mouse_wheel_line_delta.y * 0.001;
+			if self.debug_zoom_factor >= 5.0 {
+				self.debug_zoom_factor = 5.0;
+			} else if self.debug_zoom_factor <= 0.001 {
+				self.debug_zoom_factor = 0.001;
+			}
+			debug!("debug_zoom_factor {}", self.debug_zoom_factor);
+		}
 
 		self.viewport_size = wuc.window_size;
 
@@ -661,7 +677,7 @@ impl App for RarApp {
 						let rect = (-0.5 * w, -512.0, w, 1024.0).into();
 						debug_renderer.add_rectangle(&rect, 1.0, &Color::white());
 					}
-					0.6
+					0.6 * self.debug_zoom_factor
 				};
 
 				//				dbg!(&scaling);

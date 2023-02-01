@@ -3,19 +3,20 @@
 
 ## In Progress
 
+- [ ] Add tilemap collision
+    - [x] Generate tilemap colliders
+    - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
+    - [ ] Add sideways collision
+    - [ ] Prepare optimized getting of potential colliders
+    - [+] Add a fixed_update to entities
 
 ## TODO
 
-- [ ] Add tilemap collision
-    - [x] Generate tilemap colliders
-    - [ ] Add sideways collision
-    - [ ] Prepare optimized getting of potential colliders
-    - [ ] Add a fixed_update to entities
+- [ ] Clip tile rendering on top and bottom
 
 - [ ] Fix font rendering
 
-- [ ] Add support for parallax in map layers
-- [ ] Add debug camera with zoom
+- [ ] Add support for parallax in map layers. Maybe for decoration layers only
 
 
 - [ ] Implement and balance basic gameplay mechanics
@@ -84,9 +85,14 @@
 
 ## Done
 
+### Episode 0032 - 3.0h + 0.5h  ->
+- [x] Add very simple debug zoom (via mouse wheel and '/' key)
+- [x] Merge adjacent colliders (2x1, 1x2, 2x2)
+- [x] Use omt-atlas new autosizing feature to reduce atlas sizes
+
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
-### Episode 0031 - 3.5h + 2.5h
+### Episode 0031 - 3.5h + 2.5h  -> 74.0h    + 53.0h     -> 127.0
 - [x] Dump (some) UI config to yaml
 - [x] Create world selection via config file
 - [x] Create the "world button" from config file
@@ -96,13 +102,13 @@
 - [x] Configure world list via config file
 - [x] Display audio backend in settings
 
-### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 160.0
+### Episode 0030 - 5.0h + 0.0h  ->  70.5h   + 49.5h     -> 120.0
 - [x] Allow registering custom UIElements for creation from config ("producer (fn) & factory")
 - [x] Fix fading out SettingsDialog when opened in game
 - [x] Add hotreloading of UI from assets
 - [x] Add clean quit game (with confirmation)
 
-### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 155.0h
+### Episode 0029 - 3.5h + 3.0h  ->  65.5h   + 49.5h     -> 115.0h
 - [x] Load UI config from yaml string
 - [x] Add confirmation when leaving game
 - [x] Fix alignment of ingame pause buttons using grid box

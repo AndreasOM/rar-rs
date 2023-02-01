@@ -462,6 +462,7 @@ impl Entity for Player {
 	fn teardown(&mut self) {}
 
 	fn update(&mut self, euc: &mut EntityUpdateContext) {
+		// debug!("Player update time step: {}", euc.time_step() );
 		if let Some(state_direction) = self.get_state_direction_mut() {
 			// println!("{:#?}", &state_direction );
 			state_direction.animated_texture.update(euc.time_step());
@@ -493,7 +494,7 @@ impl Entity for Player {
 	fn fixed_update(&mut self, euc: &EntityUpdateContext) {
 		//		println!("Player: {:?}", &self);
 		// :TODO: time step
-		//debug!("Player update time step: {}", euc.time_step() );
+		// debug!("Player fixed update time step: {}", euc.time_step() );
 
 		self.old_pos = self.pos;
 
@@ -502,11 +503,13 @@ impl Entity for Player {
 		self.pos = self.pos.add(&self.movement);
 
 		self.debug_colliders(euc);
+		/*
 		debug!(
 			"player delta pos y {} ({})",
 			self.pos.y - self.old_pos.y,
 			euc.time_step()
 		);
+		*/
 	}
 
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {

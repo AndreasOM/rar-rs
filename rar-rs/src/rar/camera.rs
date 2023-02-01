@@ -1,6 +1,7 @@
 use derive_getters::Getters;
 use oml_game::math::Rectangle;
 use oml_game::math::Vector2;
+use tracing::*;
 
 use crate::rar::entities::{EntityId, EntityManager, Player};
 
@@ -29,6 +30,7 @@ pub struct Camera {
 	punch_factor:        f32,
 	target_punch_factor: f32,
 	frame_size:          Vector2,
+	zoom:                f32,
 }
 
 impl Default for Camera {
@@ -41,6 +43,7 @@ impl Default for Camera {
 			punch_factor:        1.0,
 			target_punch_factor: 1.0,
 			frame_size:          Vector2::default(),
+			zoom:                1.0,
 			//			..Default::default()
 		}
 	}
@@ -69,7 +72,7 @@ impl Camera {
 	}
 
 	pub fn scale(&self) -> f32 {
-		self.punch_factor
+		self.punch_factor * self.zoom
 	}
 	pub fn follow_player_entity_id(&mut self, id: EntityId) {
 		self.mode = CameraMode::FollowPlayerEntityId { id }
@@ -79,6 +82,10 @@ impl Camera {
 		self.punch_factor = punch_factor;
 	}
 
+	pub fn change_zoom(&mut self, delta: f32) {
+		self.zoom += delta;
+		debug!("zoom: {}", self.zoom);
+	}
 	pub fn thaw(&mut self) {
 		self.state = CameraState::Active;
 	}
