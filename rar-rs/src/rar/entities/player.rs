@@ -289,7 +289,6 @@ impl Player {
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
 
-
 		// :TODO: move away
 		// y
 		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.y");

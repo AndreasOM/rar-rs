@@ -85,6 +85,7 @@ impl GameState for GameStateDebugCollisions {
 		self.rectangles.push((-150.0, -250.0, 100.0, 100.0).into());
 		self.rectangles.push((-500.0, -500.0, 1000.0, 200.0).into());
 		self.rectangles.push((-850.0, 200.0, 200.0, 200.0).into());
+		self.rectangles.push((-1050.0, 0.0, 200.0, 200.0).into());
 		self.rectangles.push((-850.0, -400.0, 200.0, 200.0).into());
 		self.rectangles.push((850.0, 200.0, 200.0, 200.0).into());
 		self.rectangles.push((850.0, -400.0, 200.0, 200.0).into());
