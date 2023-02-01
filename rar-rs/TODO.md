@@ -85,12 +85,15 @@
 
 ## Done
 
-### Episode 0032 - 3.0h + 0.5h  ->
+### Epsiode 0033 -> 3.5h + 
+- [x] Add generic telemetry logger :WIP:
+
+## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
+
+### Episode 0032 - 3.0h + 0.5h  -> 77.0h    + 53.5h     -> 130.5h
 - [x] Add very simple debug zoom (via mouse wheel and '/' key)
 - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
 - [x] Use omt-atlas new autosizing feature to reduce atlas sizes
-
-## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
 ### Episode 0031 - 3.5h + 2.5h  -> 74.0h    + 53.0h     -> 127.0
 - [x] Dump (some) UI config to yaml

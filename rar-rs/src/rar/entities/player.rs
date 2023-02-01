@@ -132,7 +132,6 @@ pub struct Player {
 	states:              HashMap<String, EntityState>,
 
 	// debug
-	speed_history:     VecDeque<Vector2>,
 	collision_history: VecDeque<Option<Cardinals>>,
 }
 
@@ -156,7 +155,6 @@ impl Player {
 
 			states: HashMap::new(),
 
-			speed_history:     VecDeque::new(),
 			collision_history: VecDeque::new(),
 		}
 	}
@@ -291,27 +289,10 @@ impl Player {
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
 
-		/*
-		debug_renderer::debug_renderer_add_text(
-			&Vector2::new( -400.0, 450.0 ),
-			&format!("speed x {:>4} {}", self.speed.x, self.speed_history.iter().map(|s| format!("{:>4}", s.x)).collect::<Vec<String>>().join(" ")),
-			25.0,
-			2.0,
-			&Color::white()
-		);
-		*/
-		/*
-		debug_renderer::debug_renderer_add_text(
-			&Vector2::new( -400.0, 440.0 ),
-			&format!("speed y {:>4} {}", self.speed.y, self.speed_history.iter().map(|s| format!("{:>4}", s.y)).collect::<Vec<String>>().join(" ")),
-			25.0,
-			1.0,
-			&Color::white()
-		);
-		*/
 
+		// :TODO: move away
 		// y
-		let vec: Vec<f32> = self.speed_history.iter().map(|s| s.y).collect::<Vec<f32>>();
+		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.y");
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
@@ -322,7 +303,7 @@ impl Player {
 		}
 
 		// x
-		let vec: Vec<f32> = self.speed_history.iter().map(|s| s.x).collect::<Vec<f32>>();
+		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.x");
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
@@ -592,11 +573,14 @@ impl Entity for Player {
 			euc.time_step()
 		);
 		*/
-		self.speed_history.push_back(self.speed);
-		if self.speed_history.len() > 1000 {
-			self.speed_history.pop_front();
-		}
-
+		oml_game::DefaultTelemetry::trace_f32("player.speed.x", self.speed.x);
+		oml_game::DefaultTelemetry::trace_f32("player.speed.y", self.speed.y);
+		/*
+				self.speed_history.push_back(self.speed);
+				if self.speed_history.len() > 1000 {
+					self.speed_history.pop_front();
+				}
+		*/
 		if self.collision_history.len() > 1000 {
 			self.collision_history.pop_front();
 		}
