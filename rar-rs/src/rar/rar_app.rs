@@ -246,17 +246,26 @@ impl RarApp {
 		const offset_x: f32 = -768.0;
 		const offset_y: f32 = -256.0;
 		let vec = oml_game::DefaultTelemetry::get::<T>(name);
-		let vec: Vec<(f32, f32)> = vec
+		let vec: Vec<(usize, (f32, f32))> = vec
+			.iter()
+			.enumerate()
+			.collect::<Vec<(usize, &Option<T>)>>()
 			.windows(2)
-			.filter_map(|t| f((t[0].as_ref(), t[1].as_ref())))
+			.filter_map(
+				|w| {
+					// .
+					let o = f((w[0].1.as_ref(), w[1].1.as_ref()));
+					o.map(|v| (w[0].0, v))
+				},
+				// .
+			)
 			.collect();
 
-		//		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map( |t| f( t ) ) ).collect();
-		for (i, y) in vec.iter().enumerate() {
+		for (i, y) in vec.iter() {
 			let sy = y.0;
 			let ey = y.1;
-			let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
-			let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
+			let s = Vector2::new(*i as f32 * scale_x + offset_x, sy + offset_y);
+			let e = Vector2::new((*i + 1) as f32 * scale_x + offset_x, ey + offset_y);
 
 			debug_renderer.add_line(&s, &e, line_width, color);
 		}

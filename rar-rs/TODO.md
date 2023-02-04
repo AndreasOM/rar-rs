@@ -3,7 +3,6 @@
 
 ## In Progress
 
-- [ ] Add support for generic telemetry traces
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
@@ -12,6 +11,8 @@
     - [+] Add a fixed_update to entities
 
 ## TODO
+
+- [ ] Backfill new telemetry tracing to align frames
 
 - [ ] Clip tile rendering on top and bottom
 
@@ -85,6 +86,10 @@
 
 
 ## Done
+
+### Episode 0034 -> 4.0h + ...
+- [x] Add support for generic telemetry traces
+- [x] Use improved telemetry
 
 ### Epsiode 0033 -> 3.5h + 1.0h -> 80.5h    + 54.5h     -> 135.0h 
 - [x] Add generic telemetry logger :WIP:
