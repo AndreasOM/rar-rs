@@ -13,4 +13,5 @@ path="src/rar_main.rs"
 anyhow = "1.0.58"
 
 [dependencies.oml-game]
-path = "../../oml-game"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0002"
