@@ -130,9 +130,6 @@ pub struct Player {
 
 	last_collision_line: Cell<Option<(Vector2, Vector2, Color)>>,
 	states:              HashMap<String, EntityState>,
-
-	// debug
-	collision_history: VecDeque<Option<Cardinals>>,
 }
 
 impl Player {
@@ -154,8 +151,6 @@ impl Player {
 			last_collision_line: Cell::new(None),
 
 			states: HashMap::new(),
-
-			collision_history: VecDeque::new(),
 		}
 	}
 
@@ -345,17 +340,14 @@ impl Player {
 			}
 		}
 
-		// x
-		let vec: Vec<&Option<Cardinals>> = self
-			.collision_history
-			.iter()
-			.map(|c| c)
-			.collect::<Vec<&Option<Cardinals>>>();
+		// cardinals
+		let vec: Vec<Option<String>> =
+			oml_game::DefaultTelemetry::get::<String>("player.collision.cardinal");
 		for (i, cardinal) in vec.iter().enumerate() {
 			if let Some(c) = &cardinal {
-				let (col, o) = match c {
-					Cardinals::Bottom => (Color::green(), -64.0),
-					Cardinals::Left | Cardinals::Right => (Color::blue(), 64.0),
+				let (col, o) = match c.as_str() {
+					"bottom" => (Color::green(), -64.0),
+					"left" | "right" => (Color::blue(), 64.0),
 					_ => continue,
 				};
 				let s = Vector2::new((i as f32) * 2.0 + 128.0, 128.0 - 512.0 + o);
@@ -452,7 +444,12 @@ impl Player {
 			//break;
 		}
 
-		self.collision_history.push_back(collision_cardinal);
+		if let Some(collision_cardinal) = &collision_cardinal {
+			oml_game::DefaultTelemetry::trace::<String>(
+				"player.collision.cardinal",
+				collision_cardinal.into(),
+			);
+		}
 
 		if let Some(l) = self.last_collision_line.get() {
 			debug_renderer::debug_renderer_add_line(
@@ -607,15 +604,6 @@ impl Entity for Player {
 		*/
 		oml_game::DefaultTelemetry::trace::<f32>("player.speed.x", self.speed.x);
 		oml_game::DefaultTelemetry::trace::<f32>("player.speed.y", self.speed.y);
-		/*
-				self.speed_history.push_back(self.speed);
-				if self.speed_history.len() > 1000 {
-					self.speed_history.pop_front();
-				}
-		*/
-		if self.collision_history.len() > 1000 {
-			self.collision_history.pop_front();
-		}
 	}
 
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {
