@@ -291,7 +291,7 @@ impl Player {
 
 		// :TODO: move away
 		// y
-		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.y");
+		let vec = oml_game::DefaultTelemetry::get::<f32>("player.speed.y");
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
@@ -307,7 +307,7 @@ impl Player {
 		}
 
 		// x
-		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.x");
+		let vec = oml_game::DefaultTelemetry::get::<f32>("player.speed.x");
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
@@ -317,6 +317,29 @@ impl Player {
 					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
 
 					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::blue());
+				},
+				_ => {},
+			}
+		}
+
+		// x
+		let vec = oml_game::DefaultTelemetry::get::<f64>("slow frame");
+		//tracing::debug!("slow frame: {:?}", vec);
+		for (i, sey) in vec.windows(2).enumerate() {
+			let sy = sey[0];
+			let ey = sey[1];
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy as f32 * 10.0 - 512.0);
+					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey as f32 - 512.0);
+
+					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::white());
+				},
+				(Some(sy), _) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy as f32 * 10.0 - 512.0);
+					let e = Vector2::new(i as f32 * 2.0 + 128.0, -512.0);
+
+					debug_renderer::debug_renderer_add_line(&s, &e, 3.5, &Color::white());
 				},
 				_ => {},
 			}
@@ -582,8 +605,8 @@ impl Entity for Player {
 			euc.time_step()
 		);
 		*/
-		oml_game::DefaultTelemetry::trace_f32("player.speed.x", self.speed.x);
-		oml_game::DefaultTelemetry::trace_f32("player.speed.y", self.speed.y);
+		oml_game::DefaultTelemetry::trace::<f32>("player.speed.x", self.speed.x);
+		oml_game::DefaultTelemetry::trace::<f32>("player.speed.y", self.speed.y);
 		/*
 				self.speed_history.push_back(self.speed);
 				if self.speed_history.len() > 1000 {
