@@ -22,4 +22,5 @@ tracing-subscriber = "0.3.15"
 atty = "0.2.14"
 
 [dependencies.oml-game]
-path = "../../oml-game"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0015"
