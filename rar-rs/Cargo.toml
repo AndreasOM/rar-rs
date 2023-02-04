@@ -34,8 +34,8 @@ atty = "0.2.14"
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-#path = "../../oml-game"
-version = "0.20.0-dev"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0022"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }
