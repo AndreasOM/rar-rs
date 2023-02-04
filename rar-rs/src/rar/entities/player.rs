@@ -1,5 +1,6 @@
 use std::cell::Cell;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::convert::From;
 
 use oml_game::math::{Cardinals, Rectangle, Vector2};
@@ -129,6 +130,9 @@ pub struct Player {
 
 	last_collision_line: Cell<Option<(Vector2, Vector2, Color)>>,
 	states:              HashMap<String, EntityState>,
+
+	// debug
+	collision_history: VecDeque<Option<Cardinals>>,
 }
 
 impl Player {
@@ -150,6 +154,8 @@ impl Player {
 			last_collision_line: Cell::new(None),
 
 			states: HashMap::new(),
+
+			collision_history: VecDeque::new(),
 		}
 	}
 
@@ -282,6 +288,61 @@ impl Player {
 		let pc = pc.with_radius(er);
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
+
+		// :TODO: move away
+		// y
+		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.y");
+		for (i, sey) in vec.windows(2).enumerate() {
+			let sy = sey[0];
+			let ey = sey[1];
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
+					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
+
+					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::red());
+				},
+				_ => {},
+			}
+		}
+
+		// x
+		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.x");
+		for (i, sey) in vec.windows(2).enumerate() {
+			let sy = sey[0];
+			let ey = sey[1];
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
+					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
+
+					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::blue());
+				},
+				_ => {},
+			}
+		}
+
+		// x
+		let vec: Vec<&Option<Cardinals>> = self
+			.collision_history
+			.iter()
+			.map(|c| c)
+			.collect::<Vec<&Option<Cardinals>>>();
+		for (i, cardinal) in vec.iter().enumerate() {
+			if let Some(c) = &cardinal {
+				let (col, o) = match c {
+					Cardinals::Bottom => (Color::green(), -64.0),
+					Cardinals::Left | Cardinals::Right => (Color::blue(), 64.0),
+					_ => continue,
+				};
+				let s = Vector2::new((i as f32) * 2.0 + 128.0, 128.0 - 512.0 + o);
+				let e = Vector2::new((i as f32) * 2.0 + 128.0, -128.0 - 512.0 + o);
+
+				debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &col);
+			}
+		}
+
+		let mut collision_cardinal: Option<Cardinals> = None;
 		for c in colliders {
 			match c.data() {
 				ObjectData::Rectangle {
@@ -336,6 +397,9 @@ impl Player {
 								Some((Vector2::new(x0, y), Vector2::new(x1, y)))
 							},
 							Cardinals::Left => {
+								self.pos = *r.center();
+								self.pos.x += 1.0;
+								self.speed.x = 0.0;
 								let x = r.left();
 								let y0 = r.bottom();
 								let y1 = r.top();
@@ -352,6 +416,7 @@ impl Player {
 						if let Some(l) = l {
 							debug!("{:?}", &l);
 							self.last_collision_line.set(Some((l.0, l.1, Color::red())));
+							collision_cardinal = Some(col.1);
 						}
 					}
 
@@ -364,8 +429,15 @@ impl Player {
 			//break;
 		}
 
+		self.collision_history.push_back(collision_cardinal);
+
 		if let Some(l) = self.last_collision_line.get() {
-			debug_renderer::debug_renderer_add_line(&l.0, &l.1, 3.0, &Color::red());
+			debug_renderer::debug_renderer_add_line(
+				&l.0,
+				&l.1,
+				3.0,
+				&Color::from_rgba(0.8, 0.6, 0.4, 1.0),
+			);
 		}
 
 		//		debug!("Colliders {:?}", &colliders);
@@ -510,6 +582,17 @@ impl Entity for Player {
 			euc.time_step()
 		);
 		*/
+		oml_game::DefaultTelemetry::trace_f32("player.speed.x", self.speed.x);
+		oml_game::DefaultTelemetry::trace_f32("player.speed.y", self.speed.y);
+		/*
+				self.speed_history.push_back(self.speed);
+				if self.speed_history.len() > 1000 {
+					self.speed_history.pop_front();
+				}
+		*/
+		if self.collision_history.len() > 1000 {
+			self.collision_history.pop_front();
+		}
 	}
 
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {

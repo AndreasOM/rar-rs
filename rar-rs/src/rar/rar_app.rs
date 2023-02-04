@@ -341,6 +341,7 @@ impl App for RarApp {
 			game_state.setup(&mut self.system)?;
 		}
 
+		oml_game::DefaultTelemetry::enable();
 		Ok(())
 	}
 
@@ -352,6 +353,7 @@ impl App for RarApp {
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
 		// debug!("App update time step: {}", wuc.time_step());
+		oml_game::DefaultTelemetry::update();
 
 		let _timestep = self.audio.update();
 
