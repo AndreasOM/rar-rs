@@ -36,8 +36,8 @@ once_cell = "1.16.0"
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-# path = "../../oml-game"
-version = "0.27.0-alpha"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0027"
 
 [patch.crates-io]
 ## oml-game = { path = "../../oml-game" }
