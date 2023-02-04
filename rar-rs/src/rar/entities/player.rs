@@ -263,91 +263,6 @@ impl Player {
 			}
 		}
 	}
-
-	fn render_telemetry<T: oml_game::telemetry::TelemetryEntry, F>(
-		name: &str,
-		line_width: f32,
-		color: &Color,
-		f: F,
-	) where
-		F: Fn(&T) -> f32,
-	{
-		const scale_x: f32 = 2.0;
-		const offset_x: f32 = 128.0;
-		const offset_y: f32 = -512.0;
-		let vec = oml_game::DefaultTelemetry::get::<T>(name);
-		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map(|t| f(t))).collect();
-		for (i, sey) in vec.windows(2).enumerate() {
-			let sy = sey[0];
-			let ey = sey[1];
-			match (sy, ey) {
-				(Some(sy), Some(ey)) => {
-					let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
-					let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
-
-					debug_renderer::debug_renderer_add_line(&s, &e, line_width, color);
-				},
-				_ => {},
-			}
-		}
-	}
-
-	fn render_telemetry_pairs<T: oml_game::telemetry::TelemetryEntry, F>(
-		name: &str,
-		line_width: f32,
-		color: &Color,
-		f: F,
-	) where
-		F: Fn((Option<&T>, Option<&T>)) -> Option<(f32, f32)>,
-	{
-		const scale_x: f32 = 2.0;
-		const offset_x: f32 = 128.0;
-		const offset_y: f32 = -512.0;
-		let vec = oml_game::DefaultTelemetry::get::<T>(name);
-		let vec: Vec<(f32, f32)> = vec
-			.windows(2)
-			.filter_map(|t| f((t[0].as_ref(), t[1].as_ref())))
-			.collect();
-
-		//		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map( |t| f( t ) ) ).collect();
-		for (i, y) in vec.iter().enumerate() {
-			let sy = y.0;
-			let ey = y.1;
-			let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
-			let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
-
-			debug_renderer::debug_renderer_add_line(&s, &e, line_width, color);
-		}
-	}
-
-	fn render_tracing() {
-		Self::render_telemetry::<f32, _>("player.speed.y", 1.5, &Color::red(), |y| *y);
-		Self::render_telemetry::<f32, _>("player.speed.x", 1.5, &Color::blue(), |y| *y);
-		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
-		Self::render_telemetry::<f64, _>("fast frame", 1.5, &Color::white(), |y| *y as f32);
-
-		Self::render_telemetry_pairs::<f64, _>("slow frame", 1.5, &Color::red(), |t| match t {
-			(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
-			(Some(se), None) => Some((*se as f32, *se as f32)),
-			_ => None,
-		});
-		// cardinals
-		let vec: Vec<Option<String>> =
-			oml_game::DefaultTelemetry::get::<String>("player.collision.cardinal");
-		for (i, cardinal) in vec.iter().enumerate() {
-			if let Some(c) = &cardinal {
-				let (col, o) = match c.as_str() {
-					"bottom" => (Color::green(), -64.0),
-					"left" | "right" => (Color::blue(), 64.0),
-					_ => continue,
-				};
-				let s = Vector2::new((i as f32) * 2.0 + 128.0, 128.0 - 512.0 + o);
-				let e = Vector2::new((i as f32) * 2.0 + 128.0, -128.0 - 512.0 + o);
-
-				debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &col);
-			}
-		}
-	}
 	fn debug_colliders(&mut self, euc: &EntityUpdateContext) {
 		let world = euc.world();
 		//debug!("World {:?}", world);
@@ -367,8 +282,6 @@ impl Player {
 		let pc = pc.with_radius(er);
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
-
-		Self::render_tracing();
 
 		let mut collision_cardinal: Option<Cardinals> = None;
 		for c in colliders {

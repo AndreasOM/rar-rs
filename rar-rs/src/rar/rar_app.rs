@@ -203,6 +203,102 @@ impl RarApp {
 		// Note: here we could add game specific UiElements
 		// ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
 	}
+
+	fn render_trace<T: oml_game::telemetry::TelemetryEntry, F>(
+		debug_renderer: &mut DebugRenderer,
+		name: &str,
+		line_width: f32,
+		color: &Color,
+		f: F,
+	) where
+		F: Fn(&T) -> f32,
+	{
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		let vec = oml_game::DefaultTelemetry::get::<T>(name);
+		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map(|t| f(t))).collect();
+		for (i, sey) in vec.windows(2).enumerate() {
+			let sy = sey[0];
+			let ey = sey[1];
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
+					let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
+
+					debug_renderer.add_line(&s, &e, line_width, color);
+				},
+				_ => {},
+			}
+		}
+	}
+
+	fn render_trace_pairs<T: oml_game::telemetry::TelemetryEntry, F>(
+		debug_renderer: &mut DebugRenderer,
+		name: &str,
+		line_width: f32,
+		color: &Color,
+		f: F,
+	) where
+		F: Fn((Option<&T>, Option<&T>)) -> Option<(f32, f32)>,
+	{
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		let vec = oml_game::DefaultTelemetry::get::<T>(name);
+		let vec: Vec<(f32, f32)> = vec
+			.windows(2)
+			.filter_map(|t| f((t[0].as_ref(), t[1].as_ref())))
+			.collect();
+
+		//		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map( |t| f( t ) ) ).collect();
+		for (i, y) in vec.iter().enumerate() {
+			let sy = y.0;
+			let ey = y.1;
+			let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
+			let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
+
+			debug_renderer.add_line(&s, &e, line_width, color);
+		}
+	}
+
+	fn render_telemetry(debug_renderer: &mut DebugRenderer) {
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		Self::render_trace::<f32, _>(debug_renderer, "player.speed.y", 1.5, &Color::red(), |y| *y);
+		Self::render_trace::<f32, _>(debug_renderer, "player.speed.x", 1.5, &Color::blue(), |y| {
+			*y
+		});
+		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
+		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
+			*y as f32
+		});
+
+		Self::render_trace_pairs::<f64, _>(debug_renderer, "slow frame", 1.5, &Color::red(), |t| {
+			match t {
+				(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
+				(Some(se), None) => Some((*se as f32, *se as f32)),
+				_ => None,
+			}
+		});
+		// cardinals
+		let vec: Vec<Option<String>> =
+			oml_game::DefaultTelemetry::get::<String>("player.collision.cardinal");
+		for (i, cardinal) in vec.iter().enumerate() {
+			if let Some(c) = &cardinal {
+				let (col, o) = match c.as_str() {
+					"bottom" => (Color::green(), -64.0),
+					"left" | "right" => (Color::blue(), 64.0),
+					_ => continue,
+				};
+				let s = Vector2::new((i as f32) * scale_x + offset_x, 128.0 + offset_y + o);
+				let e = Vector2::new((i as f32) * scale_x + offset_x, -128.0 + offset_y + o);
+
+				debug_renderer.add_line(&s, &e, 1.5, &col);
+			}
+		}
+	}
 }
 
 impl App for RarApp {
@@ -701,6 +797,12 @@ impl App for RarApp {
 				//self.game_state().render(renderer);
 				if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 					game_state.render(renderer);
+				}
+
+				if let Some(debug_renderer) = &*self.debug_renderer {
+					let mut debug_renderer = debug_renderer.borrow_mut();
+
+					Self::render_telemetry(&mut debug_renderer);
 				}
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
