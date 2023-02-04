@@ -35,6 +35,19 @@ rar-rs is using the debug renderer to draw a line over the color cycling, clear 
 
 **:TODO:**
 
+### Episode 0006
+*Broken*
+
+### Episode 0009
+*Broken*
+No oml-game branch.
+
+
+### Episode 0025
+*Broken*
+Branch missing?
+
+
 ### Episode 0028
 ![Episode 0028](journey/episode-0028.png "Episode 0028")
 
@@ -58,3 +71,8 @@ The screenshot shows the SettingsDialog with the debug overlay enabled to show t
 - LOC: 14000
 - Time: 3.5h+2.5h (ongoing) => 114.5h
 - Cost: $14,450-$360,000
+
+
+### Epsiode 0030
+*Broken*
+No rendering even with `#[repr(C)]` fix?
