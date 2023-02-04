@@ -295,10 +295,15 @@ impl Player {
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
-			let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
-			let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
+					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
 
-			debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::red());
+					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::red());
+				},
+				_ => {},
+			}
 		}
 
 		// x
@@ -306,10 +311,15 @@ impl Player {
 		for (i, sey) in vec.windows(2).enumerate() {
 			let sy = sey[0];
 			let ey = sey[1];
-			let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
-			let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
+					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
 
-			debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::blue());
+					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::blue());
+				},
+				_ => {},
+			}
 		}
 
 		// x
