@@ -16,4 +16,5 @@ serde = { version = "1.0.139", features = ["std","derive"] }
 serde_yaml = "0.8.25"
 
 [dependencies.oml-game]
-path = "../../oml-game"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0004"
