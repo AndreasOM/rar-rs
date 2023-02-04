@@ -279,6 +279,10 @@ impl RarApp {
 		Self::render_trace::<f32, _>(debug_renderer, "player.speed.x", 1.5, &Color::blue(), |y| {
 			*y
 		});
+		Self::render_trace::<f32, _>(debug_renderer, "collision.#", 1.5, &Color::blue(), |y| {
+			*y * 10.0
+		});
+
 		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
 		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
 			*y as f32
