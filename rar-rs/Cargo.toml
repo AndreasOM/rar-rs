@@ -39,7 +39,7 @@ chrono = "0.4.23"
 
 [dependencies.oml-game]
 path = "../../oml-game"
-version = "0.34.0-dev"
+version = "0.34.1-dev"
 #git = "https://github.com/AndreasOM/oml-game"
 #branch = "episode-0031"
 
