@@ -87,9 +87,10 @@
 
 ## Done
 
-### Episode 0034 -> 4.0h + ...
+### Episode 0034 -> 4.0h + 0.5h...
 - [x] Add support for generic telemetry traces
 - [x] Use improved telemetry
+- [x] Add some more colors for debug rendering
 
 ### Epsiode 0033 -> 3.5h + 1.0h -> 80.5h    + 54.5h     -> 135.0h 
 - [x] Add generic telemetry logger :WIP:

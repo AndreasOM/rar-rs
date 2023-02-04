@@ -275,13 +275,23 @@ impl RarApp {
 		const scale_x: f32 = 2.0;
 		const offset_x: f32 = -768.0;
 		const offset_y: f32 = -256.0;
-		Self::render_trace::<f32, _>(debug_renderer, "player.speed.y", 1.5, &Color::red(), |y| *y);
-		Self::render_trace::<f32, _>(debug_renderer, "player.speed.x", 1.5, &Color::blue(), |y| {
+		Self::render_trace::<f32, _>(debug_renderer, "player.speed.y", 1.5, &Color::pal(0), |y| {
 			*y
 		});
-		Self::render_trace::<f32, _>(debug_renderer, "collision.#", 1.5, &Color::blue(), |y| {
-			*y * 10.0
-		});
+		Self::render_trace::<f32, _>(
+			debug_renderer,
+			"player.speed.x",
+			1.5,
+			&Color::pal_next(),
+			|y| *y,
+		);
+		Self::render_trace::<f32, _>(
+			debug_renderer,
+			"collision.#",
+			1.5,
+			&Color::pal_next(),
+			|y| *y * 10.0,
+		);
 
 		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
 		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
