@@ -1422,7 +1422,6 @@ dependencies = [
 [[package]]
 name = "oml-game"
 version = "0.34.1-dev"
-source = "git+https://github.com/AndreasOM/oml-game?branch=episode-0034#920f99e608dac2f77939fde89157794c154bcae8"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1436,6 +1435,7 @@ dependencies = [
  "image",
  "oml-audio",
  "once_cell",
+ "png",
  "regex",
  "serde",
  "serde_yaml 0.9.17",
