@@ -84,9 +84,11 @@ pub struct RarApp {
 	game_states:       HashMap<GameStates, Box<dyn GameState>>,
 	active_game_state: GameStates,
 
-	next_game_states:  VecDeque<GameStates>,
-	debug_zoomed_out:  bool,
-	debug_zoom_factor: f32,
+	next_game_states:              VecDeque<GameStates>,
+	debug_zoomed_out:              bool,
+	debug_zoom_factor:             f32,
+	screenshot_requested:          bool,
+	screenshot_sequence_requested: bool,
 }
 
 impl Default for RarApp {
@@ -120,6 +122,8 @@ impl Default for RarApp {
 			active_game_state: GameStates::Menu,
 			game_states,
 			next_game_states: VecDeque::new(),
+			screenshot_requested: false,
+			screenshot_sequence_requested: false,
 		}
 	}
 }
@@ -376,6 +380,11 @@ impl App for RarApp {
 
 		println!("Something: {}", &something);
 
+		let mut lfs = FilesystemLayered::new();
+		let doc_dir = System::get_document_dir("rar-rs");
+		self.add_filesystem_disk(&mut lfs, &doc_dir, true);
+		self.system.set_savegame_filesystem(Box::new(lfs));
+
 		//self.audio = Audio::create_default();
 
 		if let Some(data) = self.system.data() {
@@ -527,6 +536,14 @@ impl App for RarApp {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 				game_state.reload(&mut self.system)?;
 			}
+		}
+
+		if wuc.was_function_key_pressed(11) {
+			self.screenshot_sequence_requested = true;
+		}
+
+		if wuc.was_function_key_pressed(12) {
+			self.screenshot_requested = true;
 		}
 
 		debug_renderer::debug_renderer_begin_frame();
@@ -832,6 +849,21 @@ impl App for RarApp {
 					let debug_renderer = debug_renderer.borrow();
 					debug_renderer.render(renderer);
 				}
+
+				if self.screenshot_requested {
+					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+					const VERSION: &str = env!("CARGO_PKG_VERSION");
+					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					renderer.queue_screenshot(0, 1, Some(&filename));
+				}
+				self.screenshot_requested = false;
+				if self.screenshot_sequence_requested {
+					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+					const VERSION: &str = env!("CARGO_PKG_VERSION");
+					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					renderer.queue_screenshot(0, 60, Some(&filename));
+				}
+				self.screenshot_sequence_requested = false;
 
 				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();
