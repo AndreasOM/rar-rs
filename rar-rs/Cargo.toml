@@ -38,10 +38,10 @@ yaml-patch = "0.1.1"
 chrono = "0.4.23"
 
 [dependencies.oml-game]
-path = "../../oml-game"
-version = "0.34.1-dev"
-#git = "https://github.com/AndreasOM/oml-game"
-#branch = "episode-0031"
+#path = "../../oml-game"
+#version = "0.34.1-dev"
+git = "https://github.com/AndreasOM/oml-game"
+branch = "episode-0034"
 
 [dependencies.oml-audio]
 #path = "../../oml-audio"
