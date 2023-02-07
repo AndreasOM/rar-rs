@@ -3,6 +3,8 @@
 
 ## In Progress
 
+- [ ] Add forced slow frame
+
 - [ ] Add very simplistic scripting
 
 - [ ] Add tilemap collision
@@ -89,7 +91,11 @@
 
 ## Done
 
-### Episode 0034 -> 4.0h + 5.0h...
+### Episode 0035 -> 3.0h + ...
+
+- [x] Add slow motion mode (normal timesteps, but less often) (Use 'u' and 'i' keys)
+
+### Episode 0034 -> 4.0h + 5.0h -> 84.0h    + 59.5h     -> 143.5h
 - [x] Add support for generic telemetry traces
 - [x] Use improved telemetry
 - [x] Add some more colors for debug rendering

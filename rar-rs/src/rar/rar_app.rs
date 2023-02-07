@@ -94,6 +94,10 @@ pub struct RarApp {
 	screenshot_sequence_requested: bool,
 	script_queue:                  VecDeque<String>,
 	script_vm:                     ScriptVm,
+
+	slow_skip:           u32,
+	pause_update:        bool,
+	slow_motion_divider: u32,
 }
 
 impl Default for RarApp {
@@ -132,6 +136,9 @@ impl Default for RarApp {
 
 			script_queue: VecDeque::new(),
 			script_vm: ScriptVm::default(),
+			slow_skip: 0,
+			pause_update: false,
+			slow_motion_divider: 1,
 		}
 	}
 }
@@ -499,6 +506,18 @@ impl App for RarApp {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
+		self.slow_skip += 1;
+		if self.slow_skip >= self.slow_motion_divider {
+			self.slow_skip = 0;
+			self.pause_update = false;
+		} else {
+			self.pause_update = true;
+		}
+
+		if self.pause_update {
+			//return Ok(());
+			wuc.time_step = wuc.time_step() * 0.0;
+		}
 		// debug!("App update time step: {}", wuc.time_step());
 		oml_game::DefaultTelemetry::update();
 
@@ -554,6 +573,16 @@ impl App for RarApp {
 				ui_debug_config.cycle_mode();
 			});
 		}
+
+		if wuc.was_key_pressed('i' as u8) {
+			self.slow_motion_divider *= 2;
+		}
+
+		if wuc.was_key_pressed('u' as u8) {
+			self.slow_motion_divider /= 2;
+		}
+
+		self.slow_motion_divider = self.slow_motion_divider.clamp(1, 16);
 
 		if wuc.was_function_key_pressed(2) {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -825,6 +854,12 @@ impl App for RarApp {
 		Ok(())
 	}
 	fn fixed_update(&mut self, time_step: f64) {
+		let time_step = if self.pause_update {
+			//return;
+			0.0
+		} else {
+			time_step
+		};
 		//debug!("Fixed Update: {}", time_step);
 		self.game_state().fixed_update(time_step);
 	}
