@@ -130,9 +130,7 @@ pub struct Player {
 
 	last_collision_line: Cell<Option<(Vector2, Vector2, Color)>>,
 	states:              HashMap<String, EntityState>,
-
-	// debug
-	collision_history: VecDeque<Option<Cardinals>>,
+	last_collision:      (f32, Cardinals, Rectangle),
 }
 
 impl Player {
@@ -152,10 +150,9 @@ impl Player {
 			entity_data:         EntityData::default(),
 
 			last_collision_line: Cell::new(None),
+			last_collision:      (f32::MAX, Cardinals::Top, Rectangle::default()),
 
 			states: HashMap::new(),
-
-			collision_history: VecDeque::new(),
 		}
 	}
 
@@ -268,7 +265,6 @@ impl Player {
 			}
 		}
 	}
-
 	fn debug_colliders(&mut self, euc: &EntityUpdateContext) {
 		let world = euc.world();
 		//debug!("World {:?}", world);
@@ -289,58 +285,7 @@ impl Player {
 		debug_renderer::debug_renderer_add_circle(pc.center(), pc.radius(), 5.0, &Color::white());
 		debug_renderer::debug_renderer_add_rectangle(&r, 5.0, &Color::white());
 
-		// :TODO: move away
-		// y
-		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.y");
-		for (i, sey) in vec.windows(2).enumerate() {
-			let sy = sey[0];
-			let ey = sey[1];
-			match (sy, ey) {
-				(Some(sy), Some(ey)) => {
-					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
-					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
-
-					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::red());
-				},
-				_ => {},
-			}
-		}
-
-		// x
-		let vec = oml_game::DefaultTelemetry::get_f32("player.speed.x");
-		for (i, sey) in vec.windows(2).enumerate() {
-			let sy = sey[0];
-			let ey = sey[1];
-			match (sy, ey) {
-				(Some(sy), Some(ey)) => {
-					let s = Vector2::new(i as f32 * 2.0 + 128.0, sy - 512.0);
-					let e = Vector2::new((i + 1) as f32 * 2.0 + 128.0, ey - 512.0);
-
-					debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &Color::blue());
-				},
-				_ => {},
-			}
-		}
-
-		// x
-		let vec: Vec<&Option<Cardinals>> = self
-			.collision_history
-			.iter()
-			.map(|c| c)
-			.collect::<Vec<&Option<Cardinals>>>();
-		for (i, cardinal) in vec.iter().enumerate() {
-			if let Some(c) = &cardinal {
-				let (col, o) = match c {
-					Cardinals::Bottom => (Color::green(), -64.0),
-					Cardinals::Left | Cardinals::Right => (Color::blue(), 64.0),
-					_ => continue,
-				};
-				let s = Vector2::new((i as f32) * 2.0 + 128.0, 128.0 - 512.0 + o);
-				let e = Vector2::new((i as f32) * 2.0 + 128.0, -128.0 - 512.0 + o);
-
-				debug_renderer::debug_renderer_add_line(&s, &e, 1.5, &col);
-			}
-		}
+		let mut collisions: Vec<(f32, Cardinals, Rectangle)> = Vec::new();
 
 		let mut collision_cardinal: Option<Cardinals> = None;
 		for c in colliders {
@@ -372,9 +317,12 @@ impl Player {
 						}
 					}
 
-					debug_renderer::debug_renderer_add_rectangle(&rect, 5.0, &Color::red());
+					// rectangles that we _could_ collide with
+					// debug_renderer::debug_renderer_add_rectangle(&rect, 5.0, &Color::red());
 
 					if let Some(col) = rect.would_collide(&start, &end, &r) {
+						collisions.push((col.0, col.1, rect.clone()));
+						/*
 						debug!("Collision: {:?}", &col);
 						let p = col.0 * 0.5;
 						let full = end.sub(&start).scaled(p);
@@ -418,6 +366,7 @@ impl Player {
 							self.last_collision_line.set(Some((l.0, l.1, Color::red())));
 							collision_cardinal = Some(col.1);
 						}
+						*/
 					}
 
 					//debug!("{:?}", &rect);
@@ -429,7 +378,138 @@ impl Player {
 			//break;
 		}
 
-		self.collision_history.push_back(collision_cardinal);
+		if !collisions.is_empty() {
+			tracing::debug!("Collisions {:?}", collisions);
+			tracing::debug!("{:?} -> {:?} [Speed: {:?}]", start, end, self.speed);
+		}
+		oml_game::DefaultTelemetry::trace::<f32>("collision.#", collisions.len() as f32 * 20.0);
+
+		// find *first* collision
+		let mut first_collision = (f32::MAX, Cardinals::Top, Rectangle::default());
+		for col in collisions.iter() {
+			if col.0 < first_collision.0 {
+				first_collision = *col;
+			}
+		}
+		if first_collision.0 < f32::MAX {
+			self.last_collision = first_collision;
+		}
+		if self.last_collision.0 < f32::MAX {
+			debug_renderer::debug_renderer_add_rectangle(
+				&self.last_collision.2,
+				9.0,
+				&Color::blue(),
+			);
+		}
+
+		// handle _first_ collison
+		if first_collision.0 < f32::MAX {
+			let col = first_collision;
+			let p = col.0 * 0.5;
+			let full = end.sub(&start).scaled(p);
+			let actual = start.add(&full);
+			let r = r.clone().with_center(&actual);
+
+			let l = match col.1 {
+				Cardinals::Bottom => {
+					//col_order.push( 'B' );
+					self.pos = *r.center();
+					self.pos.y += 1.0;
+					self.speed.y = 0.0;
+					tracing::debug!("-> {:?} [Speed: {:?}]", self.pos, self.speed);
+					let x0 = r.left();
+					let x1 = r.right();
+					let y = r.bottom();
+					Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+				},
+				Cardinals::Top => {
+					let x0 = r.left();
+					let x1 = r.right();
+					let y = r.top();
+					Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+				},
+				Cardinals::Left => {
+					//col_order.push( 'L' );
+					self.pos = *r.center();
+					self.pos.x += 1.0;
+					self.speed.x = 0.0;
+					let x = r.left();
+					let y0 = r.bottom();
+					let y1 = r.top();
+					Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+				},
+				Cardinals::Right => {
+					let x = r.right();
+					let y0 = r.bottom();
+					let y1 = r.top();
+					Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+				},
+			};
+		}
+
+		let mut col_order = String::default();
+		// handle all collisions
+		/*
+		for col in collisions.iter() {
+			debug!("Collision: {:?}", &col);
+			// rectangles that we *did* collide with
+			debug_renderer::debug_renderer_add_rectangle(&col.2, 5.0, &Color::red());
+			let p = col.0 * 0.5;
+			let full = end.sub(&start).scaled(p);
+			let actual = start.add(&full);
+			let r = r.clone().with_center(&actual);
+			let l = match col.1 {
+				Cardinals::Bottom => {
+					col_order.push( 'B' );
+					self.pos = *r.center();
+					self.pos.y += 1.0;
+					self.speed.y = 0.0;
+					let x0 = r.left();
+					let x1 = r.right();
+					let y = r.bottom();
+					Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+				},
+				Cardinals::Top => {
+					let x0 = r.left();
+					let x1 = r.right();
+					let y = r.top();
+					Some((Vector2::new(x0, y), Vector2::new(x1, y)))
+				},
+				Cardinals::Left => {
+					col_order.push( 'L' );
+					self.pos = *r.center();
+					self.pos.x += 1.0;
+					self.speed.x = 0.0;
+					let x = r.left();
+					let y0 = r.bottom();
+					let y1 = r.top();
+					Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+				},
+				Cardinals::Right => {
+					let x = r.right();
+					let y0 = r.bottom();
+					let y1 = r.top();
+					Some((Vector2::new(x, y0), Vector2::new(x, y1)))
+				},
+			};
+
+			if let Some(l) = l {
+				debug!("{:?}", &l);
+				self.last_collision_line.set(Some((l.0, l.1, Color::red())));
+				collision_cardinal = Some(col.1);
+			}
+
+		}
+		*/
+		if !col_order.is_empty() {
+			tracing::debug!("col_order {}", col_order);
+		}
+		if let Some(collision_cardinal) = &collision_cardinal {
+			oml_game::DefaultTelemetry::trace::<String>(
+				"player.collision.cardinal",
+				collision_cardinal.into(),
+			);
+		}
 
 		if let Some(l) = self.last_collision_line.get() {
 			debug_renderer::debug_renderer_add_line(
@@ -582,17 +662,8 @@ impl Entity for Player {
 			euc.time_step()
 		);
 		*/
-		oml_game::DefaultTelemetry::trace_f32("player.speed.x", self.speed.x);
-		oml_game::DefaultTelemetry::trace_f32("player.speed.y", self.speed.y);
-		/*
-				self.speed_history.push_back(self.speed);
-				if self.speed_history.len() > 1000 {
-					self.speed_history.pop_front();
-				}
-		*/
-		if self.collision_history.len() > 1000 {
-			self.collision_history.pop_front();
-		}
+		oml_game::DefaultTelemetry::trace::<f32>("player.speed.x", self.speed.x);
+		oml_game::DefaultTelemetry::trace::<f32>("player.speed.y", self.speed.y);
 	}
 
 	fn render(&mut self, renderer: &mut Renderer, camera: &Camera) {

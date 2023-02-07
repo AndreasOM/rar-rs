@@ -2,6 +2,8 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::path::Path;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
@@ -28,6 +30,7 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 use tracing::*;
 
+use crate::omscript::ScriptVm;
 use crate::rar::data::AudioData;
 use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
@@ -84,9 +87,13 @@ pub struct RarApp {
 	game_states:       HashMap<GameStates, Box<dyn GameState>>,
 	active_game_state: GameStates,
 
-	next_game_states:  VecDeque<GameStates>,
-	debug_zoomed_out:  bool,
-	debug_zoom_factor: f32,
+	next_game_states:              VecDeque<GameStates>,
+	debug_zoomed_out:              bool,
+	debug_zoom_factor:             f32,
+	screenshot_requested:          bool,
+	screenshot_sequence_requested: bool,
+	script_queue:                  VecDeque<String>,
+	script_vm:                     ScriptVm,
 }
 
 impl Default for RarApp {
@@ -120,6 +127,11 @@ impl Default for RarApp {
 			active_game_state: GameStates::Menu,
 			game_states,
 			next_game_states: VecDeque::new(),
+			screenshot_requested: false,
+			screenshot_sequence_requested: false,
+
+			script_queue: VecDeque::new(),
+			script_vm: ScriptVm::default(),
 		}
 	}
 }
@@ -128,6 +140,10 @@ impl RarApp {
 		Self {
 			..Default::default()
 		}
+	}
+
+	pub fn queue_script(&mut self, script_name: &str) {
+		self.script_queue.push_back(script_name.to_string());
 	}
 	// :TODO: Consider moving this into game package
 	fn add_filesystem_disk(&mut self, lfs: &mut FilesystemLayered, path: &str, enable_write: bool) {
@@ -203,6 +219,125 @@ impl RarApp {
 		// Note: here we could add game specific UiElements
 		// ui_element_factory.register_producer_via_info(&crate::ui::UiButton::info());
 	}
+
+	fn render_trace<T: oml_game::telemetry::TelemetryEntry, F>(
+		debug_renderer: &mut DebugRenderer,
+		name: &str,
+		line_width: f32,
+		color: &Color,
+		f: F,
+	) where
+		F: Fn(&T) -> f32,
+	{
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		let vec = oml_game::DefaultTelemetry::get::<T>(name);
+		let vec: Vec<Option<f32>> = vec.iter().map(|mt| mt.as_ref().map(|t| f(t))).collect();
+		for (i, sey) in vec.windows(2).enumerate() {
+			let sy = sey[0];
+			let ey = sey[1];
+			match (sy, ey) {
+				(Some(sy), Some(ey)) => {
+					let s = Vector2::new(i as f32 * scale_x + offset_x, sy + offset_y);
+					let e = Vector2::new((i + 1) as f32 * scale_x + offset_x, ey + offset_y);
+
+					debug_renderer.add_line(&s, &e, line_width, color);
+				},
+				_ => {},
+			}
+		}
+	}
+
+	fn render_trace_pairs<T: oml_game::telemetry::TelemetryEntry, F>(
+		debug_renderer: &mut DebugRenderer,
+		name: &str,
+		line_width: f32,
+		color: &Color,
+		f: F,
+	) where
+		F: Fn((Option<&T>, Option<&T>)) -> Option<(f32, f32)>,
+	{
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		let vec = oml_game::DefaultTelemetry::get::<T>(name);
+		let vec: Vec<(usize, (f32, f32))> = vec
+			.iter()
+			.enumerate()
+			.collect::<Vec<(usize, &Option<T>)>>()
+			.windows(2)
+			.filter_map(
+				|w| {
+					// .
+					let o = f((w[0].1.as_ref(), w[1].1.as_ref()));
+					o.map(|v| (w[0].0, v))
+				},
+				// .
+			)
+			.collect();
+
+		for (i, y) in vec.iter() {
+			let sy = y.0;
+			let ey = y.1;
+			let s = Vector2::new(*i as f32 * scale_x + offset_x, sy + offset_y);
+			let e = Vector2::new((*i + 1) as f32 * scale_x + offset_x, ey + offset_y);
+
+			debug_renderer.add_line(&s, &e, line_width, color);
+		}
+	}
+
+	fn render_telemetry(debug_renderer: &mut DebugRenderer) {
+		const scale_x: f32 = 2.0;
+		const offset_x: f32 = -768.0;
+		const offset_y: f32 = -256.0;
+		Self::render_trace::<f32, _>(debug_renderer, "player.speed.y", 1.5, &Color::pal(0), |y| {
+			*y
+		});
+		Self::render_trace::<f32, _>(
+			debug_renderer,
+			"player.speed.x",
+			1.5,
+			&Color::pal_next(),
+			|y| *y,
+		);
+		Self::render_trace::<f32, _>(
+			debug_renderer,
+			"collision.#",
+			1.5,
+			&Color::pal_next(),
+			|y| *y * 10.0,
+		);
+
+		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
+		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
+			*y as f32
+		});
+
+		Self::render_trace_pairs::<f64, _>(debug_renderer, "slow frame", 1.5, &Color::red(), |t| {
+			match t {
+				(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
+				(Some(se), None) => Some((*se as f32, *se as f32)),
+				_ => None,
+			}
+		});
+		// cardinals
+		let vec: Vec<Option<String>> =
+			oml_game::DefaultTelemetry::get::<String>("player.collision.cardinal");
+		for (i, cardinal) in vec.iter().enumerate() {
+			if let Some(c) = &cardinal {
+				let (col, o) = match c.as_str() {
+					"bottom" => (Color::green(), -64.0),
+					"left" | "right" => (Color::blue(), 64.0),
+					_ => continue,
+				};
+				let s = Vector2::new((i as f32) * scale_x + offset_x, 128.0 + offset_y + o);
+				let e = Vector2::new((i as f32) * scale_x + offset_x, -128.0 + offset_y + o);
+
+				debug_renderer.add_line(&s, &e, 1.5, &col);
+			}
+		}
+	}
 }
 
 impl App for RarApp {
@@ -256,6 +391,11 @@ impl App for RarApp {
 		let something = something_file.read_as_string();
 
 		println!("Something: {}", &something);
+
+		let mut lfs = FilesystemLayered::new();
+		let doc_dir = System::get_document_dir("rar-rs");
+		self.add_filesystem_disk(&mut lfs, &doc_dir, true);
+		self.system.set_savegame_filesystem(Box::new(lfs));
 
 		//self.audio = Audio::create_default();
 
@@ -356,6 +496,18 @@ impl App for RarApp {
 		oml_game::DefaultTelemetry::update();
 
 		let _timestep = self.audio.update();
+		if !self.script_vm.is_script_running() {
+			if let Some(script_name) = self.script_queue.pop_front() {
+				self.script_vm
+					.load(&mut self.system, &script_name)
+					.expect("---->");
+				self.script_vm.run();
+				todo!();
+			}
+		} else {
+			// intentionally skip tick on the frame we load
+			self.script_vm.tick();
+		}
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -408,6 +560,14 @@ impl App for RarApp {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 				game_state.reload(&mut self.system)?;
 			}
+		}
+
+		if wuc.was_function_key_pressed(11) {
+			self.screenshot_sequence_requested = true;
+		}
+
+		if wuc.was_function_key_pressed(12) {
+			self.screenshot_requested = true;
 		}
 
 		debug_renderer::debug_renderer_begin_frame();
@@ -704,9 +864,30 @@ impl App for RarApp {
 				}
 
 				if let Some(debug_renderer) = &*self.debug_renderer {
+					let mut debug_renderer = debug_renderer.borrow_mut();
+
+					Self::render_telemetry(&mut debug_renderer);
+				}
+
+				if let Some(debug_renderer) = &*self.debug_renderer {
 					let debug_renderer = debug_renderer.borrow();
 					debug_renderer.render(renderer);
 				}
+
+				if self.screenshot_requested {
+					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+					const VERSION: &str = env!("CARGO_PKG_VERSION");
+					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					renderer.queue_screenshot(0, 1, Some(&filename));
+				}
+				self.screenshot_requested = false;
+				if self.screenshot_sequence_requested {
+					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+					const VERSION: &str = env!("CARGO_PKG_VERSION");
+					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					renderer.queue_screenshot(0, 60, Some(&filename));
+				}
+				self.screenshot_sequence_requested = false;
 
 				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();

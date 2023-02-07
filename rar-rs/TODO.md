@@ -3,6 +3,8 @@
 
 ## In Progress
 
+- [ ] Add very simplistic scripting
+
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
     - [x] Merge adjacent colliders (2x1, 1x2, 2x2)
@@ -11,6 +13,8 @@
     - [+] Add a fixed_update to entities
 
 ## TODO
+
+- [ ] Backfill new telemetry tracing to align frames
 
 - [ ] Clip tile rendering on top and bottom
 
@@ -85,8 +89,18 @@
 
 ## Done
 
-### Epsiode 0033 -> 3.5h + 
+### Episode 0034 -> 4.0h + 5.0h...
+- [x] Add support for generic telemetry traces
+- [x] Use improved telemetry
+- [x] Add some more colors for debug rendering
+- [x] Add simple way to take screenshots, and sequences (slow)
+- [x] Add very simplistic script verifier (:WIP: scripting support)
+- [x] Add very simplistic script to item parser (:WIP: scripting support)
+
+
+### Epsiode 0033 -> 3.5h + 1.0h -> 80.5h    + 54.5h     -> 135.0h 
 - [x] Add generic telemetry logger :WIP:
+- [x] Add (broken) left collision
 
 ## Released - on [itch.io](https://omni-mad.itch.io/rar-rs) - password: **rar-rs**
 
