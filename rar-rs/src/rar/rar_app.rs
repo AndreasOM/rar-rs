@@ -309,9 +309,12 @@ impl RarApp {
 			|y| *y * 10.0,
 		);
 
-		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
-		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
-			*y as f32
+		Self::render_trace_pairs::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |t| {
+			match t {
+				(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
+				(Some(se), None) => Some((*se as f32, *se as f32)),
+				_ => None,
+			}
 		});
 
 		Self::render_trace_pairs::<f64, _>(debug_renderer, "slow frame", 1.5, &Color::red(), |t| {
@@ -567,6 +570,7 @@ impl App for RarApp {
 		}
 
 		if wuc.was_function_key_pressed(12) {
+			tracing::debug!("F12 -> Screenshot");
 			self.screenshot_requested = true;
 		}
 
@@ -878,6 +882,7 @@ impl App for RarApp {
 					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 					const VERSION: &str = env!("CARGO_PKG_VERSION");
 					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					tracing::debug!("Screenshot requested {}", &filename);
 					renderer.queue_screenshot(0, 1, Some(&filename));
 				}
 				self.screenshot_requested = false;
