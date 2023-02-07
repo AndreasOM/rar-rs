@@ -2,6 +2,8 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::path::Path;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
@@ -28,6 +30,7 @@ use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
 use tracing::*;
 
+use crate::omscript::ScriptVm;
 use crate::rar::data::AudioData;
 use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
@@ -89,6 +92,8 @@ pub struct RarApp {
 	debug_zoom_factor:             f32,
 	screenshot_requested:          bool,
 	screenshot_sequence_requested: bool,
+	script_queue:                  VecDeque<String>,
+	script_vm:                     ScriptVm,
 }
 
 impl Default for RarApp {
@@ -124,6 +129,9 @@ impl Default for RarApp {
 			next_game_states: VecDeque::new(),
 			screenshot_requested: false,
 			screenshot_sequence_requested: false,
+
+			script_queue: VecDeque::new(),
+			script_vm: ScriptVm::default(),
 		}
 	}
 }
@@ -132,6 +140,10 @@ impl RarApp {
 		Self {
 			..Default::default()
 		}
+	}
+
+	pub fn queue_script(&mut self, script_name: &str) {
+		self.script_queue.push_back(script_name.to_string());
 	}
 	// :TODO: Consider moving this into game package
 	fn add_filesystem_disk(&mut self, lfs: &mut FilesystemLayered, path: &str, enable_write: bool) {
@@ -484,6 +496,18 @@ impl App for RarApp {
 		oml_game::DefaultTelemetry::update();
 
 		let _timestep = self.audio.update();
+		if !self.script_vm.is_script_running() {
+			if let Some(script_name) = self.script_queue.pop_front() {
+				self.script_vm
+					.load(&mut self.system, &script_name)
+					.expect("---->");
+				self.script_vm.run();
+				//todo!();
+			}
+		} else {
+			// intentionally skip tick on the frame we load
+			self.script_vm.tick();
+		}
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {

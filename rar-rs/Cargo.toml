@@ -33,6 +33,8 @@ atty = "0.2.14"
 once_cell = "1.16.0"
 serde_with = "2.2.0"
 yaml-patch = "0.1.1"
+clap = { version = "4.1.4", features = ["derive"] }
+nom = "7.1.3"
 
 [build-dependencies]
 chrono = "0.4.23"
