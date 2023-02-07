@@ -527,12 +527,12 @@ impl App for RarApp {
 				self.script_vm
 					.load(&mut self.system, &script_name)
 					.expect("---->");
-				self.script_vm.run();
-				todo!();
+				self.script_vm.run()?;
+				//todo!();
 			}
 		} else {
 			// intentionally skip tick on the frame we load
-			self.script_vm.tick();
+			self.script_vm.tick()?;
 		}
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
