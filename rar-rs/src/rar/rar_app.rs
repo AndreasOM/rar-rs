@@ -502,7 +502,7 @@ impl App for RarApp {
 					.load(&mut self.system, &script_name)
 					.expect("---->");
 				self.script_vm.run();
-				//todo!();
+				todo!();
 			}
 		} else {
 			// intentionally skip tick on the frame we load
