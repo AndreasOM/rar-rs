@@ -309,13 +309,17 @@ impl RarApp {
 			|y| *y * 10.0,
 		);
 
-		Self::render_trace_pairs::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |t| {
-			match t {
+		Self::render_trace_pairs::<f64, _>(
+			debug_renderer,
+			"fast frame",
+			1.5,
+			&Color::white(),
+			|t| match t {
 				(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
 				(Some(se), None) => Some((*se as f32, *se as f32)),
 				_ => None,
-			}
-		});
+			},
+		);
 
 		Self::render_trace_pairs::<f64, _>(debug_renderer, "slow frame", 1.5, &Color::red(), |t| {
 			match t {
@@ -597,9 +601,15 @@ impl App for RarApp {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
 		}
 
-		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y != 0.0 {
+		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y.abs() > 1.0 {
+			debug!("mouse_wheel_line_delta {}", wuc.mouse_wheel_line_delta.y);
 			// :TODO: use close to
-			self.debug_zoom_factor += wuc.mouse_wheel_line_delta.y * 0.001;
+			let factor = if wuc.is_modifier_pressed(oml_game::window::ModifierKey::Alt) {
+				0.0001
+			} else {
+				0.001
+			};
+			self.debug_zoom_factor += wuc.mouse_wheel_line_delta.y * factor;
 			if self.debug_zoom_factor >= 5.0 {
 				self.debug_zoom_factor = 5.0;
 			} else if self.debug_zoom_factor <= 0.001 {
