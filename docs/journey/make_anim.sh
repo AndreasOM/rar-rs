@@ -1,3 +1,5 @@
+#!/bin/bash
+
 target_size="1400x756"
 crop_offset="+0-36"
 
