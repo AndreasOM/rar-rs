@@ -50,6 +50,7 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarScriptContext;
 use crate::rar::RarUiUpdateContext;
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
@@ -496,6 +497,13 @@ impl App for RarApp {
 		}
 
 		oml_game::DefaultTelemetry::enable();
+
+		self.script_vm.register_script_function( "ui_click_element_with_name", crate::rar::rar_script_function_ui_click_element_with_name::RarScriptFunctionUiClickElementWithName::create );
+		self.script_vm.register_script_function( "queue_screenshot", crate::rar::rar_script_function_queue_screenshot::RarScriptFunctionQueueScreenshot::create );
+		self.script_vm.register_script_function(
+			"app_quit",
+			crate::rar::rar_script_function_app_quit::RarScriptFunctionAppQuit::create,
+		);
 		Ok(())
 	}
 
@@ -532,7 +540,23 @@ impl App for RarApp {
 			}
 		} else {
 			// intentionally skip tick on the frame we load
-			self.script_vm.tick()?;
+			let mut script_context = RarScriptContext::default();
+			self.script_vm.tick(&mut script_context)?;
+			if script_context.quit {
+				self.is_done = true;
+			}
+			while let Some(screenshot) = script_context.screenshots.pop() {
+				const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+				const VERSION: &str = env!("CARGO_PKG_VERSION");
+				let filename = format!(
+					"screenshot-rar-rs-{}-{}-{}",
+					BUILD_DATETIME, VERSION, screenshot
+				);
+				tracing::debug!("Screenshot requested {}", &filename);
+				if let Some(renderer) = &mut self.renderer {
+					renderer.queue_screenshot(0, 1, Some(&filename));
+				}
+			}
 		}
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {

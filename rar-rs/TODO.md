@@ -91,9 +91,11 @@
 
 ## Done
 
-### Episode 0035 -> 3.0h + ...
+### Episode 0035 -> 3.0h + 2.0h...
 
 - [x] Add slow motion mode (normal timesteps, but less often) (Use 'u' and 'i' keys)
+- [x] Add ScriptVm to run scripts.
+- [x] Add ScriptFunctions for wait_frames, and queue_screenshot.
 
 ### Episode 0034 -> 4.0h + 5.0h -> 84.0h    + 59.5h     -> 143.5h
 - [x] Add support for generic telemetry traces
