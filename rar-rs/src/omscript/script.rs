@@ -145,7 +145,7 @@ impl Script {
 														i.to_string(),
 													));
 													let parameter_count = parameters.len();
-													if parameter_count > 1 {
+													if parameter_count > 255 {
 														unimplemented!();
 													}
 													s.push_op_code(OpCode::Call(
@@ -212,6 +212,9 @@ enum Item<'a> {
 		identifier: Box<Item<'a>>,
 		parameters: Vec<Item<'a>>,
 	},
+	ParameterList {
+		parameters: Vec<Item<'a>>,
+	},
 	Statements(Vec<Item<'a>>),
 	Block(Box<Item<'a>>),
 	Fn {
@@ -262,6 +265,45 @@ fn item_parse_literal(s: &str) -> IResult<&str, Item> {
 	alt((item_parse_number, item_parse_string))(s)
 }
 
+fn item_parse_parameter_list_tail(i: &str) -> IResult<&str, Item> {
+	alt((
+		map(
+			tuple((
+				multispace0,
+				item_parse_literal,
+				multispace0,
+				tag(","),
+				item_parse_parameter_list_tail,
+			)),
+			|l| {
+				let mut parameters = Vec::new();
+				parameters.push(l.1);
+				if let Item::ParameterList { parameters: params } = l.4 {
+					for p in params {
+						parameters.push(p);
+					}
+				}
+				Item::ParameterList { parameters }
+			},
+		),
+		map(
+			tuple((multispace0, item_parse_literal, multispace0)),
+			|(_, l, _)| Item::ParameterList {
+				parameters: [l].into(),
+			},
+		),
+		map(multispace0, |_s| Item::None),
+	))(i)
+}
+
+fn item_parse_parameter_list(i: &str) -> IResult<&str, Item> {
+	alt((
+		//item_parse_literal,
+		item_parse_parameter_list_tail,
+		//item_parse_literal
+		map(tag("!"), |_| Item::None),
+	))(i)
+}
 fn parse_call(s: &str) -> IResult<&str, &str> {
 	// :TODO: handle parameter list
 	recognize(tuple((
@@ -284,17 +326,29 @@ fn item_parse_call(s: &str) -> IResult<&str, Item> {
 			item_parse_identifier,
 			multispace0,
 			tag("("),
+			item_parse_parameter_list,
+			/*
 			multispace0,
 			many0(item_parse_literal), // :TODO: make parameter list
 			//item_parse_literal,	// :TODO: make parameter list
 			multispace0,
+			*/
 			tag(")"),
 			multispace0,
 			tag(";"), // Note: The ';' should probably be part of the statements parser
 		)),
-		|v| Item::Call {
-			identifier: Box::new(v.0),
-			parameters: v.4,
+		|v| {
+			let mut parameters = Vec::new();
+			// v.3
+			if let Item::ParameterList { parameters: params } = v.3 {
+				for p in params {
+					parameters.push(p);
+				}
+			}
+			Item::Call {
+				identifier: Box::new(v.0),
+				parameters,
+			}
 		}, // :TODO: maybe better to extract the &str here?
 	)(s)
 }
@@ -456,6 +510,23 @@ mod tests {
 	}
 
 	#[test]
+	fn can_parse_parameter_list() -> anyhow::Result<()> {
+		let r = item_parse_parameter_list("");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list("10");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list("10, 20, 30");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list(r#"10,    "twenty",    30  "#);
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		Ok(())
+	}
+
+	#[test]
 	fn can_parse_call() -> anyhow::Result<()> {
 		let r = item_parse_call("test();");
 		eprintln!("{:?}", r);
@@ -464,6 +535,9 @@ mod tests {
 		eprintln!("{:?}", r);
 		assert!(r.is_ok());
 		let r = item_parse_call(r#"test ( "test" ) ;"#);
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_call(r#"test ( 10, 20,    "test" ) ;"#);
 		eprintln!("{:?}", r);
 		assert!(r.is_ok());
 		Ok(())

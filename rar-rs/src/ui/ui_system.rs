@@ -150,7 +150,7 @@ impl UiSystem {
 			if let Some(wuc) = auc.wuc() {
 				if wuc.was_mouse_button_pressed(0) {
 					let cp = auc.cursor_pos();
-					//debug!("Left Mouse Button was pressed @ {}, {}", cp.x, cp.y);
+					debug!("Left Mouse Button was pressed @ {}, {}", cp.x, cp.y);
 					//debug!("{:?}", &root);
 					let ev = UiEvent::MouseClick {
 						pos:    *cp,

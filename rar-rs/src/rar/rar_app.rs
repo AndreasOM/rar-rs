@@ -96,6 +96,8 @@ pub struct RarApp<'a> {
 	script_queue:                  VecDeque<String>,
 	script_vm:                     ScriptVm<RarScriptContext<'a>>,
 
+	fake_ui_click_positions: Vec<Vector2>,
+
 	slow_skip:           u32,
 	pause_update:        bool,
 	slow_motion_divider: u32,
@@ -137,6 +139,8 @@ impl Default for RarApp<'_> {
 
 			script_queue: VecDeque::new(),
 			script_vm: ScriptVm::default(),
+			fake_ui_click_positions: Vec::new(),
+
 			slow_skip: 0,
 			pause_update: false,
 			slow_motion_divider: 1,
@@ -401,20 +405,25 @@ impl RarApp<'_> {
 			}
 
 			if let Some(gs) = self.game_states.get(&ags) {
-				if let Some( ui_system ) = gs.ui_system() {
-					if let Some( ui_root ) = ui_system.root() {
+				if let Some(ui_system) = gs.ui_system() {
+					if let Some(ui_root) = ui_system.root() {
 						while let Some(ui_click_name) = script_context.ui_click_names.pop() {
-
-
 							if !ui_root.find_child_container_by_name_then(&ui_click_name, &|c| {
-								tracing::debug!("Found {} -> {:#?}", ui_click_name, c );
-							} ) {
-								tracing::warn!("UiElement {} not found. Not clicking.", &ui_click_name );
+								tracing::debug!("Found {} -> {:#?}", ui_click_name, c);
+							}) {
+								tracing::warn!(
+									"UiElement {} not found. Not clicking.",
+									&ui_click_name
+								);
 								todo!();
 							}
 						}
 					}
 				}
+			}
+			while let Some(ui_click_pos) = script_context.ui_click_positions.pop() {
+				tracing::debug!("Clicking at {:?}", ui_click_pos);
+				self.fake_ui_click_positions.push(ui_click_pos);
 			}
 			//script_context.ui_system = None;
 			//drop(script_context)
@@ -566,6 +575,7 @@ impl App for RarApp<'_> {
 		}
 
 		oml_game::DefaultTelemetry::enable();
+		self.script_vm.register_script_function( "ui_click_pos", Box::new(crate::rar::rar_script_function_ui_click_pos::RarScriptFunctionUiClickPosCreator::default()) );
 		self.script_vm.register_script_function( "ui_click_element_with_name", Box::new(crate::rar::rar_script_function_ui_click_element_with_name::RarScriptFunctionUiClickElementWithNameCreator::default()) );
 		self.script_vm.register_script_function( "queue_screenshot", Box::new(crate::rar::rar_script_function_queue_screenshot::RarScriptFunctionQueueScreenshotCreator::default()) );
 		self.script_vm.register_script_function(
@@ -768,6 +778,17 @@ impl App for RarApp<'_> {
 		*/
 		self.cursor_pos.x = 0.5 * self.scaling * wuc.window_size.x * (2.0 * wuc.mouse_pos.x - 1.0);
 		self.cursor_pos.y = 0.5 * self.scaling * wuc.window_size.y * (2.0 * wuc.mouse_pos.y - 1.0);
+
+		if let Some(ui_click_pos) = self.fake_ui_click_positions.pop() {
+			tracing::debug!(
+				"Faking click at {:?} (Was mouse 0 pressed {}, mouse 0 {})",
+				ui_click_pos,
+				wuc.was_mouse_button_pressed(0),
+				wuc.mouse_buttons[0]
+			);
+			self.cursor_pos = ui_click_pos;
+			wuc.fake_mouse_button_press(0);
+		}
 
 		if wuc.was_key_pressed('f' as u8) {
 			self.fun.push(self.cursor_pos.clone());

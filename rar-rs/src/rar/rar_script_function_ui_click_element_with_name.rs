@@ -29,7 +29,7 @@ impl ScriptFunction<RarScriptContext<'_>> for RarScriptFunctionUiClickElementWit
 		}
 	}
 	fn tick(&mut self, script_context: &mut RarScriptContext) -> bool {
-		script_context.ui_click_names.push( self.name.clone() );
+		script_context.ui_click_names.push(self.name.clone());
 		/*
 		if let Some( ui_system ) = script_context.ui_system {
 			if let Some( root ) = ui_system.root() {

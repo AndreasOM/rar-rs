@@ -155,7 +155,7 @@ impl UiElementContainerData {
 		let mut found = false;
 		//tracing::debug!("Finding {} in {:#?}", name, self.children );
 		for c in self.children.iter() {
-			found |= c.borrow().find_child_container_by_name_then( name, f );
+			found |= c.borrow().find_child_container_by_name_then(name, f);
 		}
 
 		found
