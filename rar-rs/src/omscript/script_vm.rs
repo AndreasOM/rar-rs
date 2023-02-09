@@ -75,6 +75,7 @@ struct ScriptState<C: ScriptContext> {
 	pub pc:               usize,
 	pub running_function: Option<Box<dyn ScriptFunction<C>>>,
 	pub running:          bool,
+	pub pc_stack:         Vec<usize>,
 }
 
 //type ScriptFunctionCreator<C> = fn() -> Box<dyn ScriptFunction<C>>;
@@ -136,6 +137,13 @@ where
 					return Some(Box::new(f));
 				}
 			},
+			"debug" => {
+				if params.len() == 1 {
+					if let Literal::STRING(s) = &params[0] {
+						tracing::debug!("Script Debug: >{}<", s);
+					}
+				}
+			},
 			n => {
 				if let Some(creator) = self.script_function_creators.get(n) {
 					let mut f = creator.create();
@@ -143,9 +151,6 @@ where
 					} else {
 						return Some(f);
 					}
-				} else {
-					tracing::warn!("function not found {}", n);
-					todo!();
 				}
 			},
 		}
@@ -159,13 +164,26 @@ where
 			if let Some(running_function) = &mut self.script_state.running_function {
 				if running_function.tick(script_context) {
 					self.script_state.running_function = None;
+					self.script_state.pc_stack.pop();
 				}
 			} else {
 				if let Some(op_code) = self.script.get_op_code(self.script_state.pc) {
 					match op_code {
 						OpCode::Fn(_) => {},      // skip
 						OpCode::BlockStart => {}, // :TODO: push scope
-						OpCode::BlockEnd => {},   // :TODO: push scope
+						OpCode::BlockEnd => {
+							tracing::debug!(
+								"BlockEnd @{} [{:?}]",
+								self.script_state.pc,
+								self.script_state.pc_stack
+							);
+							if let Some(pc) = self.script_state.pc_stack.pop() {
+								self.script_state.pc = pc;
+							} else {
+								// we are done for good?
+								todo!();
+							}
+						}, // :TODO: pop scope
 						OpCode::Call(ident, n) => {
 							let n = *n;
 							if let Some(l) = self.script.get_literal(*ident as usize) {
@@ -192,6 +210,7 @@ where
 									}
 
 									tracing::debug!("Calling {} with {:#?}", name, params);
+									self.script_state.pc_stack.push(self.script_state.pc);
 									next_function = Some((name, params));
 								} else {
 									unreachable!();
@@ -211,6 +230,17 @@ where
 		if let Some((name, params)) = next_function {
 			if let Some(f) = self.call(script_context, name, params) {
 				self.script_state.running_function = Some(f);
+			} else {
+				// find an fn
+				if let Some(pc) = self.script.find_label(name) {
+					tracing::debug!("Call target {} found at {}", name, pc);
+					// :TODO: handle parameters
+					self.script_state.pc = pc;
+				} else {
+					tracing::warn!("function not found {}", name);
+					self.script_state.pc_stack.pop();
+					//todo!();
+				}
 			}
 		}
 
