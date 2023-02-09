@@ -820,6 +820,7 @@ children:
 			found = true;
 			f(&self);
 		};
+		found |= self.data.find_child_container_by_name_then( name, f );
 		found
 		/*
 		if self.data.tag == Some(tag.to_string()) {

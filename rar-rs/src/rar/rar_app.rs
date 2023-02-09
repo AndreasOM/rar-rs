@@ -399,6 +399,23 @@ impl RarApp<'_> {
 					renderer.queue_screenshot(0, 1, Some(&filename));
 				}
 			}
+
+			if let Some(gs) = self.game_states.get(&ags) {
+				if let Some( ui_system ) = gs.ui_system() {
+					if let Some( ui_root ) = ui_system.root() {
+						while let Some(ui_click_name) = script_context.ui_click_names.pop() {
+
+
+							if !ui_root.find_child_container_by_name_then(&ui_click_name, &|c| {
+								tracing::debug!("Found {} -> {:#?}", ui_click_name, c );
+							} ) {
+								tracing::warn!("UiElement {} not found. Not clicking.", &ui_click_name );
+								todo!();
+							}
+						}
+					}
+				}
+			}
 			//script_context.ui_system = None;
 			//drop(script_context)
 		}
