@@ -240,4 +240,8 @@ impl GameState for GameStateMenu {
 	fn as_any_mut(&mut self) -> &mut (dyn Any + 'static) {
 		self
 	}
+
+	fn ui_system<'a>(&'a self) -> Option<&'a UiSystem> {
+		Some(&self.ui_system)
+	}
 }

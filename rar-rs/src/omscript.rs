@@ -6,4 +6,5 @@ mod script_context;
 pub use script_context::ScriptContext;
 mod script_vm;
 pub use script_vm::ScriptFunction;
+pub use script_vm::ScriptFunctionCreator;
 pub use script_vm::ScriptVm;

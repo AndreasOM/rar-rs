@@ -1,3 +1,4 @@
+use core::marker::PhantomData;
 use std::collections::HashMap;
 
 use oml_game::system::System;
@@ -7,18 +8,28 @@ use crate::omscript::OpCode;
 use crate::omscript::Script;
 use crate::omscript::ScriptContext;
 
-pub trait ScriptFunction {
-	fn call(&mut self, _script_context: &mut dyn ScriptContext, params: Vec<&Literal>) -> bool;
-	fn tick(&mut self, _script_context: &mut dyn ScriptContext) -> bool;
+pub trait ScriptFunction<C>
+where
+	C: ScriptContext,
+{
+	fn call(&mut self, _script_context: &mut C, params: Vec<&Literal>) -> bool;
+	fn tick(&mut self, _script_context: &mut C) -> bool;
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
 		write!(f, "[ScriptFunction]")
 	}
 }
 
-impl core::fmt::Debug for dyn ScriptFunction {
+impl<C: ScriptContext> core::fmt::Debug for dyn ScriptFunction<C> {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
 		self.fmt(f)
 	}
+}
+
+pub trait ScriptFunctionCreator<C>: std::fmt::Debug
+where
+	C: ScriptContext,
+{
+	fn create(&self) -> Box<dyn ScriptFunction<C>>;
 }
 
 #[derive(Debug, Default)]
@@ -29,8 +40,11 @@ struct ScriptFunctionWaitFrames {
 
 impl ScriptFunctionWaitFrames {}
 
-impl ScriptFunction for ScriptFunctionWaitFrames {
-	fn call(&mut self, _script_context: &mut dyn ScriptContext, params: Vec<&Literal>) -> bool {
+impl<C> ScriptFunction<C> for ScriptFunctionWaitFrames
+where
+	C: ScriptContext,
+{
+	fn call(&mut self, _script_context: &mut C, params: Vec<&Literal>) -> bool {
 		if params.len() != 1 {
 			false
 		} else {
@@ -43,7 +57,7 @@ impl ScriptFunction for ScriptFunctionWaitFrames {
 			}
 		}
 	}
-	fn tick(&mut self, _script_context: &mut dyn ScriptContext) -> bool {
+	fn tick(&mut self, _script_context: &mut C) -> bool {
 		self.frames += 1;
 		self.frames >= self.target_frames
 	}
@@ -57,24 +71,36 @@ impl ScriptFunction for ScriptFunctionWaitFrames {
 }
 
 #[derive(Debug, Default)]
-struct ScriptState {
+struct ScriptState<C: ScriptContext> {
 	pub pc:               usize,
-	pub running_function: Option<Box<dyn ScriptFunction>>,
+	pub running_function: Option<Box<dyn ScriptFunction<C>>>,
 	pub running:          bool,
 }
 
-type ScriptFunctionCreator = fn() -> Box<dyn ScriptFunction>;
+//type ScriptFunctionCreator<C> = fn() -> Box<dyn ScriptFunction<C>>;
 
 #[derive(Debug, Default)]
-pub struct ScriptVm {
+pub struct ScriptVm<C>
+where
+	C: ScriptContext + std::fmt::Debug,
+{
 	script:                   Script,
-	script_state:             ScriptState,
-	script_function_creators: HashMap<String, ScriptFunctionCreator>,
+	script_state:             ScriptState<C>,
+	script_function_creators: HashMap<String, Box<dyn ScriptFunctionCreator<C>>>,
+	phantom:                  PhantomData<C>,
 }
 
-impl ScriptVm {
-	pub fn register_script_function(&mut self, name: &str, f: ScriptFunctionCreator) {
-		self.script_function_creators.insert(name.to_string(), f);
+impl<C> ScriptVm<C>
+where
+	C: ScriptContext + std::default::Default + std::fmt::Debug,
+{
+	pub fn register_script_function(
+		&mut self,
+		name: &str,
+		creator: Box<dyn ScriptFunctionCreator<C>>,
+	) {
+		self.script_function_creators
+			.insert(name.to_string(), creator);
 	}
 	pub fn load(&mut self, system: &mut System, name: &str) -> anyhow::Result<()> {
 		let s = Script::from_asset(system, name)?;
@@ -98,10 +124,10 @@ impl ScriptVm {
 
 	fn call(
 		&self,
-		script_context: &mut dyn ScriptContext,
+		script_context: &mut C,
 		name: &str,
 		params: Vec<&Literal>,
-	) -> Option<Box<dyn ScriptFunction>> {
+	) -> Option<Box<dyn ScriptFunction<C>>> {
 		match name {
 			"wait_frames" => {
 				let mut f = ScriptFunctionWaitFrames::default();
@@ -112,7 +138,7 @@ impl ScriptVm {
 			},
 			n => {
 				if let Some(creator) = self.script_function_creators.get(n) {
-					let mut f = creator();
+					let mut f = creator.create();
 					if !f.call(script_context, params) {
 					} else {
 						return Some(f);
@@ -125,7 +151,7 @@ impl ScriptVm {
 		}
 		None
 	}
-	pub fn tick(&mut self, script_context: &mut dyn ScriptContext) -> anyhow::Result<()> {
+	pub fn tick(&mut self, script_context: &mut C) -> anyhow::Result<()> {
 		// tracing::debug!("Script::tick {:?}", &self);
 		let mut next_function = None;
 

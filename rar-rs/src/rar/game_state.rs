@@ -63,7 +63,7 @@ pub trait GameState {
 		String::new()
 	}
 
-	fn ui_system(&self) -> Option<&UiSystem> {
+	fn ui_system<'a>(&'a self) -> Option<&'a UiSystem> {
 		None
 	}
 }

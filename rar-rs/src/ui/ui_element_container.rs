@@ -810,6 +810,29 @@ children:
 			r
 		}
 	}
+	pub fn find_child_container_by_name_then(
+		&self,
+		name: &str,
+		f: &dyn Fn(&UiElementContainer),
+	) -> bool {
+		let mut found = false;
+		if self.data.name == name {
+			found = true;
+			f(&self);
+		};
+		found
+		/*
+		if self.data.tag == Some(tag.to_string()) {
+			f(self);
+			//debug!("true");
+			true
+		} else {
+			let r = self.data.find_child_container_by_tag_mut_then(tag, f);
+			//debug!("{}", &r);
+			r
+		}
+		*/
+	}
 }
 
 // :TODO: write custom serializer, to ensure 'correct' order
