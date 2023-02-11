@@ -377,7 +377,9 @@ impl RarApp<'_> {
 					.load(&mut self.system, &script_name)
 					.expect("---->");
 				self.script_vm.run()?;
-				//todo!();
+			//todo!();
+			} else {
+				tracing::debug!("All scripts done");
 			}
 		} else {
 			// intentionally skip tick on the frame we load

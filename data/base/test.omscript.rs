@@ -25,24 +25,25 @@ fn run() {
 
 	quit_app();
 	//app_quit();
+	wait_frames( 3000 );
 }
 
 fn quit_game() { // quits the game, not the app!
 	debug("Quit Game");
-	wait_frames( 300 );
+	wait_frames( 10 );
 	ui_click_pos( -965, 450 ); // pause
-	wait_frames( 300 );
+	wait_frames( 30 );
 	ui_click_pos( -965, 270 ); // quit game
-	wait_frames( 300 );
+	wait_frames( 30 );
 	ui_click_pos( -880, 270 ); // confirm
-	wait_frames( 300 );
+	wait_frames( 30 );
 }
 
 fn quit_app() { // quits the app, from main menu
 	debug("Quit App");
-	wait_frames( 300 );
+	wait_frames( 10 );
 	ui_click_pos( 30, -220 ); // quit app
-	wait_frames( 300 );
+	wait_frames( 60 );
 	ui_click_pos( 35, -60 ); // confirm
-	wait_frames( 300 );
+	wait_frames( 30 );
 }
