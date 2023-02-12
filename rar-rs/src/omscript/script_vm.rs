@@ -234,6 +234,27 @@ impl<C: ScriptContext + std::default::Default> ScriptRunner<C> {
 	}
 }
 
+//#[derive(Debug, Default)]
+pub struct ScriptRunnerWithContext<'a, C>
+where
+	C: ScriptContext + std::fmt::Debug,
+{
+	script_runner: &'a mut ScriptRunner<C>,
+	script_context: &'a mut C,	
+}
+
+impl<C> ScriptRunnerWithContext<'_, C>
+where
+	C: ScriptContext + std::default::Default + std::fmt::Debug,
+{
+	pub fn tick(&mut self) -> anyhow::Result<()> {
+		//tracing::debug!("ScriptRunnerWithContext::tick {:?}", &self);
+		self.script_runner.tick(self.script_context)?;
+
+		Ok(())
+	}	
+}
+
 #[derive(Debug, Default)]
 pub struct ScriptVm<C>
 where
@@ -243,7 +264,8 @@ where
 	//script_state:             ScriptState<C>,
 	script_function_creators: Arc<RwLock<HashMap<String, Box<dyn ScriptFunctionCreator<C>>>>>,
 	phantom:                  PhantomData<C>,
-	script_runner:            Option<ScriptRunner<C>>,
+	script_runner:            Option<Arc<RwLock<ScriptRunner<C>>>>,
+	script_runner_2:			ScriptRunner<C>,
 }
 
 impl<C> ScriptVm<C>
@@ -275,21 +297,28 @@ where
 			//ss.pc = pc;
 			//self.script_state = ss; // :TODO: we could just reset the existing one
 			//self.script_state.running = true;
-			self.script_runner = Some(
-				ScriptRunner::default()
-					.with_script(Arc::clone(&self.script))
-					.with_script_function_creators(&self.script_function_creators),
-			);
-			self.script_runner.as_mut().unwrap().run();
+			let mut script_runner = ScriptRunner::default()
+				.with_script(Arc::clone(&self.script))
+				.with_script_function_creators(&self.script_function_creators);
+			script_runner.run();
+
+			self.script_runner = Some(Arc::new(RwLock::new(script_runner)));
 		} else {
 		}
 		Ok(())
 	}
 
-	pub fn tick(&mut self, script_context: &mut C) -> anyhow::Result<()> {
+	pub fn script_runner_with_context_mut<'a>(&'a mut self, script_context: &'a mut C) -> ScriptRunnerWithContext<'a,C>{
+		ScriptRunnerWithContext {
+			script_runner: &mut self.script_runner_2,
+			script_context: script_context,
+		}
+	}
+
+	pub fn tick(&self, script_context: &mut C) -> anyhow::Result<()> {
 		//tracing::debug!("Script::tick {:?}", &self);
-		if let Some(script_runner) = &mut self.script_runner {
-			script_runner.tick(script_context)?;
+		if let Some(script_runner) = &self.script_runner {
+			script_runner.write().unwrap().tick(script_context)?;
 		}
 
 		Ok(())
@@ -297,7 +326,7 @@ where
 
 	pub fn is_script_running(&self) -> bool {
 		if let Some(script_runner) = &self.script_runner {
-			return script_runner.running;
+			return script_runner.read().unwrap().running;
 		}
 		false
 	}

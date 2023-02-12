@@ -387,9 +387,16 @@ impl RarApp<'_> {
 			let ags = self.active_game_state.clone();
 			if let Some(gs) = self.game_states.get(&ags) {
 				//script_context.ui_system = gs.ui_system();
+				if let Some( ui_system ) = gs.ui_system() {
+			//		script_context = script_context.with_ui_system( ui_system );
+				}
 				//script_context.game_state = Some( gs );
 			}
-			self.script_vm.tick(&mut script_context)?;
+			//let script_vm = &self.script_vm;
+			//script_vm.tick( &mut script_context )?;
+			let mut script_runner = self.script_vm.script_runner_with_context_mut( &mut script_context );
+			script_runner.tick()?;
+			//self.script_vm.tick(&mut script_context)?;
 			if script_context.quit {
 				self.is_done = true;
 			}

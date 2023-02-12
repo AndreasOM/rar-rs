@@ -19,3 +19,11 @@ impl ScriptContext for RarScriptContext<'_> {
 		write!(f, "RarScriptContext") // :TODO: add fields
 	}
 }
+
+
+impl<'b> RarScriptContext<'b> {
+	pub fn with_ui_system<'a: 'b>( mut self: RarScriptContext<'b>, ui_system: &'a UiSystem ) -> RarScriptContext<'b> {
+		self.ui_system = Some( ui_system );
+		self
+	}
+}
