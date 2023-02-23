@@ -9,12 +9,21 @@ use nom::sequence::*;
 use nom::{self, IResult};
 use oml_game::system::System;
 
+#[derive(Debug, Default, PartialEq)]
+pub enum Literal {
+	I128(i128),
+	STRING(String),
+	#[default]
+	None,
+}
+
 #[derive(Debug, Default)]
-enum OpCode {
+pub enum OpCode {
 	BlockStart,
 	BlockEnd,
-	Fn(u16),   // offset to name literal
-	Call(u16), // offset to target literal
+	Fn(u16),       // offset to name literal
+	Call(u16, u8), // offset to target literal, number of parameters
+	Literal(u16),
 	#[default]
 	End,
 }
@@ -23,7 +32,7 @@ enum OpCode {
 pub struct Script {
 	code:     Vec<OpCode>,
 	labels:   HashMap<String, usize>,
-	literals: Vec<String>,
+	literals: Vec<Literal>,
 }
 
 impl Script {
@@ -34,15 +43,162 @@ impl Script {
 		if dfs.exists(&name_omrs) {
 			let mut f = dfs.open(&name_omrs);
 			let omrs = f.read_as_string();
-			tracing::debug!("Script source:\n{}", omrs);
-			let s = Script::default();
-			let items = item_parse_script(&omrs);
-			tracing::debug!("items {:#?}", items);
-			Ok(s)
+			Self::load_from_str(&omrs)
 		} else {
 			// :TODO: create fallback?
 			anyhow::bail!("Couldn't find script {}", name);
 		}
+	}
+
+	pub fn find_label(&self, label: &str) -> Option<usize> {
+		self.labels.get(label).copied()
+	}
+
+	pub fn get_op_code(&self, pc: usize) -> Option<&OpCode> {
+		if pc >= self.code.len() {
+			None
+		} else {
+			Some(&self.code[pc])
+		}
+	}
+
+	pub fn get_literal(&self, i: usize) -> Option<&Literal> {
+		if i >= self.literals.len() {
+			None
+		} else {
+			Some(&self.literals[i])
+		}
+	}
+
+	pub fn get_literal_str(&self, i: usize) -> Option<&str> {
+		if let Some(l) = self.get_literal(i) {
+			if let Literal::STRING(name) = l {
+				return Some(&name);
+			}
+		}
+		None
+	}
+
+	fn push_op_code(&mut self, op_code: OpCode) -> usize {
+		self.code.push(op_code);
+		self.code.len() - 1
+	}
+
+	fn add_label(&mut self, name: &str, pc: usize) -> anyhow::Result<()> {
+		if self.labels.contains_key(name) {
+			anyhow::bail!("Duplicated label {}", name)
+		} else {
+			self.labels.insert(name.to_string(), pc);
+			Ok(())
+		}
+	}
+
+	fn add_literal(&mut self, literal: Literal) -> usize {
+		if let Some(pos) = self.literals.iter().position(|l| l == &literal) {
+			pos
+		} else {
+			self.literals.push(literal);
+			self.literals.len() - 1
+		}
+	}
+
+	fn load_from_str(src: &str) -> anyhow::Result<Script> {
+		tracing::debug!("Script source:\n{}", src);
+		let mut s = Script::default();
+		let items = item_parse_script(&src);
+		tracing::debug!("items {:#?}", items);
+
+		// convert to Opcodes, etc
+		match items {
+			Err(e) => {
+				anyhow::bail!("Error while parsing script {:?}", e)
+			},
+			Ok(items) => {
+				let (_rest, items) = items;
+				//tracing::debug!("{:?}", items);
+				for item in items {
+					tracing::debug!("{:?}", item);
+					match item {
+						Item::Comment(_c) => {}, // skip
+						Item::Fn { identifier, block } => {
+							if let Item::Identifier(i) = *identifier {
+								let l = s.add_literal(Literal::STRING(i.to_string()));
+								let pc = s.push_op_code(OpCode::Fn(l as u16));
+								//let Single::S(b) = a;
+								s.add_label(i, pc)?;
+							} else {
+								unreachable!();
+							}
+							if let Item::Block(statements) = *block {
+								s.push_op_code(OpCode::BlockStart);
+								if let Item::Statements(statements) = *statements {
+									for statement in statements {
+										match statement {
+											Item::Comment(_c) => {}, // skip
+											Item::None => {},        // skip
+											Item::Call {
+												identifier,
+												parameters,
+											} => {
+												if let Item::Identifier(i) = *identifier {
+													let l = s.add_literal(Literal::STRING(
+														i.to_string(),
+													));
+													let parameter_count = parameters.len();
+													if parameter_count > 255 {
+														unimplemented!();
+													}
+													s.push_op_code(OpCode::Call(
+														l as u16,
+														parameter_count as u8,
+													));
+													for parameter in parameters {
+														match parameter {
+															Item::Number(n) => {
+																let l =
+																	s.add_literal(Literal::I128(n));
+																s.push_op_code(OpCode::Literal(
+																	l as u16,
+																));
+															},
+															Item::String(v) => {
+																let l = s.add_literal(
+																	Literal::STRING(v.to_string()),
+																);
+																s.push_op_code(OpCode::Literal(
+																	l as u16,
+																));
+															},
+															_ => unreachable!(),
+														}
+													}
+												} else {
+													unreachable!();
+												}
+											},
+											_ => unreachable!(),
+										}
+									}
+								} else {
+									unreachable!();
+								}
+
+								s.push_op_code(OpCode::BlockEnd);
+							} else {
+								unreachable!();
+							}
+						},
+						Item::None => {}, // skip
+						i => {
+							tracing::warn!("Unhandled {:?} on global scope", i);
+						},
+					}
+				}
+				Ok(s)
+			},
+		}
+
+		//		Ok(s)
 	}
 }
 
@@ -54,6 +210,9 @@ enum Item<'a> {
 	Identifier(&'a str),
 	Call {
 		identifier: Box<Item<'a>>,
+		parameters: Vec<Item<'a>>,
+	},
+	ParameterList {
 		parameters: Vec<Item<'a>>,
 	},
 	Statements(Vec<Item<'a>>),
@@ -106,6 +265,45 @@ fn item_parse_literal(s: &str) -> IResult<&str, Item> {
 	alt((item_parse_number, item_parse_string))(s)
 }
 
+fn item_parse_parameter_list_tail(i: &str) -> IResult<&str, Item> {
+	alt((
+		map(
+			tuple((
+				multispace0,
+				item_parse_literal,
+				multispace0,
+				tag(","),
+				item_parse_parameter_list_tail,
+			)),
+			|l| {
+				let mut parameters = Vec::new();
+				parameters.push(l.1);
+				if let Item::ParameterList { parameters: params } = l.4 {
+					for p in params {
+						parameters.push(p);
+					}
+				}
+				Item::ParameterList { parameters }
+			},
+		),
+		map(
+			tuple((multispace0, item_parse_literal, multispace0)),
+			|(_, l, _)| Item::ParameterList {
+				parameters: [l].into(),
+			},
+		),
+		map(multispace0, |_s| Item::None),
+	))(i)
+}
+
+fn item_parse_parameter_list(i: &str) -> IResult<&str, Item> {
+	alt((
+		//item_parse_literal,
+		item_parse_parameter_list_tail,
+		//item_parse_literal
+		map(tag("!"), |_| Item::None),
+	))(i)
+}
 fn parse_call(s: &str) -> IResult<&str, &str> {
 	// :TODO: handle parameter list
 	recognize(tuple((
@@ -128,17 +326,29 @@ fn item_parse_call(s: &str) -> IResult<&str, Item> {
 			item_parse_identifier,
 			multispace0,
 			tag("("),
+			item_parse_parameter_list,
+			/*
 			multispace0,
 			many0(item_parse_literal), // :TODO: make parameter list
 			//item_parse_literal,	// :TODO: make parameter list
 			multispace0,
+			*/
 			tag(")"),
 			multispace0,
 			tag(";"), // Note: The ';' should probably be part of the statements parser
 		)),
-		|v| Item::Call {
-			identifier: Box::new(v.0),
-			parameters: v.4,
+		|v| {
+			let mut parameters = Vec::new();
+			// v.3
+			if let Item::ParameterList { parameters: params } = v.3 {
+				for p in params {
+					parameters.push(p);
+				}
+			}
+			Item::Call {
+				identifier: Box::new(v.0),
+				parameters,
+			}
 		}, // :TODO: maybe better to extract the &str here?
 	)(s)
 }
@@ -300,6 +510,23 @@ mod tests {
 	}
 
 	#[test]
+	fn can_parse_parameter_list() -> anyhow::Result<()> {
+		let r = item_parse_parameter_list("");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list("10");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list("10, 20, 30");
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_parameter_list(r#"10,    "twenty",    30  "#);
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		Ok(())
+	}
+
+	#[test]
 	fn can_parse_call() -> anyhow::Result<()> {
 		let r = item_parse_call("test();");
 		eprintln!("{:?}", r);
@@ -308,6 +535,9 @@ mod tests {
 		eprintln!("{:?}", r);
 		assert!(r.is_ok());
 		let r = item_parse_call(r#"test ( "test" ) ;"#);
+		eprintln!("{:?}", r);
+		assert!(r.is_ok());
+		let r = item_parse_call(r#"test ( 10, 20,    "test" ) ;"#);
 		eprintln!("{:?}", r);
 		assert!(r.is_ok());
 		Ok(())
@@ -345,6 +575,26 @@ fn run() {	// main function
 		let r = item_parse_script(s);
 		eprintln!("{:?}", r);
 		assert!(r.is_ok());
+		Ok(())
+	}
+
+	use super::Script;
+	#[test]
+	fn can_load_from_str() -> anyhow::Result<()> {
+		let s = r#"
+
+// comment
+fn run() {	// main function
+	wait_frames(10);
+	take_screenshot("test");
+	app_quit();
+}
+"#;
+		eprintln!("{:?}", s);
+
+		let s = Script::load_from_str(s);
+		eprintln!("{:?}", s);
+		assert!(s.is_ok());
 		Ok(())
 	}
 }

@@ -45,6 +45,10 @@ impl UiSystem {
 		&mut self.root
 	}
 
+	pub fn root(&self) -> &Option<UiElementContainer> {
+		&self.root
+	}
+
 	pub fn teardown(&mut self) {
 		if let Some(_ers) = self.event_response_sender.take() {}
 		if let Some(_root) = self.root.take() {}
@@ -146,7 +150,7 @@ impl UiSystem {
 			if let Some(wuc) = auc.wuc() {
 				if wuc.was_mouse_button_pressed(0) {
 					let cp = auc.cursor_pos();
-					//debug!("Left Mouse Button was pressed @ {}, {}", cp.x, cp.y);
+					debug!("Left Mouse Button was pressed @ {}, {}", cp.x, cp.y);
 					//debug!("{:?}", &root);
 					let ev = UiEvent::MouseClick {
 						pos:    *cp,

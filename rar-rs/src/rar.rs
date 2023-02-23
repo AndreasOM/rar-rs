@@ -46,3 +46,12 @@ mod data;
 
 mod rar_ui_update_context;
 pub use rar_ui_update_context::RarUiUpdateContext;
+
+mod rar_script_context;
+pub use rar_script_context::RarScriptContext;
+mod rar_script_function_app_quit;
+mod rar_script_function_queue_screenshot;
+mod rar_script_function_ui_click_element_with_name;
+mod rar_script_function_ui_click_pos;
+
+//pub use rar_script_function_ui_click_element_with_name::RarScriptFunctionUiClickElementWithName;

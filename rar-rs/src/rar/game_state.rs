@@ -6,6 +6,7 @@ use oml_game::system::System;
 //use oml_game::window::WindowUpdateContext;
 //use tracing::*;
 use crate::rar::AppUpdateContext;
+use crate::ui::UiSystem;
 /*
 pub fn get_game_state_as_specific<'a, T: 'a + 'static>(
 	gs: &'a Box<dyn GameState>,
@@ -60,6 +61,10 @@ pub trait GameState {
 	}
 	fn ui_to_yaml_config_string(&self) -> String {
 		String::new()
+	}
+
+	fn ui_system<'a>(&'a self) -> Option<&'a UiSystem> {
+		None
 	}
 }
 

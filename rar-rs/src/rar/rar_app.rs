@@ -50,11 +50,12 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarScriptContext;
 use crate::rar::RarUiUpdateContext;
 use crate::ui::UiElementFactory;
 use crate::ui::{UiDebugConfig, UiDebugConfigMode};
 
-#[derive(Debug, PartialEq, Hash, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
 enum GameStates {
 	Menu,
 	Game,
@@ -63,7 +64,7 @@ enum GameStates {
 }
 
 #[derive(Debug)]
-pub struct RarApp {
+pub struct RarApp<'a> {
 	renderer:         Option<Renderer>,
 	audio:            Box<dyn AudioBackend<oml_game::system::System>>,
 	is_sound_enabled: bool,
@@ -93,10 +94,16 @@ pub struct RarApp {
 	screenshot_requested:          bool,
 	screenshot_sequence_requested: bool,
 	script_queue:                  VecDeque<String>,
-	script_vm:                     ScriptVm,
+	script_vm:                     ScriptVm<RarScriptContext<'a>>,
+
+	fake_ui_click_positions: Vec<Vector2>,
+
+	slow_skip:           u32,
+	pause_update:        bool,
+	slow_motion_divider: u32,
 }
 
-impl Default for RarApp {
+impl Default for RarApp<'_> {
 	fn default() -> Self {
 		let system = System::new();
 		let game_states: HashMap<GameStates, Box<dyn GameState>> = HashMap::new();
@@ -132,10 +139,15 @@ impl Default for RarApp {
 
 			script_queue: VecDeque::new(),
 			script_vm: ScriptVm::default(),
+			fake_ui_click_positions: Vec::new(),
+
+			slow_skip: 0,
+			pause_update: false,
+			slow_motion_divider: 1,
 		}
 	}
 }
-impl RarApp {
+impl RarApp<'_> {
 	pub fn new() -> Self {
 		Self {
 			..Default::default()
@@ -309,10 +321,17 @@ impl RarApp {
 			|y| *y * 10.0,
 		);
 
-		//		Self::render_telemetry::<f32, _>( "slow frame", 3.5, &Color::white(), |y| *y );
-		Self::render_trace::<f64, _>(debug_renderer, "fast frame", 1.5, &Color::white(), |y| {
-			*y as f32
-		});
+		Self::render_trace_pairs::<f64, _>(
+			debug_renderer,
+			"fast frame",
+			1.5,
+			&Color::white(),
+			|t| match t {
+				(Some(se), Some(ee)) => Some((*se as f32, *ee as f32)),
+				(Some(se), None) => Some((*se as f32, *se as f32)),
+				_ => None,
+			},
+		);
 
 		Self::render_trace_pairs::<f64, _>(debug_renderer, "slow frame", 1.5, &Color::red(), |t| {
 			match t {
@@ -338,9 +357,85 @@ impl RarApp {
 			}
 		}
 	}
+	/*
+		fn broken_borrow(&mut self) -> anyhow::Result<()> {
+			let mut script_context = RarScriptContext::default();
+			let ags = self.active_game_state.clone();
+			if let Some( gs ) = self.game_states.get(&ags) {
+				//script_context.ui_system = gs.ui_system();
+				script_context.game_state = Some( gs );
+			}
+			self.script_vm.tick(&mut script_context)?;
+
+			Ok(())
+		}
+	*/
+	fn tick_script_vm(&mut self) -> anyhow::Result<()> {
+		if !self.script_vm.is_script_running() {
+			if let Some(script_name) = self.script_queue.pop_front() {
+				self.script_vm
+					.load(&mut self.system, &script_name)
+					.expect("---->");
+				self.script_vm.run()?;
+			//todo!();
+			} else {
+				tracing::debug!("All scripts done");
+			}
+		} else {
+			// intentionally skip tick on the frame we load
+			let mut script_context = RarScriptContext::default();
+			let ags = self.active_game_state.clone();
+			if let Some(gs) = self.game_states.get(&ags) {
+				//script_context.ui_system = gs.ui_system();
+				//script_context.game_state = Some( gs );
+			}
+			self.script_vm.tick(&mut script_context)?;
+			if script_context.quit {
+				self.is_done = true;
+			}
+			while let Some(screenshot) = script_context.screenshots.pop() {
+				const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
+				const VERSION: &str = env!("CARGO_PKG_VERSION");
+				let filename = format!(
+					"screenshot-rar-rs-{}-{}-{}",
+					BUILD_DATETIME, VERSION, screenshot
+				);
+				tracing::debug!("Screenshot requested {}", &filename);
+				if let Some(renderer) = &mut self.renderer {
+					renderer.queue_screenshot(0, 1, Some(&filename));
+				}
+			}
+
+			if let Some(gs) = self.game_states.get(&ags) {
+				if let Some(ui_system) = gs.ui_system() {
+					if let Some(ui_root) = ui_system.root() {
+						while let Some(ui_click_name) = script_context.ui_click_names.pop() {
+							if !ui_root.find_child_container_by_name_then(&ui_click_name, &|c| {
+								tracing::debug!("Found {} -> {:#?}", ui_click_name, c);
+							}) {
+								tracing::warn!(
+									"UiElement {} not found. Not clicking.",
+									&ui_click_name
+								);
+								todo!();
+							}
+						}
+					}
+				}
+			}
+			while let Some(ui_click_pos) = script_context.ui_click_positions.pop() {
+				tracing::debug!("Clicking at {:?}", ui_click_pos);
+				self.fake_ui_click_positions.push(ui_click_pos);
+			}
+			//script_context.ui_system = None;
+			//drop(script_context)
+		}
+
+		Ok(())
+	}
 }
 
-impl App for RarApp {
+impl App for RarApp<'_> {
 	fn remember_window_layout(&self) -> bool {
 		true
 	}
@@ -482,6 +577,24 @@ impl App for RarApp {
 		}
 
 		oml_game::DefaultTelemetry::enable();
+		self.script_vm.register_script_function( "ui_click_pos", Box::new(crate::rar::rar_script_function_ui_click_pos::RarScriptFunctionUiClickPosCreator::default()) );
+		self.script_vm.register_script_function( "ui_click_element_with_name", Box::new(crate::rar::rar_script_function_ui_click_element_with_name::RarScriptFunctionUiClickElementWithNameCreator::default()) );
+		self.script_vm.register_script_function( "queue_screenshot", Box::new(crate::rar::rar_script_function_queue_screenshot::RarScriptFunctionQueueScreenshotCreator::default()) );
+		self.script_vm.register_script_function(
+			"app_quit",
+			Box::new(
+				crate::rar::rar_script_function_app_quit::RarScriptFunctionAppQuitCreator::default(
+				),
+			),
+		);
+		/*
+				self.script_vm.register_script_function( "ui_click_element_with_name", crate::rar::rar_script_function_ui_click_element_with_name::RarScriptFunctionUiClickElementWithName::create );
+				self.script_vm.register_script_function( "queue_screenshot", crate::rar::rar_script_function_queue_screenshot::RarScriptFunctionQueueScreenshot::create );
+				self.script_vm.register_script_function(
+					"app_quit",
+					crate::rar::rar_script_function_app_quit::RarScriptFunctionAppQuit::create,
+				);
+		*/
 		Ok(())
 	}
 
@@ -492,22 +605,23 @@ impl App for RarApp {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
+		self.slow_skip += 1;
+		if self.slow_skip >= self.slow_motion_divider {
+			self.slow_skip = 0;
+			self.pause_update = false;
+		} else {
+			self.pause_update = true;
+		}
+
+		if self.pause_update {
+			//return Ok(());
+			wuc.time_step = wuc.time_step() * 0.0;
+		}
 		// debug!("App update time step: {}", wuc.time_step());
 		oml_game::DefaultTelemetry::update();
 
 		let _timestep = self.audio.update();
-		if !self.script_vm.is_script_running() {
-			if let Some(script_name) = self.script_queue.pop_front() {
-				self.script_vm
-					.load(&mut self.system, &script_name)
-					.expect("---->");
-				self.script_vm.run();
-				todo!();
-			}
-		} else {
-			// intentionally skip tick on the frame we load
-			self.script_vm.tick();
-		}
+		self.tick_script_vm()?;
 
 		if let Some(next_game_state) = self.next_game_states.pop_front() {
 			if let Some(old_game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -548,6 +662,16 @@ impl App for RarApp {
 			});
 		}
 
+		if wuc.was_key_pressed('i' as u8) {
+			self.slow_motion_divider *= 2;
+		}
+
+		if wuc.was_key_pressed('u' as u8) {
+			self.slow_motion_divider /= 2;
+		}
+
+		self.slow_motion_divider = self.slow_motion_divider.clamp(1, 16);
+
 		if wuc.was_function_key_pressed(2) {
 			if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 				let yaml = game_state.ui_to_yaml_config_string();
@@ -567,6 +691,7 @@ impl App for RarApp {
 		}
 
 		if wuc.was_function_key_pressed(12) {
+			tracing::debug!("F12 -> Screenshot");
 			self.screenshot_requested = true;
 		}
 
@@ -593,9 +718,15 @@ impl App for RarApp {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
 		}
 
-		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y != 0.0 {
+		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y.abs() > 1.0 {
+			debug!("mouse_wheel_line_delta {}", wuc.mouse_wheel_line_delta.y);
 			// :TODO: use close to
-			self.debug_zoom_factor += wuc.mouse_wheel_line_delta.y * 0.001;
+			let factor = if wuc.is_modifier_pressed(oml_game::window::ModifierKey::Alt) {
+				0.0001
+			} else {
+				0.001
+			};
+			self.debug_zoom_factor += wuc.mouse_wheel_line_delta.y * factor;
 			if self.debug_zoom_factor >= 5.0 {
 				self.debug_zoom_factor = 5.0;
 			} else if self.debug_zoom_factor <= 0.001 {
@@ -649,6 +780,17 @@ impl App for RarApp {
 		*/
 		self.cursor_pos.x = 0.5 * self.scaling * wuc.window_size.x * (2.0 * wuc.mouse_pos.x - 1.0);
 		self.cursor_pos.y = 0.5 * self.scaling * wuc.window_size.y * (2.0 * wuc.mouse_pos.y - 1.0);
+
+		if let Some(ui_click_pos) = self.fake_ui_click_positions.pop() {
+			tracing::debug!(
+				"Faking click at {:?} (Was mouse 0 pressed {}, mouse 0 {})",
+				ui_click_pos,
+				wuc.was_mouse_button_pressed(0),
+				wuc.mouse_buttons[0]
+			);
+			self.cursor_pos = ui_click_pos;
+			wuc.fake_mouse_button_press(0);
+		}
 
 		if wuc.was_key_pressed('f' as u8) {
 			self.fun.push(self.cursor_pos.clone());
@@ -811,6 +953,12 @@ impl App for RarApp {
 		Ok(())
 	}
 	fn fixed_update(&mut self, time_step: f64) {
+		let time_step = if self.pause_update {
+			//return;
+			0.0
+		} else {
+			time_step
+		};
 		//debug!("Fixed Update: {}", time_step);
 		self.game_state().fixed_update(time_step);
 	}
@@ -878,6 +1026,7 @@ impl App for RarApp {
 					const BUILD_DATETIME: &str = env!("BUILD_DATETIME");
 					const VERSION: &str = env!("CARGO_PKG_VERSION");
 					let filename = format!("screenshot-rar-rs-{}-{}", BUILD_DATETIME, VERSION);
+					tracing::debug!("Screenshot requested {}", &filename);
 					renderer.queue_screenshot(0, 1, Some(&filename));
 				}
 				self.screenshot_requested = false;
