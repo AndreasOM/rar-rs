@@ -24,6 +24,9 @@ const FPS: f32 = 25.0;
 pub enum PlayerState {
 	WaitForStart,
 	Idle,
+	Running,
+	Jumping,
+	Falling,
 	Backflip,
 	Dying,
 	Dead,
@@ -34,6 +37,9 @@ impl From<PlayerState> for &str {
 		match ps {
 			PlayerState::WaitForStart => "wait_for_start",
 			PlayerState::Idle => "idle",
+			PlayerState::Jumping => "jumping",
+			PlayerState::Running => "running",
+			PlayerState::Falling => "falling",
 			PlayerState::Backflip => "backflip",
 			PlayerState::Dying => "dying",
 			PlayerState::Dead => "dead",
@@ -124,6 +130,8 @@ pub struct Player {
 	direction:           PlayerDirection,
 	speed:               Vector2,
 	movement:            Vector2,
+	grounded:            bool,
+	hit_max_jump:        bool,
 	time_since_dying:    f32,
 	input_context_index: u8,
 	entity_data:         EntityData,
@@ -145,6 +153,8 @@ impl Player {
 			direction:           PlayerDirection::Right,
 			speed:               Vector2::zero(),
 			movement:            Vector2::zero(),
+			grounded:            false,
+			hit_max_jump:        false,
 			time_since_dying:    f32::MAX,
 			input_context_index: 0xff,
 			entity_data:         EntityData::default(),
@@ -163,7 +173,8 @@ impl Player {
 	pub fn is_alive(&self) -> bool {
 		match self.state {
 			PlayerState::Dead | PlayerState::Dying => false,
-			PlayerState::WaitForStart | PlayerState::Idle | PlayerState::Backflip => true,
+			//PlayerState::WaitForStart | PlayerState::Idle | PlayerState::Backflip => true,
+			_ => true,
 		}
 	}
 
@@ -232,12 +243,45 @@ impl Player {
 
 	fn update_idle(&mut self, euc: &mut EntityUpdateContext) {
 		if let Some(pic) = euc.player_input_context(self.input_context_index) {
-			const BACKFLIP_ENABLED: bool = !true;
-			if BACKFLIP_ENABLED && pic.is_up_pressed {
-				self.goto_state(PlayerState::Backflip);
-			// self.speed = -100.0;
-			// self.direction = PlayerDirection::Left;
-			} else if pic.is_left_pressed {
+			if pic.is_left_pressed {
+				self.speed.x = -100.0;
+				self.direction = PlayerDirection::Left;
+				self.state = PlayerState::Running;
+			} else if pic.is_right_pressed {
+				self.speed.x = 100.0;
+				self.direction = PlayerDirection::Right;
+				self.state = PlayerState::Running;
+			} else {
+				self.speed.x = 0.0;
+			}
+			// :HACK:
+			if pic.is_up_pressed {
+				// jetpack mode
+				self.speed.y = 100.0;
+				self.state = PlayerState::Running;
+			} else if pic.is_down_pressed {
+				self.speed.y = -100.0;
+				self.state = PlayerState::Running;
+			} else {
+				// only do gravity when jumping & falling
+				//				self.speed.y -= 5.0;
+			};
+
+			if pic.is_jump_pressed {
+				tracing::debug!("Idle -> Jumping");
+				//if self.speed.y >= -100.0 && self.speed.y < 200.0 {
+				// :TODO: make time step dependend
+				self.speed.y += 50.0;
+				self.state = PlayerState::Jumping;
+				self.grounded = false;
+				self.hit_max_jump = false;
+				//}
+			}
+		}
+	}
+	fn update_running(&mut self, euc: &mut EntityUpdateContext) {
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
+			if pic.is_left_pressed {
 				self.speed.x = -100.0;
 				self.direction = PlayerDirection::Left;
 			} else if pic.is_right_pressed {
@@ -245,15 +289,46 @@ impl Player {
 				self.direction = PlayerDirection::Right;
 			} else {
 				self.speed.x = 0.0;
+				self.state = PlayerState::Idle;
 			}
-			// :HACK:
-			if pic.is_up_pressed {
-				self.speed.y = 100.0;
-			} else if pic.is_down_pressed {
-				self.speed.y = -100.0;
+			if pic.is_jump_pressed {
+				tracing::debug!("Running -> Jumping");
+				self.speed.y += 50.0;
+				self.state = PlayerState::Jumping;
+				self.grounded = false;
+				self.hit_max_jump = false;
+			}
+		}
+	}
+
+	fn update_jumping(&mut self, euc: &mut EntityUpdateContext) {
+		tracing::debug!("Jumping {}", self.hit_max_jump);
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
+			if !self.hit_max_jump && pic.is_jump_pressed {
+				if self.speed.y < 300.0 {
+					self.speed.y += 50.0;
+				} else {
+					tracing::debug!("Hit Max Jump");
+					self.hit_max_jump = true;
+				}
 			} else {
 				self.speed.y -= 5.0;
-			};
+				tracing::debug!("{}", self.speed.y);
+				if self.speed.y <= 0.0 {
+					self.state = PlayerState::Falling;
+				}
+			}
+		}
+	}
+
+	fn update_falling(&mut self, euc: &mut EntityUpdateContext) {
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
+			if self.grounded {
+				tracing::debug!("Grounded");
+				self.state = PlayerState::Running;
+			} else {
+				self.speed.y -= 10.0;
+			}
 		}
 	}
 
@@ -412,6 +487,7 @@ impl Player {
 
 			let l = match col.1 {
 				Cardinals::Bottom => {
+					self.grounded = true;
 					//col_order.push( 'B' );
 					self.pos = *r.center();
 					self.pos.y += 1.0;
@@ -620,9 +696,13 @@ impl Entity for Player {
 			state_direction.animated_texture.update(euc.time_step());
 		}
 
+		tracing::debug!("State: {:?}", self.state);
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
+			PlayerState::Running => self.update_running(euc),
+			PlayerState::Jumping => self.update_jumping(euc),
+			PlayerState::Falling => self.update_falling(euc),
 			PlayerState::Backflip => self.update_backflip(euc),
 			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},

@@ -3,8 +3,9 @@
 
 ## In Progress
 
-- [ ] Add forced slow frame
+- [ ] Add jump via space bar
 
+- [ ] Add forced slow frame
 
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
@@ -89,6 +90,9 @@
 
 
 ## Done
+
+### Episode 0036 -> 2.0h + ...
+- [x] Add basic, rough player logic
 
 ### Episode 0035 -> 3.0h + 15.5h -> 87.0h   + 75.0h     -> 182.0h
 - !!! Spend a lot of time on the ScriptContext lifetime issue!
