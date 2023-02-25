@@ -103,8 +103,9 @@ pub struct RarApp<'a> {
 	pause_update:        bool,
 	slow_motion_divider: u32,
 
-	egui_wrapper: EguiWrapper,
-	egui_enabled: bool,
+	egui_wrapper:              EguiWrapper,
+	egui_enabled:              bool,
+	egui_debug_telemetry_open: bool,
 }
 
 impl Default for RarApp<'_> {
@@ -151,6 +152,7 @@ impl Default for RarApp<'_> {
 
 			egui_wrapper: EguiWrapper::default(),
 			egui_enabled: false,
+			egui_debug_telemetry_open: false,
 		}
 	}
 }
@@ -440,6 +442,111 @@ impl RarApp<'_> {
 
 		Ok(())
 	}
+
+	fn egui_debug_telemetry_window(&mut self, ctx: &egui::Context) {
+		egui::Window::new("telemetry")
+			.open(&mut self.egui_debug_telemetry_open)
+			.default_size(egui::vec2(400.0, 400.0))
+			.vscroll(false)
+			.show(ctx, |ui| {
+				ui.label("Telemetry");
+			});
+	}
+
+	fn update_egui(&mut self, wuc: &mut WindowUpdateContext) {
+		if wuc.was_key_pressed('`' as u8) {
+			self.egui_enabled = !self.egui_enabled;
+		}
+
+		if self.egui_enabled {
+			self.egui_wrapper.update(wuc);
+
+			self.egui_wrapper.run(&mut self.system, |ctx| {
+				if true {
+					let mut style = (*ctx.style()).clone();
+					style.override_text_style = Some(
+						egui::TextStyle::Heading, //egui::FontId::new(30.0, egui::FontFamily::Proportional)
+					);
+
+					style.text_styles = [
+						(
+							egui::TextStyle::Heading,
+							egui::FontId::new(30.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Name("Heading2".into()),
+							egui::FontId::new(25.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Name("Context".into()),
+							egui::FontId::new(23.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Body,
+							egui::FontId::new(18.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Monospace,
+							egui::FontId::new(14.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Button,
+							egui::FontId::new(14.0, egui::FontFamily::Proportional),
+						),
+						(
+							egui::TextStyle::Small,
+							egui::FontId::new(10.0, egui::FontFamily::Proportional),
+							//egui::FontId::new(self.font_size as f32, egui::FontFamily::Proportional),
+						),
+					]
+					.into();
+
+					ctx.set_style(style);
+				}
+
+				//self.egui_debug_telemetry_window( ctx );
+				egui::Window::new("Telemetry Widget")
+					//.default_width(1000.0)
+					.resize(|r| r.default_width(1000.0))
+					.resizable(true)
+					.show(ctx, |ui| {
+						//ui.add(oml_game_egui::EguiTelemetryWidget::default());
+						if ui.button("Quit").clicked() {
+							self.is_done = true;
+							// frame.quit();
+						}
+					});
+
+				egui::SidePanel::right("egui_debug")
+					.resizable(false)
+					.default_width(150.0)
+					.show(ctx, |ui| {
+						egui::trace!(ui);
+						ui.vertical_centered(|ui| {
+							ui.heading("-= Debug =-");
+						});
+						if ui.button("Quit").clicked() {
+							self.is_done = true;
+							// frame.quit();
+						}
+
+						ui.separator();
+						egui::ScrollArea::vertical().show(ui, |ui| {
+							ui.with_layout(
+								egui::Layout::top_down_justified(egui::Align::LEFT),
+								|ui| {
+									ui.toggle_value(
+										&mut self.egui_debug_telemetry_open,
+										"Telemetry",
+									);
+								},
+							);
+						});
+					});
+				Ok(())
+			});
+		}
+	}
 }
 
 impl App for RarApp<'_> {
@@ -558,7 +665,7 @@ impl App for RarApp<'_> {
 				&mut self.system,
 				EffectId::ColoredTexturedEgui as u16,
 				"ColoredTextured",
-				"coloredtextured_vs.glsl",
+				"egui_coloredtextured_vs.glsl",
 				"coloredtextured_fs.glsl",
 			)
 			.with_cull_face(false)
@@ -634,6 +741,8 @@ impl App for RarApp<'_> {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
+		self.update_egui(wuc);
+
 		self.slow_skip += 1;
 		if self.slow_skip >= self.slow_motion_divider {
 			self.slow_skip = 0;
@@ -746,9 +855,6 @@ impl App for RarApp<'_> {
 		if wuc.was_key_pressed('/' as u8) {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
 		}
-		if wuc.was_key_pressed('`' as u8) {
-			self.egui_enabled = !self.egui_enabled;
-		}
 
 		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y.abs() > 1.0 {
 			debug!("mouse_wheel_line_delta {}", wuc.mouse_wheel_line_delta.y);
@@ -773,7 +879,7 @@ impl App for RarApp<'_> {
 		self.scaling = 1.0 * scaling; // !!! Do not tweak here
 
 		self.size.x = (self.scaling) * self.viewport_size.x;
-		self.size.y = (self.scaling) * self.viewport_size.y;
+		self.size.y = (self.scaling) * self.viewport_size.y; // -> always 1024.0
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -983,40 +1089,9 @@ impl App for RarApp<'_> {
 			}
 		}
 
-		if self.egui_enabled {
-			self.egui_wrapper.update(wuc);
-			self.egui_wrapper.run(&mut self.system, |ctx| {
-				egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-					// The top panel is often a good place for a menu bar:
-					egui::menu::bar(ui, |ui| {
-						ui.menu_button("File", |ui| {
-							if ui.button("Quit").clicked() {
-								self.is_done = true;
-								// frame.quit();
-							}
-						});
-					});
-				});
-				egui::CentralPanel::default().show(ctx, |ui| {
-					ui.heading("My egui Application");
-					if ui.button("Quit?").clicked() {
-						todo!();
-					}
-
-					ui.image(
-						egui::epaint::TextureId::Managed(0),
-						egui::Vec2 {
-							x: 1024.0,
-							y: 256.0,
-						},
-					);
-				});
-
-				Ok(())
-			});
-		}
 		Ok(())
 	}
+
 	fn fixed_update(&mut self, time_step: f64) {
 		let time_step = if self.pause_update {
 			//return;
@@ -1062,6 +1137,14 @@ impl App for RarApp<'_> {
 				let bottom = -self.size.y * scaling;
 				let near = 1.0;
 				let far = -1.0;
+				/*
+				let left = -self.viewport_size.x * scaling;
+				let right = self.viewport_size.x * scaling;
+				let top = self.viewport_size.y * scaling;
+				let bottom = -self.viewport_size.y * scaling;
+				let near = 1.0;
+				let far = -1.0;
+				*/
 
 				//				dbg!(&top,&bottom);
 
@@ -1105,6 +1188,18 @@ impl App for RarApp<'_> {
 
 				if self.egui_enabled {
 					self.egui_wrapper.render(&mut self.system, renderer);
+
+					let scaling = 0.5;
+					let left = -self.viewport_size.x * scaling;
+					let right = self.viewport_size.x * scaling;
+					let top = self.viewport_size.y * scaling;
+					let bottom = -self.viewport_size.y * scaling;
+					let near = 1.0;
+					let far = -1.0;
+
+					let mvp = Matrix44::ortho(left, right, bottom, top, near, far);
+
+					renderer.set_uniform_matrix44("modelViewProjectionMatrixReal", mvp);
 				}
 
 				debug_renderer::debug_renderer_render(renderer);

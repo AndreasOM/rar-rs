@@ -3,10 +3,8 @@
 
 ## In Progress
 
-- [ ] Add egui debug view
-    - [x] Toggle egui debug view via hotkey ("`", grave `)
-    - [ ] Handle egui debug input
-    - [ ] Add basic egui debug panel
+
+- [ ] Add egui telemetry view
 
 - [ ] Add jump via space bar
 
@@ -95,6 +93,13 @@
 
 
 ## Done
+
+### Episode 0037 -> 3.0h + ...
+- [x] Add egui debug view
+    - [x] Toggle egui debug view via hotkey ("`", grave `)
+    - [x] Handle egui debug input
+    - [x] Add basic egui debug panel
+    - [x] Capture mouse button 0/left while egui is open
 
 ### Episode 0036 -> 2.0h + 0.5h ->  89.h    + 75.5h     -> 184.5h
 - [x] Add basic, rough player logic
