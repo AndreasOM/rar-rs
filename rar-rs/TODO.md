@@ -3,9 +3,9 @@
 
 ## In Progress
 
-- [ ] Add forced slow frame
+- [ ] Add jump via space bar
 
-- [ ] Add very simplistic scripting
+- [ ] Add forced slow frame
 
 - [ ] Add tilemap collision
     - [x] Generate tilemap colliders
@@ -91,8 +91,12 @@
 
 ## Done
 
-### Episode 0035 -> 3.0h + 5.5h...
+### Episode 0036 -> 2.0h + ...
+- [x] Add basic, rough player logic
 
+### Episode 0035 -> 3.0h + 15.5h -> 87.0h   + 75.0h     -> 182.0h
+- !!! Spend a lot of time on the ScriptContext lifetime issue!
+- [x] Add very simplistic scripting
 - [x] Add slow motion mode (normal timesteps, but less often) (Use 'u' and 'i' keys)
 - [x] Add ScriptVm to run scripts.
 - [x] Add ScriptFunctions for wait_frames, and queue_screenshot.

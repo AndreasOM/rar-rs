@@ -379,7 +379,7 @@ impl RarApp<'_> {
 				self.script_vm.run()?;
 			//todo!();
 			} else {
-				tracing::debug!("All scripts done");
+				//tracing::debug!("All scripts done");
 			}
 		} else {
 			// intentionally skip tick on the frame we load

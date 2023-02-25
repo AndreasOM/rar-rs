@@ -235,6 +235,9 @@ impl Game {
 			if wuc.is_key_pressed('s' as u8) {
 				pic.is_down_pressed = true;
 			}
+			if wuc.is_space_pressed() {
+				pic.is_jump_pressed = true;
+			}
 			euc.add_player_input_context(pic);
 
 			let mut pic = PlayerInputContext::default();

@@ -43,7 +43,7 @@ fn quit_app() { // quits the app, from main menu
 	debug("Quit App");
 	wait_frames( 10 );
 	ui_click_pos( 30, -220 ); // quit app
-	wait_frames( 60 );
+	wait_frames( 120 );
 	ui_click_pos( 35, -60 ); // confirm
 	wait_frames( 30 );
 }

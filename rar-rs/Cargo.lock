@@ -1520,7 +1520,7 @@ dependencies = [
 
 [[package]]
 name = "oml-game"
-version = "0.35.0-dev"
+version = "0.36.0-dev"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1737,7 +1737,7 @@ dependencies = [
 
 [[package]]
 name = "rar-rs"
-version = "0.35.0-dev"
+version = "0.36.0-dev"
 dependencies = [
  "anyhow",
  "atty",

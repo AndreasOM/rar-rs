@@ -22,6 +22,36 @@
             template: "player-idle-left-%04d"
           right:
             template: "player-idle-right-%04d"
+     running:
+        first_frame: 0
+        last_frame: 8
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-idle-left-%04d"
+          right:
+            template: "player-idle-right-%04d"
+     jumping:
+        first_frame: 0
+        last_frame: 8
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-idle-left-%04d"
+          right:
+            template: "player-idle-right-%04d"
+     falling:
+        first_frame: 0
+        last_frame: 8
+        size: [ 128.0, 128.0 ]
+        offset: [ 0.0, 0.0 ]
+        directions:
+          left:
+            template: "player-idle-left-%04d"
+          right:
+            template: "player-idle-right-%04d"
      backflip:
         first_frame: 0
         last_frame: 48
