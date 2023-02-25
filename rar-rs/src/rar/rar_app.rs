@@ -28,6 +28,7 @@ use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
+use oml_game_egui::EguiWrapper;
 use tracing::*;
 
 use crate::omscript::ScriptVm;
@@ -101,6 +102,9 @@ pub struct RarApp<'a> {
 	slow_skip:           u32,
 	pause_update:        bool,
 	slow_motion_divider: u32,
+
+	egui_wrapper: EguiWrapper,
+	egui_enabled: bool,
 }
 
 impl Default for RarApp<'_> {
@@ -144,6 +148,9 @@ impl Default for RarApp<'_> {
 			slow_skip: 0,
 			pause_update: false,
 			slow_motion_divider: 1,
+
+			egui_wrapper: EguiWrapper::default(),
+			egui_enabled: false,
 		}
 	}
 }
@@ -546,6 +553,20 @@ impl App for RarApp<'_> {
 			"coloredtextured_vs.glsl",
 			"coloredtextured_fs.glsl",
 		));
+		renderer.register_effect(
+			Effect::create(
+				&mut self.system,
+				EffectId::ColoredTexturedEgui as u16,
+				"ColoredTextured",
+				"coloredtextured_vs.glsl",
+				"coloredtextured_fs.glsl",
+			)
+			.with_cull_face(false)
+			.with_blend_func(
+				oml_game::renderer::BlendFactor::One,
+				oml_game::renderer::BlendFactor::OneMinusSrcAlpha,
+			),
+		);
 		renderer.register_effect(Effect::create(
 			&mut self.system,
 			EffectId::FontColored as u16,
@@ -570,6 +591,14 @@ impl App for RarApp<'_> {
 		renderer.load_font(&mut self.system, FontId::Mono as u8, "inconsolata");
 
 		self.renderer = Some(renderer);
+
+		let scale_factor = window.scale_factor() as f32;
+		tracing::debug!("scale_factor {}", scale_factor);
+		self.scaling = scale_factor;
+		self.egui_wrapper.setup(scale_factor);
+		self.egui_wrapper
+			.set_effect_id(EffectId::ColoredTexturedEgui as u16);
+		self.egui_wrapper.set_layer_id(LayerId::Egui as u8);
 
 		//self.game_state().setup(&mut self.system)?;
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -716,6 +745,9 @@ impl App for RarApp<'_> {
 		}
 		if wuc.was_key_pressed('/' as u8) {
 			self.debug_zoomed_out = !self.debug_zoomed_out;
+		}
+		if wuc.was_key_pressed('`' as u8) {
+			self.egui_enabled = !self.egui_enabled;
 		}
 
 		if self.debug_zoomed_out && wuc.mouse_wheel_line_delta.y.abs() > 1.0 {
@@ -950,6 +982,39 @@ impl App for RarApp<'_> {
 				// _ => {},
 			}
 		}
+
+		if self.egui_enabled {
+			self.egui_wrapper.update(wuc);
+			self.egui_wrapper.run(&mut self.system, |ctx| {
+				egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+					// The top panel is often a good place for a menu bar:
+					egui::menu::bar(ui, |ui| {
+						ui.menu_button("File", |ui| {
+							if ui.button("Quit").clicked() {
+								self.is_done = true;
+								// frame.quit();
+							}
+						});
+					});
+				});
+				egui::CentralPanel::default().show(ctx, |ui| {
+					ui.heading("My egui Application");
+					if ui.button("Quit?").clicked() {
+						todo!();
+					}
+
+					ui.image(
+						egui::epaint::TextureId::Managed(0),
+						egui::Vec2 {
+							x: 1024.0,
+							y: 256.0,
+						},
+					);
+				});
+
+				Ok(())
+			});
+		}
 		Ok(())
 	}
 	fn fixed_update(&mut self, time_step: f64) {
@@ -1037,6 +1102,10 @@ impl App for RarApp<'_> {
 					renderer.queue_screenshot(0, 60, Some(&filename));
 				}
 				self.screenshot_sequence_requested = false;
+
+				if self.egui_enabled {
+					self.egui_wrapper.render(&mut self.system, renderer);
+				}
 
 				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();

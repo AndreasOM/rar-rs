@@ -3,6 +3,11 @@
 
 ## In Progress
 
+- [ ] Add egui debug view
+    - [x] Toggle egui debug view via hotkey ("`", grave `)
+    - [ ] Handle egui debug input
+    - [ ] Add basic egui debug panel
+
 - [ ] Add jump via space bar
 
 - [ ] Add forced slow frame
@@ -91,7 +96,7 @@
 
 ## Done
 
-### Episode 0036 -> 2.0h + ...
+### Episode 0036 -> 2.0h + 0.5h ->  89.h    + 75.5h     -> 184.5h
 - [x] Add basic, rough player logic
 
 ### Episode 0035 -> 3.0h + 15.5h -> 87.0h   + 75.0h     -> 182.0h
