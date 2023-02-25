@@ -3,9 +3,6 @@
 
 ## In Progress
 
-
-- [ ] Add egui telemetry view
-
 - [ ] Add jump via space bar
 
 - [ ] Add forced slow frame
@@ -94,7 +91,8 @@
 
 ## Done
 
-### Episode 0037 -> 3.0h + ...
+### Episode 0037 -> 3.5h + ...
+- [x] Add egui telemetry view
 - [x] Add egui debug view
     - [x] Toggle egui debug view via hotkey ("`", grave `)
     - [x] Handle egui debug input

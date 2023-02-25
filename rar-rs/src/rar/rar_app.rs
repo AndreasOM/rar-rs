@@ -106,6 +106,7 @@ pub struct RarApp<'a> {
 	egui_wrapper:              EguiWrapper,
 	egui_enabled:              bool,
 	egui_debug_telemetry_open: bool,
+	egui_telemetry:            oml_game_egui::EguiTelemetryWidget,
 }
 
 impl Default for RarApp<'_> {
@@ -153,6 +154,7 @@ impl Default for RarApp<'_> {
 			egui_wrapper: EguiWrapper::default(),
 			egui_enabled: false,
 			egui_debug_telemetry_open: false,
+			egui_telemetry: oml_game_egui::EguiTelemetryWidget::default(),
 		}
 	}
 }
@@ -468,34 +470,35 @@ impl RarApp<'_> {
 						egui::TextStyle::Heading, //egui::FontId::new(30.0, egui::FontFamily::Proportional)
 					);
 
+					let font_scale = 0.5;
 					style.text_styles = [
 						(
 							egui::TextStyle::Heading,
-							egui::FontId::new(30.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 30.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Name("Heading2".into()),
-							egui::FontId::new(25.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 25.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Name("Context".into()),
-							egui::FontId::new(23.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 23.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Body,
-							egui::FontId::new(18.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 18.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Monospace,
-							egui::FontId::new(14.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Button,
-							egui::FontId::new(14.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
 						),
 						(
 							egui::TextStyle::Small,
-							egui::FontId::new(10.0, egui::FontFamily::Proportional),
+							egui::FontId::new(font_scale * 10.0, egui::FontFamily::Proportional),
 							//egui::FontId::new(self.font_size as f32, egui::FontFamily::Proportional),
 						),
 					]
@@ -503,19 +506,18 @@ impl RarApp<'_> {
 
 					ctx.set_style(style);
 				}
+				//				self.egui_debug_telemetry_window( ctx );
+
+				egui::Window::new("telemetry")
+					.open(&mut self.egui_debug_telemetry_open)
+					.default_size(egui::vec2(400.0, 400.0))
+					.vscroll(false)
+					.show(ctx, |ui| {
+						ui.label("Telemetry");
+						self.egui_telemetry.show(ui);
+					});
 
 				//self.egui_debug_telemetry_window( ctx );
-				egui::Window::new("Telemetry Widget")
-					//.default_width(1000.0)
-					.resize(|r| r.default_width(1000.0))
-					.resizable(true)
-					.show(ctx, |ui| {
-						//ui.add(oml_game_egui::EguiTelemetryWidget::default());
-						if ui.button("Quit").clicked() {
-							self.is_done = true;
-							// frame.quit();
-						}
-					});
 
 				egui::SidePanel::right("egui_debug")
 					.resizable(false)
