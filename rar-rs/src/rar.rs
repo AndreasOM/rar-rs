@@ -1,6 +1,9 @@
 mod app_update_context;
 pub use app_update_context::AppUpdateContext;
 
+mod rar_app_egui;
+use rar_app_egui::RarAppEgui;
+
 mod game;
 pub use game::Game;
 

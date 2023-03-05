@@ -51,6 +51,7 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarAppEgui;
 use crate::rar::RarScriptContext;
 use crate::rar::RarUiUpdateContext;
 use crate::ui::UiElementFactory;
@@ -103,10 +104,7 @@ pub struct RarApp<'a> {
 	pause_update:        bool,
 	slow_motion_divider: u32,
 
-	egui_wrapper:              EguiWrapper,
-	egui_enabled:              bool,
-	egui_debug_telemetry_open: bool,
-	egui_telemetry:            oml_game_egui::EguiTelemetryWidget,
+	egui: RarAppEgui,
 }
 
 impl Default for RarApp<'_> {
@@ -151,10 +149,7 @@ impl Default for RarApp<'_> {
 			pause_update: false,
 			slow_motion_divider: 1,
 
-			egui_wrapper: EguiWrapper::default(),
-			egui_enabled: false,
-			egui_debug_telemetry_open: false,
-			egui_telemetry: oml_game_egui::EguiTelemetryWidget::default(),
+			egui: RarAppEgui::default(),
 		}
 	}
 }
@@ -444,111 +439,6 @@ impl RarApp<'_> {
 
 		Ok(())
 	}
-
-	fn egui_debug_telemetry_window(&mut self, ctx: &egui::Context) {
-		egui::Window::new("telemetry")
-			.open(&mut self.egui_debug_telemetry_open)
-			.default_size(egui::vec2(400.0, 400.0))
-			.vscroll(false)
-			.show(ctx, |ui| {
-				ui.label("Telemetry");
-			});
-	}
-
-	fn update_egui(&mut self, wuc: &mut WindowUpdateContext) {
-		if wuc.was_key_pressed('`' as u8) {
-			self.egui_enabled = !self.egui_enabled;
-		}
-
-		if self.egui_enabled {
-			self.egui_wrapper.update(wuc);
-
-			self.egui_wrapper.run(&mut self.system, |ctx| {
-				if true {
-					let mut style = (*ctx.style()).clone();
-					style.override_text_style = Some(
-						egui::TextStyle::Heading, //egui::FontId::new(30.0, egui::FontFamily::Proportional)
-					);
-
-					let font_scale = 0.5;
-					style.text_styles = [
-						(
-							egui::TextStyle::Heading,
-							egui::FontId::new(font_scale * 30.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Name("Heading2".into()),
-							egui::FontId::new(font_scale * 25.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Name("Context".into()),
-							egui::FontId::new(font_scale * 23.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Body,
-							egui::FontId::new(font_scale * 18.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Monospace,
-							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Button,
-							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Small,
-							egui::FontId::new(font_scale * 10.0, egui::FontFamily::Proportional),
-							//egui::FontId::new(self.font_size as f32, egui::FontFamily::Proportional),
-						),
-					]
-					.into();
-
-					ctx.set_style(style);
-				}
-				//				self.egui_debug_telemetry_window( ctx );
-
-				egui::Window::new("telemetry")
-					.open(&mut self.egui_debug_telemetry_open)
-					.default_size(egui::vec2(400.0, 400.0))
-					.vscroll(false)
-					.show(ctx, |ui| {
-						ui.label("Telemetry");
-						self.egui_telemetry.show(ui);
-					});
-
-				//self.egui_debug_telemetry_window( ctx );
-
-				egui::SidePanel::right("egui_debug")
-					.resizable(false)
-					.default_width(150.0)
-					.show(ctx, |ui| {
-						egui::trace!(ui);
-						ui.vertical_centered(|ui| {
-							ui.heading("-= Debug =-");
-						});
-						if ui.button("Quit").clicked() {
-							self.is_done = true;
-							// frame.quit();
-						}
-
-						ui.separator();
-						egui::ScrollArea::vertical().show(ui, |ui| {
-							ui.with_layout(
-								egui::Layout::top_down_justified(egui::Align::LEFT),
-								|ui| {
-									ui.toggle_value(
-										&mut self.egui_debug_telemetry_open,
-										"Telemetry",
-									);
-								},
-							);
-						});
-					});
-				Ok(())
-			});
-		}
-	}
 }
 
 impl App for RarApp<'_> {
@@ -704,11 +594,8 @@ impl App for RarApp<'_> {
 		let scale_factor = window.scale_factor() as f32;
 		tracing::debug!("scale_factor {}", scale_factor);
 		self.scaling = scale_factor;
-//		self.egui_wrapper.setup(scale_factor);
-		self.egui_wrapper.setup(1.0); // ?
-		self.egui_wrapper
-			.set_effect_id(EffectId::ColoredTexturedEgui as u16);
-		self.egui_wrapper.set_layer_id(LayerId::Egui as u8);
+		self.egui.setup(scale_factor);
+		self.egui.setup(1.0);
 
 		//self.game_state().setup(&mut self.system)?;
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -744,7 +631,7 @@ impl App for RarApp<'_> {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
-		self.update_egui(wuc);
+		self.egui.update(&mut self.system, wuc);
 
 		self.slow_skip += 1;
 		if self.slow_skip >= self.slow_motion_divider {
@@ -1189,21 +1076,7 @@ impl App for RarApp<'_> {
 				}
 				self.screenshot_sequence_requested = false;
 
-				if self.egui_enabled {
-					self.egui_wrapper.render(&mut self.system, renderer);
-
-					let scaling = 0.5;
-					let left = -self.viewport_size.x * scaling;
-					let right = self.viewport_size.x * scaling;
-					let top = self.viewport_size.y * scaling;
-					let bottom = -self.viewport_size.y * scaling;
-					let near = 1.0;
-					let far = -1.0;
-
-					let mvp = Matrix44::ortho(left, right, bottom, top, near, far);
-
-					renderer.set_uniform_matrix44("modelViewProjectionMatrixReal", mvp);
-				}
+				self.egui.render(&mut self.system, renderer);
 
 				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();
