@@ -704,7 +704,8 @@ impl App for RarApp<'_> {
 		let scale_factor = window.scale_factor() as f32;
 		tracing::debug!("scale_factor {}", scale_factor);
 		self.scaling = scale_factor;
-		self.egui_wrapper.setup(scale_factor);
+//		self.egui_wrapper.setup(scale_factor);
+		self.egui_wrapper.setup(1.0); // ?
 		self.egui_wrapper
 			.set_effect_id(EffectId::ColoredTexturedEgui as u16);
 		self.egui_wrapper.set_layer_id(LayerId::Egui as u8);
