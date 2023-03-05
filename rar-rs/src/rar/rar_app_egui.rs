@@ -10,10 +10,43 @@ use crate::rar::layer_ids::LayerId;
 #[derive(Debug, Default)]
 pub struct RarAppEgui {
 	wrapper:              EguiWrapper,
-	enabled:              bool,
 	debug_telemetry_open: bool,
 	telemetry:            oml_game_egui::EguiTelemetryWidget,
 	is_done:              bool,
+	state:                State,
+}
+
+#[derive(Debug, Default)]
+enum State {
+	#[default]
+	Disabled,
+	Enabled,
+	Ghost, // visible, but not interactable
+}
+
+impl State {
+	pub fn cycle(&self) -> Self {
+		use State::*;
+		match *self {
+			Disabled => Enabled,
+			Enabled => Ghost,
+			Ghost => Disabled,
+		}
+	}
+	pub fn needs_render(&self) -> bool {
+		use State::*;
+		match *self {
+			Disabled => false,
+			_ => true,
+		}
+	}
+	pub fn input_disabled(&self) -> bool {
+		use State::*;
+		match *self {
+			Enabled => false,
+			_ => true,
+		}
+	}
 }
 
 impl RarAppEgui {
@@ -36,10 +69,11 @@ impl RarAppEgui {
 
 	pub fn update(&mut self, system: &mut System, wuc: &mut WindowUpdateContext) {
 		if wuc.was_key_pressed('`' as u8) {
-			self.enabled = !self.enabled;
+			self.state = self.state.cycle();
 		}
 
-		if self.enabled {
+		if self.state.needs_render() {
+			self.wrapper.set_input_disabled(self.state.input_disabled());
 			self.wrapper.update(wuc);
 
 			self.wrapper.run(system, |ctx| {
@@ -105,6 +139,7 @@ impl RarAppEgui {
 						egui::trace!(ui);
 						ui.vertical_centered(|ui| {
 							ui.heading("-= Debug =-");
+							ui.label(format!("{:?}", self.state));
 						});
 						if ui.button("Quit").clicked() {
 							self.is_done = true;
@@ -126,7 +161,7 @@ impl RarAppEgui {
 		}
 	}
 	pub fn render(&mut self, system: &mut System, renderer: &mut Renderer) {
-		if self.enabled {
+		if self.state.needs_render() {
 			self.wrapper.render(system, renderer);
 
 			let viewport_size = renderer.viewport_size();
