@@ -3,6 +3,7 @@
 
 ## In Progress
 
+
 - [ ] Add jump via space bar
 
 - [ ] Add forced slow frame
@@ -91,7 +92,10 @@
 
 ## Done
 
-### Episode 0037 -> 3.5h + ...
+### Episode 0037 -> 3.5h + 1.5h...
+- [x] Add generic debug window handling
+- [x] Add very simple 'ghost' mode to allow interacting with game while debug egui is open
+- [x] Extract egui from app.
 - [x] Add egui telemetry view
 - [x] Add egui debug view
     - [x] Toggle egui debug view via hotkey ("`", grave `)

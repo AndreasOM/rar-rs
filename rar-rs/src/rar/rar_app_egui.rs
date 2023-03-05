@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use oml_game::math::Matrix44;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
@@ -9,11 +11,15 @@ use crate::rar::layer_ids::LayerId;
 
 #[derive(Debug, Default)]
 pub struct RarAppEgui {
-	wrapper:              EguiWrapper,
-	debug_telemetry_open: bool,
-	telemetry:            oml_game_egui::EguiTelemetryWidget,
-	is_done:              bool,
-	state:                State,
+	wrapper: EguiWrapper,
+	is_done: bool,
+	state:   State,
+	windows: BTreeMap<String, Window>,
+}
+#[derive(Debug)]
+pub struct Window {
+	open:   bool,
+	window: Box<dyn EguiDebugWindow>,
 }
 
 #[derive(Debug, Default)]
@@ -55,17 +61,22 @@ impl RarAppEgui {
 		self.wrapper
 			.set_effect_id(EffectId::ColoredTexturedEgui as u16);
 		self.wrapper.set_layer_id(LayerId::Egui as u8);
+
+		let t = TelemetryWindow::default();
+
+		self.register_window(Box::new(t));
 	}
 
-	fn debug_telemetry_window(&mut self, ctx: &egui::Context) {
-		egui::Window::new("telemetry")
-			.open(&mut self.debug_telemetry_open)
-			.default_size(egui::vec2(400.0, 400.0))
-			.vscroll(false)
-			.show(ctx, |ui| {
-				ui.label("Telemetry");
-			});
+	pub fn register_window(&mut self, window: Box<dyn EguiDebugWindow>) {
+		let name = window.name();
+		let window = Window {
+			open:   false,
+			window: window,
+		};
+		self.windows.insert(name.to_string(), window);
 	}
+
+	// :TODO: deregister?
 
 	pub fn update(&mut self, system: &mut System, wuc: &mut WindowUpdateContext) {
 		if wuc.was_key_pressed('`' as u8) {
@@ -121,6 +132,7 @@ impl RarAppEgui {
 				}
 				//				self.egui_debug_telemetry_window( ctx );
 
+				/*
 				egui::Window::new("telemetry")
 					.open(&mut self.debug_telemetry_open)
 					.default_size(egui::vec2(400.0, 400.0))
@@ -130,7 +142,12 @@ impl RarAppEgui {
 						self.telemetry.show(ui);
 					});
 
+				*/
 				//self.egui_debug_telemetry_window( ctx );
+
+				for (name, w) in self.windows.iter_mut() {
+					w.window.display(ctx, &mut w.open);
+				}
 
 				egui::SidePanel::right("egui_debug")
 					.resizable(false)
@@ -151,7 +168,11 @@ impl RarAppEgui {
 							ui.with_layout(
 								egui::Layout::top_down_justified(egui::Align::LEFT),
 								|ui| {
-									ui.toggle_value(&mut self.debug_telemetry_open, "Telemetry");
+									//ui.toggle_value(&mut self.debug_telemetry_open, "Telemetry");
+									for (name, w) in self.windows.iter_mut() {
+										//										ui.toggle_value(&mut self.debug_telemetry_open, name);
+										ui.toggle_value(&mut w.open, name);
+									}
 								},
 							);
 						});
@@ -178,4 +199,30 @@ impl RarAppEgui {
 			renderer.set_uniform_matrix44("modelViewProjectionMatrixReal", mvp);
 		}
 	}
+}
+
+#[derive(Default, Debug)]
+struct TelemetryWindow {
+	telemetry: oml_game_egui::EguiTelemetryWidget,
+}
+
+impl EguiDebugWindow for TelemetryWindow {
+	fn name(&self) -> &'static str {
+		"Telemetry"
+	}
+	fn display(&mut self, ctx: &egui::Context, open: &mut bool) {
+		egui::Window::new("telemetry")
+			.open(open)
+			.default_size(egui::vec2(400.0, 400.0))
+			.vscroll(false)
+			.show(ctx, |ui| {
+				ui.label("Telemetry");
+				self.telemetry.show(ui);
+			});
+	}
+}
+
+trait EguiDebugWindow: std::fmt::Debug {
+	fn name(&self) -> &'static str;
+	fn display(&mut self, ctx: &egui::Context, open: &mut bool);
 }
