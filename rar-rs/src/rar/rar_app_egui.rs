@@ -211,12 +211,11 @@ impl EguiDebugWindow for TelemetryWindow {
 		"Telemetry"
 	}
 	fn display(&mut self, ctx: &egui::Context, open: &mut bool) {
-		egui::Window::new("telemetry")
+		egui::Window::new(self.name())
 			.open(open)
 			.default_size(egui::vec2(400.0, 400.0))
-			.vscroll(false)
+			//.vscroll(false)
 			.show(ctx, |ui| {
-				ui.label("Telemetry");
 				self.telemetry.show(ui);
 			});
 	}

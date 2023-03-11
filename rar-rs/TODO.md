@@ -92,6 +92,10 @@
 
 ## Done
 
+### Episode 0038 -> 2.0h...
+
+- [x] Use panels for telemetry
+
 ### Episode 0037 -> 3.5h + 1.5h ->  92.5h   + 77.0h     -> 169.5h
 - [x] Add generic debug window handling
 - [x] Add very simple 'ghost' mode to allow interacting with game while debug egui is open
