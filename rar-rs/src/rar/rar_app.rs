@@ -28,6 +28,7 @@ use oml_game::system::filesystem_layered::FilesystemLayered;
 use oml_game::system::System;
 use oml_game::window::{Window, WindowUpdateContext};
 use oml_game::App;
+use oml_game_egui::EguiWrapper;
 use tracing::*;
 
 use crate::omscript::ScriptVm;
@@ -50,6 +51,7 @@ use crate::rar::AudioMessage;
 //use crate::rar::EntityUpdateContext;
 use crate::rar::GameState;
 use crate::rar::GameStateResponseDataSelectWorld;
+use crate::rar::RarAppEgui;
 use crate::rar::RarScriptContext;
 use crate::rar::RarUiUpdateContext;
 use crate::ui::UiElementFactory;
@@ -101,6 +103,8 @@ pub struct RarApp<'a> {
 	slow_skip:           u32,
 	pause_update:        bool,
 	slow_motion_divider: u32,
+
+	egui: RarAppEgui,
 }
 
 impl Default for RarApp<'_> {
@@ -144,6 +148,8 @@ impl Default for RarApp<'_> {
 			slow_skip: 0,
 			pause_update: false,
 			slow_motion_divider: 1,
+
+			egui: RarAppEgui::default(),
 		}
 	}
 }
@@ -546,6 +552,20 @@ impl App for RarApp<'_> {
 			"coloredtextured_vs.glsl",
 			"coloredtextured_fs.glsl",
 		));
+		renderer.register_effect(
+			Effect::create(
+				&mut self.system,
+				EffectId::ColoredTexturedEgui as u16,
+				"ColoredTextured",
+				"egui_coloredtextured_vs.glsl",
+				"coloredtextured_fs.glsl",
+			)
+			.with_cull_face(false)
+			.with_blend_func(
+				oml_game::renderer::BlendFactor::One,
+				oml_game::renderer::BlendFactor::OneMinusSrcAlpha,
+			),
+		);
 		renderer.register_effect(Effect::create(
 			&mut self.system,
 			EffectId::FontColored as u16,
@@ -570,6 +590,12 @@ impl App for RarApp<'_> {
 		renderer.load_font(&mut self.system, FontId::Mono as u8, "inconsolata");
 
 		self.renderer = Some(renderer);
+
+		let scale_factor = window.scale_factor() as f32;
+		tracing::debug!("scale_factor {}", scale_factor);
+		self.scaling = scale_factor;
+		self.egui.setup(scale_factor);
+		self.egui.setup(1.0);
 
 		//self.game_state().setup(&mut self.system)?;
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
@@ -605,6 +631,8 @@ impl App for RarApp<'_> {
 		self.is_done
 	}
 	fn update(&mut self, wuc: &mut WindowUpdateContext) -> anyhow::Result<()> {
+		self.egui.update(&mut self.system, wuc);
+
 		self.slow_skip += 1;
 		if self.slow_skip >= self.slow_motion_divider {
 			self.slow_skip = 0;
@@ -741,7 +769,7 @@ impl App for RarApp<'_> {
 		self.scaling = 1.0 * scaling; // !!! Do not tweak here
 
 		self.size.x = (self.scaling) * self.viewport_size.x;
-		self.size.y = (self.scaling) * self.viewport_size.y;
+		self.size.y = (self.scaling) * self.viewport_size.y; // -> always 1024.0
 
 		if let Some(debug_renderer) = &*self.debug_renderer {
 			let mut debug_renderer = debug_renderer.borrow_mut();
@@ -950,8 +978,10 @@ impl App for RarApp<'_> {
 				// _ => {},
 			}
 		}
+
 		Ok(())
 	}
+
 	fn fixed_update(&mut self, time_step: f64) {
 		let time_step = if self.pause_update {
 			//return;
@@ -997,6 +1027,14 @@ impl App for RarApp<'_> {
 				let bottom = -self.size.y * scaling;
 				let near = 1.0;
 				let far = -1.0;
+				/*
+				let left = -self.viewport_size.x * scaling;
+				let right = self.viewport_size.x * scaling;
+				let top = self.viewport_size.y * scaling;
+				let bottom = -self.viewport_size.y * scaling;
+				let near = 1.0;
+				let far = -1.0;
+				*/
 
 				//				dbg!(&top,&bottom);
 
@@ -1037,6 +1075,8 @@ impl App for RarApp<'_> {
 					renderer.queue_screenshot(0, 60, Some(&filename));
 				}
 				self.screenshot_sequence_requested = false;
+
+				self.egui.render(&mut self.system, renderer);
 
 				debug_renderer::debug_renderer_render(renderer);
 				renderer.end_frame();
