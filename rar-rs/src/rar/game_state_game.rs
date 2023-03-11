@@ -11,6 +11,7 @@ use tracing::*;
 
 use crate::rar::dialogs::IngamePauseDialog;
 use crate::rar::dialogs::SettingsDialog;
+use crate::rar::entities::PlayerDebugWindow;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::AppUpdateContext;
 //use oml_game::window::WindowUpdateContext;
@@ -18,6 +19,7 @@ use crate::rar::AudioMessage;
 use crate::rar::Game;
 use crate::rar::GameState;
 use crate::rar::RarApp;
+use crate::rar::RarAppEgui;
 use crate::ui::UiElement;
 use crate::ui::UiElementFactory;
 use crate::ui::UiEventResponse;
@@ -221,6 +223,10 @@ impl GameState for GameStateGame {
 	fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		self.game.render_debug(debug_renderer);
 		self.ui_system.render_debug(debug_renderer);
+	}
+
+	fn update_debug(&mut self, egui: &mut RarAppEgui) {
+		self.game.update_debug(egui);
 	}
 
 	fn name(&self) -> &str {

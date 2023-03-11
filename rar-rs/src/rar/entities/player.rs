@@ -16,12 +16,14 @@ use crate::rar::entities::EntityData;
 use crate::rar::entities::EntityType;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map::ObjectData;
+use crate::rar::EguiDebugWindow;
 use crate::rar::EntityUpdateContext;
 
 const FPS: f32 = 25.0;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum PlayerState {
+	#[default]
 	WaitForStart,
 	Idle,
 	Running,
@@ -696,7 +698,7 @@ impl Entity for Player {
 			state_direction.animated_texture.update(euc.time_step());
 		}
 
-		tracing::debug!("State: {:?}", self.state);
+		// tracing::debug!("State: {:?}", self.state);
 		match self.state {
 			PlayerState::WaitForStart => self.update_waiting_for_start(euc),
 			PlayerState::Idle => self.update_idle(euc),
@@ -706,6 +708,17 @@ impl Entity for Player {
 			PlayerState::Backflip => self.update_backflip(euc),
 			PlayerState::Dying => self.goto_state(PlayerState::Dead),
 			_ => {},
+		}
+
+		if let Some(pic) = euc.player_input_context(self.input_context_index) {
+			let s = if pic.is_left_pressed {
+				-50.0
+			} else if pic.is_right_pressed {
+				50.0
+			} else {
+				0.0
+			};
+			oml_game::DefaultTelemetry::trace::<f32>("player.input.x", s);
 		}
 
 		if let Some(debug_renderer) = &*euc.debug_renderer {
@@ -770,5 +783,36 @@ impl Entity for Player {
 
 	fn entity_type(&self) -> EntityType {
 		EntityType::Player
+	}
+}
+
+#[derive(Default, Debug)]
+pub struct PlayerDebugWindow {
+	state: PlayerState,
+}
+
+impl PlayerDebugWindow {
+	pub fn update_with_player(&mut self, player: &Player) {
+		self.state = player.state();
+	}
+}
+impl EguiDebugWindow for PlayerDebugWindow {
+	fn as_any(&self) -> &dyn std::any::Any {
+		self
+	}
+	fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
+		self
+	}
+	fn name(&self) -> &'static str {
+		"Player"
+	}
+	fn display(&mut self, ctx: &egui::Context, open: &mut bool) {
+		egui::Window::new(self.name())
+			.open(open)
+			.default_size(egui::vec2(200.0, 200.0))
+			.show(ctx, |ui| {
+				ui.label("Player Label");
+				ui.label(format!("State: {:?}", self.state));
+			});
 	}
 }

@@ -35,6 +35,7 @@ use crate::omscript::ScriptVm;
 use crate::rar::data::AudioData;
 use crate::rar::data::RarData;
 use crate::rar::effect_ids::EffectId;
+use crate::rar::entities::PlayerDebugWindow;
 use crate::rar::font_ids::FontId;
 //use crate::rar::game_state::get_game_state_as_specific;
 use crate::rar::game_state::get_game_state_as_specific_mut;
@@ -597,6 +598,9 @@ impl App for RarApp<'_> {
 		self.egui.setup(scale_factor);
 		self.egui.setup(1.0);
 
+		self.egui
+			.register_window(Box::new(PlayerDebugWindow::default()));
+
 		//self.game_state().setup(&mut self.system)?;
 		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
 			game_state.setup(&mut self.system)?;
@@ -977,6 +981,10 @@ impl App for RarApp<'_> {
 				},
 				// _ => {},
 			}
+		}
+
+		if let Some(game_state) = self.game_states.get_mut(&self.active_game_state) {
+			game_state.update_debug(&mut self.egui);
 		}
 
 		Ok(())

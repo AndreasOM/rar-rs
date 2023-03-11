@@ -76,6 +76,27 @@ impl RarAppEgui {
 		self.windows.insert(name.to_string(), window);
 	}
 
+	pub fn find_window_as_and_then<W>(&mut self, name: &str, f: impl Fn(&mut W))
+	where
+		W: EguiDebugWindow + 'static,
+	{
+		if let Some(w) = self.windows.get_mut(name) {
+			let w = &mut w.window;
+			match w.as_any_mut().downcast_mut::<W>() {
+				Some(w) => {
+					f(w);
+				},
+				None => panic!(
+					// :TODO: maybe this is ok!?
+					"{:?} isn't a {:?} with name {:#?}!",
+					&w,
+					std::any::type_name::<W>(),
+					&name,
+				),
+			}
+		}
+	}
+
 	// :TODO: deregister?
 
 	pub fn update(&mut self, system: &mut System, wuc: &mut WindowUpdateContext) {
@@ -207,9 +228,16 @@ struct TelemetryWindow {
 }
 
 impl EguiDebugWindow for TelemetryWindow {
+	fn as_any(&self) -> &dyn std::any::Any {
+		self
+	}
+	fn as_any_mut(&mut self) -> &mut dyn std::any::Any {
+		self
+	}
 	fn name(&self) -> &'static str {
 		"Telemetry"
 	}
+
 	fn display(&mut self, ctx: &egui::Context, open: &mut bool) {
 		egui::Window::new(self.name())
 			.open(open)
@@ -221,7 +249,9 @@ impl EguiDebugWindow for TelemetryWindow {
 	}
 }
 
-trait EguiDebugWindow: std::fmt::Debug {
+pub trait EguiDebugWindow: std::fmt::Debug {
+	fn as_any(&self) -> &dyn std::any::Any;
+	fn as_any_mut(&mut self) -> &mut dyn std::any::Any;
 	fn name(&self) -> &'static str;
 	fn display(&mut self, ctx: &egui::Context, open: &mut bool);
 }

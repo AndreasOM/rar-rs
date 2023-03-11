@@ -18,12 +18,14 @@ use crate::rar::entities::EntityConfigurationManager;
 use crate::rar::entities::EntityId;
 use crate::rar::entities::EntityManager;
 use crate::rar::entities::Player;
+use crate::rar::entities::PlayerDebugWindow;
 use crate::rar::game_state::GameStateResponse;
 use crate::rar::layer_ids::LayerId;
 use crate::rar::map;
 use crate::rar::AppUpdateContext;
 use crate::rar::EntityUpdateContext;
 use crate::rar::PlayerInputContext;
+use crate::rar::RarAppEgui;
 use crate::rar::World;
 use crate::rar::WorldRenderer;
 
@@ -223,6 +225,10 @@ impl Game {
 				pic.is_left_pressed = true;
 			}
 			if wuc.is_key_pressed('d' as u8) {
+				// Note: d key is seriously delayed with winit/glutin
+				pic.is_right_pressed = true;
+			}
+			if wuc.is_key_pressed('f' as u8) {
 				pic.is_right_pressed = true;
 			}
 			if wuc.is_key_pressed('w' as u8) {
@@ -317,6 +323,15 @@ impl Game {
 		self.world_renderer
 			.render(renderer, active_camera, &self.world);
 	}
+
+	pub fn update_debug(&mut self, egui: &mut RarAppEgui) {
+		if let Some(player) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
+			egui.find_window_as_and_then::<PlayerDebugWindow>("Player", |pdb| {
+				pdb.update_with_player(&player);
+			});
+		}
+	}
+
 	pub fn render_debug(&mut self, debug_renderer: &mut DebugRenderer) {
 		let r = if self.use_fixed_camera {
 			32.0 / self.camera.scale()

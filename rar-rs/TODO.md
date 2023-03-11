@@ -3,6 +3,8 @@
 
 ## In Progress
 
+- [ ] Add player logic debug window
+    - [x] Show player state in player debug window
 
 - [ ] Add jump via space bar
 
@@ -92,8 +94,9 @@
 
 ## Done
 
-### Episode 0038 -> 2.0h...
+### Episode 0038 -> 3.0h...
 
+- [x] Show player state in player debug window
 - [x] Use panels for telemetry
 
 ### Episode 0037 -> 3.5h + 1.5h ->  92.5h   + 77.0h     -> 169.5h

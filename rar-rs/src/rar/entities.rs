@@ -26,6 +26,7 @@ mod fish;
 */
 mod player;
 pub use player::Player;
+pub use player::PlayerDebugWindow;
 
 mod background;
 pub use background::Background;
