@@ -1,6 +1,6 @@
 [package]
 name = "rar-rs"
-version = "0.37.0-dev"
+version = "0.38.0-dev"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -42,13 +42,13 @@ chrono = "0.4.23"
 
 [dependencies.oml-game]
 path = "../../oml-game"
-version = "0.37.1-dev"
+version = "0.38.0-dev"
 #git = "https://github.com/AndreasOM/oml-game"
 #branch = "episode-0034"
 
 [dependencies.oml-game-egui]
 path = "../../oml-game-egui"
-version = "0.37.1-dev"
+version = "0.38.0-dev"
 #git = "https://github.com/AndreasOM/oml-game"
 #branch = "episode-0034"
 

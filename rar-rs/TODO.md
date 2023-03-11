@@ -92,7 +92,7 @@
 
 ## Done
 
-### Episode 0037 -> 3.5h + 1.5h...
+### Episode 0037 -> 3.5h + 1.5h ->  92.5h   + 77.0h     -> 169.5h
 - [x] Add generic debug window handling
 - [x] Add very simple 'ghost' mode to allow interacting with game while debug egui is open
 - [x] Extract egui from app.
@@ -103,10 +103,10 @@
     - [x] Add basic egui debug panel
     - [x] Capture mouse button 0/left while egui is open
 
-### Episode 0036 -> 2.0h + 0.5h ->  89.h    + 75.5h     -> 184.5h
+### Episode 0036 -> 2.0h + 0.5h ->  89.h    + 75.5h     -> 164.5h
 - [x] Add basic, rough player logic
 
-### Episode 0035 -> 3.0h + 15.5h -> 87.0h   + 75.0h     -> 182.0h
+### Episode 0035 -> 3.0h + 15.5h -> 87.0h   + 75.0h     -> 162.0h
 - !!! Spend a lot of time on the ScriptContext lifetime issue!
 - [x] Add very simplistic scripting
 - [x] Add slow motion mode (normal timesteps, but less often) (Use 'u' and 'i' keys)
