@@ -79,7 +79,7 @@ impl RarAppEgui {
 		self.windows.insert(name.to_string(), window);
 	}
 
-	pub fn find_window_as_and_then<W>(&mut self, name: &str, f: impl Fn(&mut W))
+	pub fn find_window_as_and_then<W>(&mut self, name: &str, mut f: impl FnMut(&mut W))
 	where
 		W: EguiDebugWindow + 'static,
 	{

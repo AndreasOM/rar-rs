@@ -5,6 +5,7 @@
 
 - [ ] Add player logic debug window
     - [x] Show player state in player debug window
+    - [x] Add respawn button in player debug window
 
 - [ ] Add jump via space bar
 
@@ -94,8 +95,9 @@
 
 ## Done
 
-### Episode 0038 -> 3.0h + 0.5h...
+### Episode 0038 -> 3.0h + 1.0h...
 
+- [x] Add respawn button in player debug window
 - [x] Fade debug UI in ghost mode
 - [x] Show player state in player debug window
 - [x] Use panels for telemetry

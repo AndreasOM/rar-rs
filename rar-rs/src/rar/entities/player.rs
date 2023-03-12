@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::convert::From;
 
+use egui::RichText;
 use oml_game::math::{Cardinals, Rectangle, Vector2};
 use oml_game::renderer::debug_renderer;
 use oml_game::renderer::{AnimatedTexture, Color, Renderer};
@@ -227,6 +228,10 @@ impl Player {
 			},
 			_ => {},
 		}
+	}
+
+	pub fn forced_respawn(&mut self) {
+		self.goto_state(PlayerState::WaitForStart);
 	}
 
 	pub fn kill(&mut self) {
@@ -788,11 +793,16 @@ impl Entity for Player {
 
 #[derive(Default, Debug)]
 pub struct PlayerDebugWindow {
-	state: PlayerState,
+	state:   PlayerState,
+	respawn: bool,
 }
 
 impl PlayerDebugWindow {
-	pub fn update_with_player(&mut self, player: &Player) {
+	pub fn update_with_player(&mut self, player: &mut Player) {
+		if self.respawn {
+			player.forced_respawn();
+			self.respawn = false;
+		}
 		self.state = player.state();
 	}
 }
@@ -813,6 +823,14 @@ impl EguiDebugWindow for PlayerDebugWindow {
 			.show(ctx, |ui| {
 				ui.label("Player Label");
 				ui.label(format!("State: {:?}", self.state));
+				let color = if self.respawn {
+					egui::Color32::RED
+				} else {
+					egui::Color32::WHITE
+				};
+				if ui.button(RichText::new("Respawn").color(color)).clicked() {
+					self.respawn = true;
+				}
 			});
 	}
 }

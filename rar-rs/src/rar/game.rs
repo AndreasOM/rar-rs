@@ -325,9 +325,9 @@ impl Game {
 	}
 
 	pub fn update_debug(&mut self, egui: &mut RarAppEgui) {
-		if let Some(player) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
+		if let Some(mut player) = self.entity_manager.get_as_mut::<Player>(self.player_id) {
 			egui.find_window_as_and_then::<PlayerDebugWindow>("Player", |pdb| {
-				pdb.update_with_player(&player);
+				pdb.update_with_player(&mut player);
 			});
 		}
 	}
