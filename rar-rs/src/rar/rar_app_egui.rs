@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use oml_game::math::Matrix44;
+use oml_game::renderer::Color;
 use oml_game::renderer::Renderer;
 use oml_game::system::System;
 use oml_game::window::WindowUpdateContext;
@@ -11,10 +12,12 @@ use crate::rar::layer_ids::LayerId;
 
 #[derive(Debug, Default)]
 pub struct RarAppEgui {
-	wrapper: EguiWrapper,
-	is_done: bool,
-	state:   State,
-	windows: BTreeMap<String, Window>,
+	wrapper:      EguiWrapper,
+	is_done:      bool,
+	state:        State,
+	active_color: Color,
+	ghost_color:  Color,
+	windows:      BTreeMap<String, Window>,
 }
 #[derive(Debug)]
 pub struct Window {
@@ -22,7 +25,7 @@ pub struct Window {
 	window: Box<dyn EguiDebugWindow>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 enum State {
 	#[default]
 	Disabled,
@@ -62,8 +65,8 @@ impl RarAppEgui {
 			.set_effect_id(EffectId::ColoredTexturedEgui as u16);
 		self.wrapper.set_layer_id(LayerId::Egui as u8);
 
+		self.ghost_color = Color::from_rgba(1.0, 0.8, 0.8, 0.8);
 		let t = TelemetryWindow::default();
-
 		self.register_window(Box::new(t));
 	}
 
@@ -204,6 +207,13 @@ impl RarAppEgui {
 	}
 	pub fn render(&mut self, system: &mut System, renderer: &mut Renderer) {
 		if self.state.needs_render() {
+			let color = if self.state == State::Ghost {
+				&self.ghost_color
+			} else {
+				&self.active_color
+			};
+
+			self.wrapper.set_color(color);
 			self.wrapper.render(system, renderer);
 
 			let viewport_size = renderer.viewport_size();

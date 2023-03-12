@@ -94,8 +94,9 @@
 
 ## Done
 
-### Episode 0038 -> 3.0h...
+### Episode 0038 -> 3.0h + 0.5h...
 
+- [x] Fade debug UI in ghost mode
 - [x] Show player state in player debug window
 - [x] Use panels for telemetry
 
