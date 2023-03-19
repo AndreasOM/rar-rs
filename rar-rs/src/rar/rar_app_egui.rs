@@ -13,6 +13,7 @@ use crate::rar::layer_ids::LayerId;
 #[derive(Debug, Default)]
 pub struct RarAppEgui {
 	wrapper:      EguiWrapper,
+	style:        Style,
 	is_done:      bool,
 	state:        State,
 	active_color: Color,
@@ -102,7 +103,11 @@ impl RarAppEgui {
 
 	// :TODO: deregister?
 
-	pub fn update(&mut self, system: &mut System, wuc: &mut WindowUpdateContext) {
+	pub fn update(
+		&mut self,
+		system: &mut System,
+		wuc: &mut WindowUpdateContext,
+	) -> anyhow::Result<()> {
 		if wuc.was_key_pressed('`' as u8) {
 			self.state = self.state.cycle();
 		}
@@ -111,99 +116,72 @@ impl RarAppEgui {
 			self.wrapper.set_input_disabled(self.state.input_disabled());
 			self.wrapper.update(wuc);
 
-			self.wrapper.run(system, |ctx| {
-				if true {
-					let mut style = (*ctx.style()).clone();
-					style.override_text_style = Some(
-						egui::TextStyle::Heading, //egui::FontId::new(30.0, egui::FontFamily::Proportional)
-					);
+			self.wrapper
+				.run(system, |ctx| {
+					//self.update_style( ctx );
+					self.style.apply(ctx);
 
-					let font_scale = 0.5;
-					style.text_styles = [
-						(
-							egui::TextStyle::Heading,
-							egui::FontId::new(font_scale * 30.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Name("Heading2".into()),
-							egui::FontId::new(font_scale * 25.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Name("Context".into()),
-							egui::FontId::new(font_scale * 23.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Body,
-							egui::FontId::new(font_scale * 18.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Monospace,
-							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Button,
-							egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
-						),
-						(
-							egui::TextStyle::Small,
-							egui::FontId::new(font_scale * 10.0, egui::FontFamily::Proportional),
-							//egui::FontId::new(self.font_size as f32, egui::FontFamily::Proportional),
-						),
-					]
-					.into();
+					for (name, w) in self.windows.iter_mut() {
+						w.window.display(ctx, &mut w.open);
+					}
 
-					ctx.set_style(style);
-				}
-				//				self.egui_debug_telemetry_window( ctx );
-
-				/*
-				egui::Window::new("telemetry")
-					.open(&mut self.debug_telemetry_open)
-					.default_size(egui::vec2(400.0, 400.0))
-					.vscroll(false)
-					.show(ctx, |ui| {
-						ui.label("Telemetry");
-						self.telemetry.show(ui);
-					});
-
-				*/
-				//self.egui_debug_telemetry_window( ctx );
-
-				for (name, w) in self.windows.iter_mut() {
-					w.window.display(ctx, &mut w.open);
-				}
-
-				egui::SidePanel::right("egui_debug")
-					.resizable(false)
-					.default_width(150.0)
-					.show(ctx, |ui| {
-						egui::trace!(ui);
-						ui.vertical_centered(|ui| {
-							ui.heading("-= Debug =-");
-							ui.label(format!("{:?}", self.state));
-						});
-						if ui.button("Quit").clicked() {
-							self.is_done = true;
-							// frame.quit();
-						}
-
-						ui.separator();
-						egui::ScrollArea::vertical().show(ui, |ui| {
-							ui.with_layout(
-								egui::Layout::top_down_justified(egui::Align::LEFT),
-								|ui| {
-									//ui.toggle_value(&mut self.debug_telemetry_open, "Telemetry");
-									for (name, w) in self.windows.iter_mut() {
-										//										ui.toggle_value(&mut self.debug_telemetry_open, name);
-										ui.toggle_value(&mut w.open, name);
-									}
-								},
+					egui::SidePanel::right("egui_debug")
+						.resizable(true)
+						.default_width(300.0 * self.style.scale())
+						.show(ctx, |ui| {
+							egui::trace!(ui);
+							ui.vertical_centered(|ui| {
+								ui.add(
+									egui::Label::new(egui::RichText::new("-= Debug =-").heading())
+										.wrap(false),
+								);
+								//ui.heading("-= Debug =-").wrap(false);
+								ui.label(format!("{:?}", self.state));
+							});
+							if ui.button("Quit").clicked() {
+								self.is_done = true;
+								// frame.quit();
+							}
+							ui.separator();
+							let mut scale = self.style.scale();
+							ui.label(format!("Scale {}", scale));
+							/*
+							ui.add(
+								egui::Slider::new(&mut scale, 0.5..=2.0)
+								//.text("Scale")
+								.show_value(false)
+								//.step_by( 0.0005 )
+								.speed(0.00001)
+								);
+							*/
+							ui.add(
+								egui::DragValue::new(&mut scale)
+									.speed(0.005)
+									.clamp_range(0.5..=2.0),
 							);
+
+							self.style.set_scale(scale);
+
+							ui.separator();
+							egui::ScrollArea::vertical().show(ui, |ui| {
+								ui.with_layout(
+									egui::Layout::top_down_justified(egui::Align::LEFT),
+									|ui| {
+										//ui.toggle_value(&mut self.debug_telemetry_open, "Telemetry");
+										for (name, w) in self.windows.iter_mut() {
+											//										ui.toggle_value(&mut self.debug_telemetry_open, name);
+											ui.toggle_value(&mut w.open, name);
+										}
+									},
+								);
+							});
 						});
-					});
-				Ok(())
-			});
+					Ok(())
+				})
+				.expect("debug rendering failed");
 		}
+
+		Ok(())
 	}
 	pub fn render(&mut self, system: &mut System, renderer: &mut Renderer) {
 		if self.state.needs_render() {
@@ -228,6 +206,74 @@ impl RarAppEgui {
 			let mvp = Matrix44::ortho(left, right, bottom, top, near, far);
 
 			renderer.set_uniform_matrix44("modelViewProjectionMatrixReal", mvp);
+		}
+	}
+}
+#[derive(Debug)]
+struct Style {
+	scale: f32,
+}
+
+impl Default for Style {
+	fn default() -> Self {
+		Self { scale: 1.0 }
+	}
+}
+impl Style {
+	fn scale_mut(&mut self) -> &mut f32 {
+		&mut self.scale
+	}
+
+	fn set_scale(&mut self, scale: f32) {
+		self.scale = scale;
+	}
+
+	fn scale(&self) -> f32 {
+		self.scale
+	}
+
+	fn apply(&self, ctx: &egui::Context) {
+		if true {
+			let mut style = (*ctx.style()).clone();
+			style.override_text_style = Some(
+				egui::TextStyle::Heading, //egui::FontId::new(30.0, egui::FontFamily::Proportional)
+			);
+
+			let font_scale = self.scale;
+			style.text_styles = [
+				(
+					egui::TextStyle::Heading,
+					egui::FontId::new(font_scale * 2.0 * 30.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Name("Heading2".into()),
+					egui::FontId::new(font_scale * 25.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Name("Context".into()),
+					egui::FontId::new(font_scale * 23.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Body,
+					egui::FontId::new(font_scale * 18.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Monospace,
+					egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Button,
+					egui::FontId::new(font_scale * 14.0, egui::FontFamily::Proportional),
+				),
+				(
+					egui::TextStyle::Small,
+					egui::FontId::new(font_scale * 10.0, egui::FontFamily::Proportional),
+					//egui::FontId::new(self.font_size as f32, egui::FontFamily::Proportional),
+				),
+			]
+			.into();
+
+			ctx.set_style(style);
 		}
 	}
 }

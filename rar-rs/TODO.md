@@ -95,9 +95,9 @@
 
 ## Done
 
-### Episode 0038 -> 3.0h + 1.0h...
-
+### Episode 0038 -> 3.0h + 2.0h...
 - [x] Add respawn button in player debug window
+- [x] Add scaling to debug UI
 - [x] Fade debug UI in ghost mode
 - [x] Show player state in player debug window
 - [x] Use panels for telemetry
